@@ -4,6 +4,7 @@
   "description": "IT support app for making tech support easier and faster.",
   "main": "index.js",
   "scripts": {
+    "server": "node --watch ./src/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -28,6 +29,8 @@
     }
   },
   "dependencies": {
-    "@prisma/client": "^6.13.0"
+    "@prisma/client": "^6.13.0",
+    "axios": "^1.11.0",
+    "express": "^5.1.0"
   }
 }
