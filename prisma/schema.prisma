@@ -1,0 +1,170 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Computer {
+  id           String   @id @default(uuid())
+  hostname     String
+  os           String
+  osVersion    String
+  license      String
+  systemUptime Int
+  createdAt    DateTime @default(now())
+  lastUpdated  DateTime
+
+  domain    String?
+  lastLogin DateTime?
+
+  primaryUserId      String?
+  primaryUser        User?                @relation("PrimaryUser", fields: [primaryUserId], references: [id])
+  recentUsers        RecentUser[]
+  hardware           Hardware?
+  network            Network?
+  printers           Printer[]
+  performance        PerformanceMetrics?
+  logs               Log[]
+}
+
+model User {
+  id   String @id @default(uuid())
+  name String
+
+  computers Computer[] @relation("PrimaryUser")
+}
+
+model RecentUser {
+  id        String   @id @default(uuid())
+  userId    String
+  username  String
+  timestamp DateTime
+
+  computer   Computer @relation(fields: [computerId], references: [id])
+  computerId String
+}
+
+model Hardware {
+  id            String @id @default(uuid())
+  cpuModel      String
+  cpuCores      Int
+  totalMemoryMB Int
+  gpuModel      String
+
+  computer   Computer @relation(fields: [computerId], references: [id])
+  computerId String   @unique
+
+  disks       Disk[]
+  motherboard Motherboard?
+}
+
+model Disk {
+  id           String @id @default(uuid())
+  model        String
+  type         String
+  capacityGB   Float
+  freeSpaceGB  Float
+  healthStatus String
+  serialNumber String
+
+  hardware   Hardware @relation(fields: [hardwareId], references: [id])
+  hardwareId String
+}
+
+model Motherboard {
+  id           String @id @default(uuid())
+  manufacturer String
+  model        String
+  biosVersion  String
+  serialNumber String
+
+  hardware   Hardware @relation(fields: [hardwareId], references: [id])
+  hardwareId String   @unique
+}
+
+model Network {
+  id              String  @id @default(uuid())
+  publicIpAddress String?
+
+  computer   Computer @relation(fields: [computerId], references: [id])
+  computerId String   @unique
+
+  adapters NetworkAdapter[]
+}
+
+model NetworkAdapter {
+  id          String   @id @default(uuid())
+  name        String
+  macAddress  String
+  ipAddress   String
+  gateway     String
+  isWireless  Boolean
+  dnsServers  String[]
+  dhcpEnabled Boolean
+
+  network   Network @relation(fields: [networkId], references: [id])
+  networkId String
+}
+
+model Printer {
+  id             String  @id @default(uuid())
+  name           String
+  connectionType String
+  model          String
+  manufacturer   String
+  ipAddress      String?
+  macAddress     String?
+  serialNumber   String
+  status         String
+  pagesPrinted   Int
+
+  computer   Computer @relation(fields: [computerId], references: [id])
+  computerId String
+
+  tonerLevels TonerLevel[]
+  logs        PrinterLog[]
+}
+
+model TonerLevel {
+  id    String @id @default(uuid())
+  color String
+  level Int
+
+  printer   Printer @relation(fields: [printerId], references: [id])
+  printerId String
+}
+
+model PrinterLog {
+  id        String   @id @default(uuid())
+  message   String
+  timestamp DateTime
+  severity  String
+
+  printer   Printer @relation(fields: [printerId], references: [id])
+  printerId String
+}
+
+model PerformanceMetrics {
+  id                      String   @id @default(uuid())
+  cpuUsagePercent         Float
+  memoryUsagePercent      Float
+  lastCollectionTimestamp DateTime
+
+  computer   Computer @relation(fields: [computerId], references: [id])
+  computerId String   @unique
+}
+
+model Log {
+  id        String   @id @default(uuid())
+  message   String
+  timestamp DateTime
+  severity  String
+
+  computer   Computer @relation(fields: [computerId], references: [id])
+  computerId String
+}
+

@@ -1,0 +1,33 @@
+{
+  "name": "support-app",
+  "version": "0.0.0",
+  "description": "IT support app for making tech support easier and faster.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kaiobrunobm/support-app.git"
+  },
+  "keywords": [],
+  "author": "Kaio Bruno <bmkaiobruno@gmail.com>",
+  "license": "MIT",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/kaiobrunobm/support-app/issues"
+  },
+  "homepage": "https://github.com/kaiobrunobm/support-app#readme",
+  "devDependencies": {
+    "cz-conventional-changelog": "^3.3.0",
+    "prisma": "^6.13.0"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
+  "dependencies": {
+    "@prisma/client": "^6.13.0"
+  }
+}
