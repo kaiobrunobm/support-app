@@ -13,7 +13,7 @@ model Computer {
   hostname     String
   os           String
   osVersion    String
-  license      String
+  license      String?
   systemUptime Int
   createdAt    DateTime @default(now())
   lastUpdated  DateTime
@@ -87,7 +87,7 @@ model Motherboard {
 }
 
 model Network {
-  id              String  @id @default(uuid())
+  id             String  @id @default(uuid())
   publicIpAddress String?
 
   computer   Computer @relation(fields: [computerId], references: [id])

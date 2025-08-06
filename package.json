@@ -2,7 +2,7 @@
   "name": "support-app",
   "version": "0.0.0",
   "description": "IT support app for making tech support easier and faster.",
-  "main": "index.js",
+  "main": "./src/server.js",
   "scripts": {
     "server": "node --watch ./src/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -21,6 +21,13 @@
   "homepage": "https://github.com/kaiobrunobm/support-app#readme",
   "devDependencies": {
     "cz-conventional-changelog": "^3.3.0",
+    "dotenv": "^17.2.1",
+    "eslint": "^9.32.0",
+    "express": "^5.1.0",
+    "install": "^0.13.0",
+    "nodemon": "^3.1.10",
+    "npm": "^11.5.2",
+    "prettier": "^3.6.2",
     "prisma": "^6.13.0"
   },
   "config": {
@@ -31,6 +38,6 @@
   "dependencies": {
     "@prisma/client": "^6.13.0",
     "axios": "^1.11.0",
-    "express": "^5.1.0"
+    "systeminformation": "^5.27.7"
   }
 }
