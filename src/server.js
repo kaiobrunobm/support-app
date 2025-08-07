@@ -1,71 +1,37 @@
 import express from 'express';
 import fs from 'fs'
-import os from 'node:os';
+import os, { arch } from 'node:os';
 import { exec } from 'node:child_process';
 import axios from 'axios'
-import si from 'systeminformation'
+import si, { mem } from 'systeminformation'
+import { Socket } from 'node:dgram';
 
 const app = express();
 const port = 3000;
 
 
-const getOs = (platform) => {
-  if (platform === 'Linux') {
-    const data = fs.readFileSync('/etc/os-release', 'utf8');
-    const lines = data.split('\n');
-    const result = {};
-    lines.forEach(line => {
-      const [key, value] = line.split('=');
-      if (key && value) result[key] = value.replace(/"/g, '');
-    });
-    return result['PRETTY_NAME'];
-
-  } else if (platform === 'Windows_NT') {
-    exec('wmic os get Caption', (err, stdout) => {
-      if (err) {
-        console.error('Error:', err);
-        return;
-      }
-      const lines = stdout.split('\n').filter(line => line.trim() !== '' && !line.includes('Caption'));
-      const version = lines[0]?.trim();
-      return (`Windows Version: ${version}`); // Example: "Microsoft Windows 10 Pro"
-    });
+const getOs = async () => {
+  const os = await si.osInfo()
+  return {
+    platform: os.platform,
+    distro: os.distro,
+    release: os.release,
+    build: os.build,
+    kernel: os.kernel,
+    arch: os.arch,
+    domain: os.fqdn,
   }
 }
 
-const getUsers = (platform) => {
-  if (platform === 'Linux') {
-    const passwdData = fs.readFileSync('/etc/passwd', 'utf8');
-
-    const users = passwdData
-      .split('\n')
-      .filter(line => {
-        if (!line.trim()) return false;
-        const parts = line.split(':');
-        const uid = parseInt(parts[2], 10);
-        return uid >= 1000 && uid < 65534; // Typically real users fall in this range
-      })
-      .map(line => line.split(':')[0]);
-
-    return users;
-  } else if (platform === 'Windows_NT') {
-    exec('net user', (err, stdout) => {
-      if (err) {
-        console.error('Error:', err);
-        return;
-      }
-
-      const lines = stdout.split('\n');
-      const start = lines.findIndex(line => line.includes('---')) + 1;
-      const users = lines
-        .slice(start)
-        .join(' ')
-        .split(' ')
-        .map(u => u.trim())
-        .filter(u => u.length > 0 && !u.includes('The command completed'));
-      return (`Users: ${users}`)
-    });
-  }
+const getUsers = async () => {
+  const users = await si.users()
+  return users.map(user => {
+    return {
+      user: user.user,
+      loginDate: user.date,
+      loginTime: user.time,
+    }
+  })
 }
 
 const getPublicIP = async () => {
@@ -86,7 +52,7 @@ const getNetworkAdapters = async () => {
     !iface.internal   // skip loopback
   );
 
-  return physical.map(iface => {
+  return physical.map((iface, index) => {
     const type = iface.type; // 'wired', 'wireless', or 'unknown'
     const label = type === 'wired' ? 'Ethernet' :
       type === 'wireless' ? 'Wi-Fi' : 'Unknown';
@@ -111,7 +77,7 @@ const getNetworkAdapters = async () => {
 
 const toGigaByte = (byteSize) => {
   const sizeInGB = byteSize / (1024 ** 3)
-  return (`${parseFloat(sizeInGB.toFixed(2))} GB`)
+  return (parseFloat(sizeInGB.toFixed(2)))
 }
 
 const getDiskInfo = async () => {
@@ -125,28 +91,56 @@ const getDiskInfo = async () => {
       vendor: disk.vendor,
       serialNumber: disk.serialNum,
       size: toGigaByte(disk.size),
-      used: toGigaByte(diskMetrics[index].used),
-      available: toGigaByte(diskMetrics[index].available)
     }
   })
 }
 
+const getCpu = async () => {
+  const cpu = await si.cpu()
+
+  return {
+    manufacturer: cpu.manufacturer,
+    model: cpu.brand,
+    cores: cpu.cores,
+    speed: cpu.speed,
+    socket: cpu.socket
+  }
+}
+
+const getMemory = async () => {
+  const rams = await si.memLayout()
+
+  return rams.map(ram => {
+    return {
+      size: toGigaByte(ram.size),
+      type: ram.type,
+      clockSpeed: ram.clockSpeed,
+
+    }
+  })
+}
+
+const convertTime = (seconds) => {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = Math.floor(seconds % 60);
+
+  let result = '';
+  if (h > 0) result += `${h}h `;
+  if (m > 0 || h > 0) result += `${m}m `;
+  result += `${s}s`;
+
+  return result.trim();
+}
+
 app.get('/', async (req, res) => {
   let data = {
-    hostname: os.hostname(),
-    kernel: {
-      platform: os.platform(),
-      release: os.release(),
-      arch: os.arch(),
-    },
-    os: getOs(os.type()),
-    uptime: os.uptime(),
-    users: getUsers(os.type()),
+    os: await getOs(),
+    uptime: convertTime(os.uptime()),
+    users: await getUsers(),
     hardware: {
-      cpu: os.cpus()[0].model,
-      memory: {
-        total: os.totalmem(),
-      },
+      cpu: await getCpu(),
+      memory: await getMemory(),
     },
     network: {
       publicIP: await getPublicIP(),
