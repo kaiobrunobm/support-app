@@ -27,6 +27,7 @@
     "start:backend": "yarn workspace backend start"
   },
   "devDependencies": {
+    "cz-conventional-changelog": "^3.3.0",
     "eslint": "^9.8.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-import": "^2.30.0",
@@ -41,5 +42,10 @@
   },
   "dependencies": {
     "cors": "^2.8.5"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
   }
 }
