@@ -1,44 +1,45 @@
 {
   "name": "support-app",
+  "private": true,
   "version": "0.0.0",
-  "description": "IT support app for making tech support easier and faster.",
-  "main": "./src/server.js",
-  "scripts": {
-    "server": "node --watch ./src/server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/kaiobrunobm/support-app.git"
-  },
-  "keywords": [],
+  "description": "Monorepo for Electron Agent, UI App, and Backend API for system monitoring",
   "author": "Kaio Bruno <bmkaiobruno@gmail.com>",
   "license": "MIT",
-  "type": "module",
-  "bugs": {
-    "url": "https://github.com/kaiobrunobm/support-app/issues"
+  "workspaces": [
+    "agent",
+    "ui-app",
+    "backend",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:agent": "yarn workspace agent dev",
+    "dev:ui": "yarn workspace ui-app dev",
+    "dev:backend": "yarn workspace backend dev",
+    "db:migrate": "yarn workspace backend prisma migrate dev",
+    "db:generate": "yarn workspace backend prisma generate",
+    "lint": "eslint . --ext .ts,.tsx --fix",
+    "format": "prettier --write .",
+    "build:agent": "yarn workspace agent build",
+    "build:ui": "yarn workspace ui-app build",
+    "build:backend": "yarn workspace backend build",
+    "start:agent": "yarn workspace agent start",
+    "start:ui": "yarn workspace ui-app start",
+    "start:backend": "yarn workspace backend start"
   },
-  "homepage": "https://github.com/kaiobrunobm/support-app#readme",
   "devDependencies": {
-    "cz-conventional-changelog": "^3.3.0",
-    "dotenv": "^17.2.1",
-    "eslint": "^9.32.0",
-    "express": "^5.1.0",
-    "install": "^0.13.0",
-    "nodemon": "^3.1.10",
-    "npm": "^11.5.2",
-    "prettier": "^3.6.2",
-    "prisma": "^6.13.0"
+    "eslint": "^9.8.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.30.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^6.2.0",
+    "prettier": "^3.3.2",
+    "typescript": "^5.5.4"
   },
-  "config": {
-    "commitizen": {
-      "path": "./node_modules/cz-conventional-changelog"
-    }
+  "engines": {
+    "node": ">=20.0.0",
+    "yarn": ">=1.22.0"
   },
   "dependencies": {
-    "@prisma/client": "^6.13.0",
-    "axios": "^1.11.0",
-    "net-snmp": "^3.23.0",
-    "systeminformation": "^5.27.7"
+    "cors": "^2.8.5"
   }
 }
