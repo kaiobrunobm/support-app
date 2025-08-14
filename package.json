@@ -12,7 +12,7 @@
     "packages/*"
   ],
   "scripts": {
-    "dev:agent": "yarn workspace agent dev",
+    "dev:agent": "yarn workspace agent start",
     "dev:ui": "yarn workspace ui-app dev",
     "dev:backend": "yarn workspace backend dev",
     "db:migrate": "yarn workspace backend prisma migrate dev",
