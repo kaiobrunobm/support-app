@@ -1,32 +1,28 @@
 import { app, BrowserWindow, Menu, Tray, nativeImage } from 'electron';
-import path from 'path'
+import path from 'path';
+import { startPostData } from './services/dataPost';
 
-let tray: Tray | null = null
-let mainWindow: BrowserWindow | null = null
+let tray: Tray | null = null;
+let mainWindow: BrowserWindow | null = null;
 
 const createWindow = async () => {
-  if (mainWindow) {
-    mainWindow.show();
-    mainWindow.focus();
-    return;
-  }
-
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 700,
-    show: false, // Start hidden
+    show: false,
     skipTaskbar: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
     },
   });
 
-
   try {
     if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
       await mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
     } else {
-      await mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
+      await mainWindow.loadFile(
+        path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`)
+      );
     }
   } catch (error) {
     console.error('Failed to load window:', error);
@@ -38,24 +34,30 @@ const createWindow = async () => {
   });
 };
 
-app.on('ready', async () => {
-  await createWindow(); const iconPath = path.join(__dirname, 'tray-icon.png');
+const createTray = () => {
+  const iconPath = path.join(app.getAppPath(), 'src', 'public', 'tray-icon.ico');
   const icon = nativeImage.createFromPath(iconPath);
+
   if (icon.isEmpty()) {
     console.error('Tray icon not found at:', iconPath);
+    return;
   }
 
   tray = new Tray(icon);
-  tray.setToolTip('My Tray App');
+  tray.setToolTip('Support App');
   tray.setContextMenu(
     Menu.buildFromTemplate([
       {
         label: 'Show App',
         click: () => {
+          if (!mainWindow) {
+            createWindow();
+          }
           mainWindow?.show();
           mainWindow?.focus();
         },
       },
+      { type: 'separator' },
       {
         label: 'Quit',
         click: () => {
@@ -64,8 +66,13 @@ app.on('ready', async () => {
       },
     ])
   );
+};
 
-  // macOS: Hide dock icon
+app.on('ready', async () => {
+  await createWindow();
+  createTray();
+  startPostData();
+
   if (process.platform === 'darwin') {
     app.dock.hide();
   }
@@ -78,7 +85,5 @@ app.on('ready', async () => {
 });
 
 app.on('window-all-closed', (event) => {
-  // Prevent full quit — keep tray alive
   event.preventDefault();
 });
-

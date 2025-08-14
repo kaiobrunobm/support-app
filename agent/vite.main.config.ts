@@ -1,4 +1,18 @@
 import { defineConfig } from 'vite';
 
-// https://vitejs.dev/config
-export default defineConfig({});
+export default defineConfig(async () => {
+  const { viteStaticCopy } = await import('vite-plugin-static-copy');
+
+  return {
+    plugins: [
+      viteStaticCopy({
+        targets: [
+          {
+            src: 'public/*',
+            dest: 'public'
+          }
+        ]
+      })
+    ]
+  };
+});
