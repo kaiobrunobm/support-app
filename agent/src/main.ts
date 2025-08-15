@@ -1,9 +1,12 @@
-import { app, BrowserWindow, Menu, Tray, nativeImage } from 'electron';
+import { app, BrowserWindow, Menu, Tray, nativeImage, ipcMain } from 'electron';
 import path from 'path';
 import { startPostData } from './services/dataPost';
+import { collectSystemInfo } from './services/collectData'
+
 
 let tray: Tray | null = null;
 let mainWindow: BrowserWindow | null = null;
+
 
 const createWindow = async () => {
   mainWindow = new BrowserWindow({
@@ -82,6 +85,11 @@ app.on('ready', async () => {
   } else {
     mainWindow?.show();
   }
+  ipcMain.handle('get-system-info', async () => {
+    const info = await collectSystemInfo()
+    return info
+  })
+
 });
 
 app.on('window-all-closed', (event) => {

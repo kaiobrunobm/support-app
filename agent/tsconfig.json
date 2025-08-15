@@ -1,5 +1,7 @@
 {
   "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "react",
     "target": "ESNext",
     "module": "commonjs",
     "allowJs": true,
@@ -11,5 +13,8 @@
     "outDir": "dist",
     "moduleResolution": "node",
     "resolveJsonModule": true
-  }
+  },
+  "include": [
+    "src/**/*"
+  ]
 }
