@@ -35,7 +35,7 @@ const createWindow = async () => {
 };
 
 const createTray = () => {
-  const iconPath = path.join(app.getAppPath(), 'src', 'public', 'tray-icon.ico');
+  const iconPath = path.join(__dirname, 'tray-icon.ico')
   const icon = nativeImage.createFromPath(iconPath);
 
   if (icon.isEmpty()) {
