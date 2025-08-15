@@ -67,6 +67,7 @@ const App: React.FC = () => {
 
   if (!systemInfo) return <div>...Loading</div>
 
+  console.log(systemInfo)
   return (
     <main className='h-screen flex items-start justify-center pt-20'>
       <h1 className='text-4xl font-bold'>Hello support-app</h1>
