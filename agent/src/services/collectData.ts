@@ -1,6 +1,7 @@
 import si from 'systeminformation';
 import fetch from 'node-fetch';
 import { z } from 'zod';
+import axios from 'axios'
 
 const systemInfoSchema = z.object({
   hostname: z.string(),
@@ -62,6 +63,64 @@ function formatUptime(seconds: number) {
   const m = Math.floor((seconds % 3600) / 60);
   return `${h}h ${m}m`;
 }
+const getPrinters = async () => {
+  try {
+    const printersRaw = execSync(
+      'powershell "Get-Printer | Select-Object Name,PortName | ConvertTo-Json"',
+      { encoding: 'utf8' }
+    );
+    const printers = JSON.parse(printersRaw);
+    const printersArr = Array.isArray(printers) ? printers : [printers];
+
+    const virtualPrinterNames = [
+      'Microsoft Print to PDF',
+      'Microsoft XPS Document Writer',
+      'Fax',
+      'OneNote',
+      'Send To OneNote',
+      'PDF',
+      'Bullzip PDF Printer',
+      'Adobe PDF',
+    ];
+
+    const filtered = [];
+
+    for (const printer of printersArr) {
+      if (
+        virtualPrinterNames.some(v => printer.Name.includes(v)) ||
+        /^(NUL|LPT|COM|FILE|XPS|USB|PORTPROMPT)/i.test(printer.PortName)
+      ) {
+        continue;
+      }
+
+      let ip = null;
+      try {
+        const portRaw = execSync(
+          `powershell "Get-PrinterPort -Name '${printer.PortName}' | Select-Object -ExpandProperty PrinterHostAddress"`,
+          { encoding: 'utf8' }
+        );
+        ip = portRaw.trim() || null;
+
+        if (!ip || ip === '127.0.0.1' || ip === '::1') {
+          continue;
+        }
+      } catch (e) {
+        continue;
+      }
+
+      filtered.push({
+        name: printer.Name,
+        port: printer.PortName,
+        ip,
+      });
+    }
+
+    return filtered;
+  } catch (err) {
+    console.error('Failed to get printers:', err);
+    return [];
+  }
+};
 
 export async function collectSystemInfo() {
   const os = await si.osInfo();
@@ -69,18 +128,19 @@ export async function collectSystemInfo() {
   const cpu = await si.cpu();
   const memModules = await si.memLayout();
   const netInt = await si.networkInterfaces();
-  let publicIP = '';
+  const getPublicIP = async () => {
   try {
-    const ip = await si.inetChecksite('https://ipinfo.io/ip');
-    if (typeof ip === 'string') {
-      publicIP = ip;
-    }
-  } catch (error) {
-    console.error('Failed to get public IP:', error);
+    const res = await axios.get('https://api.ipify.org?format=json');
+    return res.data.ip;
+  } catch (err) {
+    console.log(err.message);
+    return 'We could not find your public IP';
   }
+};
+  const publicIP = await getPublicIP();
   const users = await si.users();
   const disks = await si.diskLayout();
-  const printers = await si.printer();
+  const printers = await getPrinters();
 
   const data = {
     hostname: os.hostname,
@@ -107,14 +167,14 @@ export async function collectSystemInfo() {
       }))
     },
     network: {
-      publicIP: publicIP || '',
+      publicIP: publicIP,
       adapters: netInt.map(n => ({
         name: n.iface,
         ip: n.ip4 || '',
         mask: n.ip4subnet || '',
         mac: n.mac || '',
         type: n.type || '',
-        speed: n.speed ? `${n.speed}Mbps` : ''
+        speed: n.iface.speed === 10000 ? 'gigaEthernet' : 'fastEthernet',
       }))
     },
     users: users.map(u => ({
@@ -130,24 +190,7 @@ export async function collectSystemInfo() {
       serialNumber: d.serialNum,
       size: +(d.size / 1024 / 1024 / 1024).toFixed(2)
     })),
-    printers: printers.map(p => {
-      let ip = null;
-      let port = null;
-
-      if (p.uri) {
-        const match = p.uri.match(/\/\/([^:]+):?(\d+)?/);
-        if (match) {
-          ip = match[1] || null;
-          port = match[2] || null;
-        }
-      }
-
-      return {
-        name: p.name,
-        ip,
-        port
-      };
-    })
+    printers: printers
   };
 
   const parsed = systemInfoSchema.parse(data);

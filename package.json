@@ -29,7 +29,6 @@
     "start:backend": "yarn workspace backend start"
   },
   "devDependencies": {
-    "cz-conventional-changelog": "^3.3.0",
     "eslint": "^9.8.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-import": "^2.30.0",
