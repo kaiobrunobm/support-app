@@ -2,7 +2,7 @@ import si from 'systeminformation';
 import fetch from 'node-fetch';
 import { z } from 'zod';
 import axios from 'axios'
-
+import { execSync } from 'node:child_process';
 const systemInfoSchema = z.object({
   hostname: z.string(),
   platform: z.string(),
@@ -127,16 +127,16 @@ export async function collectSystemInfo() {
   const uptime = si.time();
   const cpu = await si.cpu();
   const memModules = await si.memLayout();
-  const netInt = await si.networkInterfaces();
+  const netInterface = await si.networkInterfaces();
   const getPublicIP = async () => {
-  try {
-    const res = await axios.get('https://api.ipify.org?format=json');
-    return res.data.ip;
-  } catch (err) {
-    console.log(err.message);
-    return 'We could not find your public IP';
-  }
-};
+    try {
+      const res = await axios.get('https://api.ipify.org?format=json');
+      return res.data.ip;
+    } catch (err) {
+      console.log(err.message);
+      return 'We could not find your public IP';
+    }
+  };
   const publicIP = await getPublicIP();
   const users = await si.users();
   const disks = await si.diskLayout();
@@ -168,13 +168,13 @@ export async function collectSystemInfo() {
     },
     network: {
       publicIP: publicIP,
-      adapters: netInt.map(n => ({
-        name: n.iface,
-        ip: n.ip4 || '',
-        mask: n.ip4subnet || '',
-        mac: n.mac || '',
-        type: n.type || '',
-        speed: n.iface.speed === 10000 ? 'gigaEthernet' : 'fastEthernet',
+      adapters: netInterface.map(adapter => ({
+        name: adapter.iface,
+        ip: adapter.ip4 || '',
+        mask: adapter.ip4subnet || '',
+        mac: adapter.mac || '',
+        type: adapter.type || '',
+        speed: adapter.iface.speed === 10000 ? 'gigaEthernet' : 'fastEthernet',
       }))
     },
     users: users.map(u => ({
