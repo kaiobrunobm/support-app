@@ -11,7 +11,7 @@ const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
     extraResource: [
-      './assets/tray-icon.ico'
+      './public/tray-icon.ico'
     ]
   },
   rebuildConfig: {},

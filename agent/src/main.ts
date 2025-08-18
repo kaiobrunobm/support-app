@@ -38,7 +38,7 @@ const createWindow = async () => {
 };
 
 const createTray = () => {
-  tray = new Tray(path.join(__dirname, '../assets/tray-icon.ico'))
+  tray = new Tray(path.join(__dirname, 'tray-icon.ico'))
   tray.setToolTip('Support App');
   tray.setContextMenu(
     Menu.buildFromTemplate([
