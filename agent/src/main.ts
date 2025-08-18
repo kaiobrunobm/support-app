@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu, Tray, nativeImage, ipcMain } from 'electron';
+import { app, BrowserWindow, Menu, Tray, ipcMain } from 'electron';
 import path from 'path';
 import { startPostData } from './services/dataPost';
 import { collectSystemInfo } from './services/collectData'
@@ -38,15 +38,7 @@ const createWindow = async () => {
 };
 
 const createTray = () => {
-  const iconPath = path.join(__dirname, '../../public/tray-icon.ico')
-  const icon = nativeImage.createFromPath(iconPath);
-
-  if (icon.isEmpty()) {
-    console.error('Tray icon not found at:', iconPath);
-    return;
-  }
-
-  tray = new Tray(icon);
+  tray = new Tray(path.join(__dirname, '../assets/tray-icon.ico'))
   tray.setToolTip('Support App');
   tray.setContextMenu(
     Menu.buildFromTemplate([
