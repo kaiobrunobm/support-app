@@ -1,6 +1,6 @@
 import React from 'react'
-import { ar } from 'zod/v4/locales'
 import SystemItem from '../components/SystemItem'
+
 
 interface OperatingSystemsInterface {
   system: string,
