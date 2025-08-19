@@ -18,13 +18,13 @@ const Dashboard: React.FC = () => {
           <SignOutIcon size={24} weight="fill" className='transition-all duration-150 ease-in-out hover:text-error cursor-pointer' />
         </Link>
       </header>
-      <div className='flex flex-col items-start gap-2.5 p-2.5'>
+      <div className='flex flex-col items-start self-stretch gap-2.5 p-2.5'>
         <div className='px-3 py-1.5'>
           <h1 className='text-3xl font-bold'>Visão geral</h1>
           <span className='uppercase font-light'>{systemInfo?.domain}</span>
         </div>
 
-        <OperatingSystems />
+        <OperatingSystems system={systemInfo?.distro} version={systemInfo?.build || 'Nenhuma versão encontrada'} arch={systemInfo?.arch} kernel={systemInfo?.kernel} />
       </div>
       <div>
       </div>
