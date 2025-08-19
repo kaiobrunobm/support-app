@@ -4,7 +4,7 @@ import { Link } from 'react-router';
 const App: React.FC = () => {
 
   return (
-    <main className='h-screen flex items-start justify-center pt-20'>
+    <main className='bg-background text-text h-screen flex items-start justify-center pt-20'>
       <div className='flex flex-col items-center'>
 
         <h1 className='text-3xl font-bold mb-10'>Hello</h1>
