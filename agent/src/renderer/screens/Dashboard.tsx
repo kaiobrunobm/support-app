@@ -3,11 +3,11 @@ import React from 'react'
 import { Link } from 'react-router'
 import { useAppContext } from '../../utils/ContextProvider';
 import Hardware from './sections/Hardware';
+import Network from './sections/Network';
 import OperatingSystems from './sections/OperatingSystems';
 
 const Dashboard: React.FC = () => {
   const systemInfo = useAppContext();
-
 
   return (
     <section className='bg-background text-text h-full flex flex-col items-start md:h-screen'>
@@ -27,6 +27,7 @@ const Dashboard: React.FC = () => {
 
         <OperatingSystems system={systemInfo?.distro} version={systemInfo?.build || 'Nenhuma versão encontrada'} arch={systemInfo?.arch} kernel={systemInfo?.kernel} />
         <Hardware cpu={`${systemInfo?.hardware.cpu.model}`} ram={`${systemInfo?.hardware.memory.map(memory => memory.size.toFixed(0))}gb`} storage={systemInfo?.disks} />
+        <Network adapter={systemInfo?.network.adapters.filter(adapter => adapter.ip.startsWith('10' || "192")) || null} publicIp={systemInfo?.network.publicIP} />
       </div>
       <div>
       </div>

@@ -6,12 +6,14 @@ import Dashboard from "./screens/Dashboard";
 import React from "react";
 import { ContextProvider } from "../utils/ContextProvider";
 import { BrowserRouter, Routes, Route } from "react-router";
+import { Toaster } from "sonner";
 
 const container = document.getElementById('root')
 const root = createRoot(container)
 root.render(
   <React.StrictMode>
     <ContextProvider>
+      <Toaster richColors position="bottom-center" />
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<App />} />
