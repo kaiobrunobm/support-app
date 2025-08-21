@@ -4,10 +4,11 @@ import NavItem from '../components/NavItem'
 import {
   CpuIcon, DesktopTowerIcon, SidebarSimpleIcon, UsersIcon, WifiHighIcon, SignOutIcon
 } from '@phosphor-icons/react';
-import { Outlet, Link } from 'react-router'
+import { Outlet, Link, useLocation } from 'react-router'
 
 const Sidebar: React.FC = () => {
   const [navOpen, setNavOpen] = useState(false)
+  const lacation = useLocation()
   return (
     <>
       <AnimatePresence>
@@ -33,10 +34,10 @@ const Sidebar: React.FC = () => {
               </button>
               <h2 className="text-lg font-bold px-4 py-2.5 ">Support app</h2>
               <div className='flex flex-col gap-2.5 py-4'>
-                <NavItem icon={<DesktopTowerIcon size={24} weight='fill' />} navText="Visão geral" path='/dashboard' active />
-                <NavItem icon={<CpuIcon size={24} />} navText="Visão geral" path='/dashboard' />
-                <NavItem icon={<WifiHighIcon size={24} />} navText="Internet" path='/dashboard' />
-                <NavItem icon={<UsersIcon size={24} />} navText="Usuários" path='/dashboard' />
+                <NavItem setNavOpen={setNavOpen} navOpen icon={<DesktopTowerIcon size={24} weight={location.pathname === '/dashboard' ? 'fill' : 'regular'} />} navText="Visão geral" path='/dashboard' active={location.pathname === '/dashboard'} />
+                <NavItem setNavOpen={setNavOpen} navOpen icon={<CpuIcon size={24} weight={location.pathname === '/dashboard/hardware' ? 'fill' : 'regular'} />} navText="Hardware" path='/dashboard/hardware' active={location.pathname === '/dashboard/hardware'} />
+                <NavItem setNavOpen={setNavOpen} navOpen icon={<WifiHighIcon size={24} weight={location.pathname === '/dashboard/network' ? 'fill' : 'regular'} />} navText="Internet" path='/dashboard' active={location.pathname === '/dashboard/network'} />
+                <NavItem setNavOpen={setNavOpen} navOpen icon={<UsersIcon size={24} weight={location.pathname === '/dashboard/users' ? 'fill' : 'regular'} />} navText="Usuários" path='/dashboard' active={location.pathname === '/dashboard/users'} />
               </div>
             </motion.div>
 
@@ -52,7 +53,7 @@ const Sidebar: React.FC = () => {
           <SignOutIcon size={24} weight="fill" className='transition-all duration-150 ease-in-out hover:text-error cursor-pointer' />
         </Link>
       </header>
-      <div className='flex flex-col items-start self-stretch gap-2.5 py-2.5 px-20'>
+      <div className='flex flex-col items-start self-stretch gap-2.5 py-2.5 px-6'>
         <Outlet />
       </div>
     </>

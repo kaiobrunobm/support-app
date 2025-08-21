@@ -8,6 +8,7 @@ import { ContextProvider } from "../utils/ContextProvider";
 import { BrowserRouter, Routes, Route } from "react-router";
 import { Toaster } from "sonner";
 import Sidebar from "./screens/components/Sidebar";
+import HardwareScreen from "./screens/dashboard/hardware/Hardware";
 
 const container = document.getElementById('root')
 const root = createRoot(container)
@@ -22,6 +23,7 @@ root.render(
           <Route element={<Sidebar />}>
             <Route path="/admin" element={<Admin />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/dashboard/hardware" element={<HardwareScreen />} />
           </Route>
         </Routes>
       </BrowserRouter>
