@@ -1,12 +1,7 @@
 import { CopySimpleIcon } from '@phosphor-icons/react'
 import React from 'react'
 import { toast } from 'sonner'
-import SystemItem from '../components/SystemItem'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "../../../../components/ui/tooltip"
+import SystemItem from '../../components/SystemItem'
 
 type adapter = {
   name: string;

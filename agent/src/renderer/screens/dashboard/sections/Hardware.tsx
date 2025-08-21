@@ -1,5 +1,5 @@
 import React from 'react'
-import SystemItem from '../components/SystemItem'
+import SystemItem from '../../components/SystemItem'
 
 type disk = {
   device: string;

@@ -1,12 +1,13 @@
 import { createRoot } from "react-dom/client";
 import '../index.css'
 import App from './App'
-import Admin from "./screens/Admin";
-import Dashboard from "./screens/Dashboard";
+import Admin from "./screens/admin/Admin";
+import Dashboard from "./screens/dashboard/Dashboard";
 import React from "react";
 import { ContextProvider } from "../utils/ContextProvider";
 import { BrowserRouter, Routes, Route } from "react-router";
 import { Toaster } from "sonner";
+import Sidebar from "./screens/components/Sidebar";
 
 const container = document.getElementById('root')
 const root = createRoot(container)
@@ -17,10 +18,13 @@ root.render(
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<App />} />
-          <Route path="/admin" element={<Admin />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+
+          <Route element={<Sidebar />}>
+            <Route path="/admin" element={<Admin />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+          </Route>
         </Routes>
       </BrowserRouter>
     </ContextProvider>
-  </React.StrictMode>
+  </React.StrictMode >
 )
