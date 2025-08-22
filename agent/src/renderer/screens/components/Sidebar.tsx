@@ -37,8 +37,7 @@ const Sidebar: React.FC = () => {
               <div className='flex flex-col gap-2.5 py-4'>
                 <NavItem setNavOpen={setNavOpen} navOpen icon={<DesktopTowerIcon size={24} weight={location.pathname === '/dashboard' ? 'fill' : 'regular'} />} navText="Visão geral" path='/dashboard' active={location.pathname === '/dashboard'} />
                 <NavItem setNavOpen={setNavOpen} navOpen icon={<CpuIcon size={24} weight={location.pathname === '/dashboard/hardware' ? 'fill' : 'regular'} />} navText="Hardware" path='/dashboard/hardware' active={location.pathname === '/dashboard/hardware'} />
-                <NavItem setNavOpen={setNavOpen} navOpen icon={<WifiHighIcon size={24} weight={location.pathname === '/dashboard/network' ? 'fill' : 'regular'} />} navText="Internet" path='/dashboard' active={location.pathname === '/dashboard/network'} />
-                <NavItem setNavOpen={setNavOpen} navOpen icon={<UsersIcon size={24} weight={location.pathname === '/dashboard/users' ? 'fill' : 'regular'} />} navText="Usuários" path='/dashboard' active={location.pathname === '/dashboard/users'} />
+                <NavItem setNavOpen={setNavOpen} navOpen icon={<WifiHighIcon size={24} weight={location.pathname === '/dashboard/network' ? 'fill' : 'regular'} />} navText="Internet" path='/dashboard/network' active={location.pathname === '/dashboard/network'} />
               </div>
             </motion.div>
 

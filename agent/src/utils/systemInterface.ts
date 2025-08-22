@@ -23,7 +23,11 @@ export interface SystemInterface {
     }[];
   };
   network: {
-    publicIP: string;
+    publicIP: string,
+    speedTest: {
+      upload: number,
+      download: number
+    }
     adapters: {
       name: string;
       ip: string | null;

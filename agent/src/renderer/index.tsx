@@ -9,6 +9,7 @@ import { BrowserRouter, Routes, Route } from "react-router";
 import { Toaster } from "sonner";
 import Sidebar from "./screens/components/Sidebar";
 import HardwareScreen from "./screens/dashboard/hardware/Hardware";
+import Network from "./screens/dashboard/network/Network";
 
 const container = document.getElementById('root')
 const root = createRoot(container)
@@ -24,6 +25,7 @@ root.render(
             <Route path="/admin" element={<Admin />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/dashboard/hardware" element={<HardwareScreen />} />
+            <Route path="/dashboard/network" element={<Network />} />
           </Route>
         </Routes>
       </BrowserRouter>

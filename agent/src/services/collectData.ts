@@ -3,6 +3,7 @@ import fetch from 'node-fetch';
 import { z } from 'zod';
 import axios from 'axios'
 import { execSync } from 'node:child_process';
+
 const systemInfoSchema = z.object({
   hostname: z.string(),
   platform: z.string(),
@@ -137,6 +138,8 @@ export async function collectSystemInfo() {
       return 'We could not find your public IP';
     }
   };
+
+
   const publicIP = await getPublicIP();
   const users = await si.users();
   const disks = await si.diskLayout();

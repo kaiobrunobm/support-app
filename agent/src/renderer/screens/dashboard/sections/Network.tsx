@@ -14,10 +14,14 @@ type adapter = {
 
 interface NetworkInterface {
   adapter: adapter[] | null,
-  publicIp: string
+  publicIp: string,
+  speedTest: {
+    upload: number | null,
+    download: number | null
+  }
 }
 
-const Network: React.FC<NetworkInterface> = ({ adapter, publicIp }) => {
+const Network: React.FC<NetworkInterface> = ({ adapter, publicIp, speedTest }) => {
 
   const copyToClipboard = (text: string) => {
     if (navigator.clipboard && window.isSecureContext) {
@@ -76,6 +80,17 @@ const Network: React.FC<NetworkInterface> = ({ adapter, publicIp }) => {
               <CopySimpleIcon />
             </button>
           </span>
+        </SystemItem>
+
+      <SystemItem title='Velocidade da internet'>
+          <div className='flex flex-col items-start'>
+            <span className='flex flex-row items-center gap-2'>
+              Download: {speedTest?.download ? speedTest.download.toFixed(2) + ' Mbps' : 'N/A'}
+            </span>
+            <span className='flex flex-row items-center gap-2'>
+              Upload: {speedTest?.upload ? speedTest.upload.toFixed(2) + ' Mbps' : 'N/A'}
+            </span>
+          </div>
         </SystemItem>
 
       </div>

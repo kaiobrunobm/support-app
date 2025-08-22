@@ -10,7 +10,7 @@ const HardwareScreen: React.FC = () => {
   {
     if (!systemInfo) {
       return (
-        <section className='bg-background text-text h-full flex flex-col justify-center items-center lg:h-screen'>
+        <section className='bg-background text-text h-full flex flex-col justify-center items-center'>
         </section>
       )
     }
