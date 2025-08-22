@@ -12,7 +12,7 @@ interface RamInterface {
 const Ram: React.FC<RamInterface> = ({ size, used, type, clockSpeed }) => {
   return (
     <div className='flex flex-col items-start self-stretch gap-3 px-3 py-1.5'>
-      <h2 className='text-lg font-bold'>Hardware</h2>
+      <h2 className='text-lg font-bold'>Memoria RAM</h2>
       <div className='flex flex-wrap items-start self-stretch gap-3 p-2 md:gap-x-8 md:gap-y-3
         '>
         <SystemItem title='Memoria'>

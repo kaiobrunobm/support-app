@@ -9,6 +9,7 @@ import { Outlet, Link, useLocation } from 'react-router'
 const Sidebar: React.FC = () => {
   const [navOpen, setNavOpen] = useState(false)
   const lacation = useLocation()
+
   return (
     <>
       <AnimatePresence>
@@ -45,7 +46,7 @@ const Sidebar: React.FC = () => {
         )}
       </AnimatePresence>
 
-      <header className='bg-background/50 text-text backdrop-blur-md flex justify-between items-center self-stretch px-4 py-4 border-b border-border sticky top-0'>
+      <header className='bg-background/50 text-text backdrop-blur-md flex justify-between items-center self-stretch px-4 py-4 border-b border-border sticky top-0 z-40'>
         <button onClick={() => setNavOpen(!navOpen)} className='p-2 bg-border rounded-full '>
           <SidebarSimpleIcon size={24} />
         </button>
@@ -53,7 +54,7 @@ const Sidebar: React.FC = () => {
           <SignOutIcon size={24} weight="fill" className='transition-all duration-150 ease-in-out hover:text-error cursor-pointer' />
         </Link>
       </header>
-      <div className='flex flex-col items-start self-stretch gap-2.5 py-2.5 px-6'>
+      <div className='flex flex-col items-start gap-2.5 py-2.5 px-6 overflow-x-clip'>
         <Outlet />
       </div>
     </>

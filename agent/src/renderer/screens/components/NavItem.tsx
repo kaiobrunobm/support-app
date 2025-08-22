@@ -10,7 +10,7 @@ interface NavItemInterface {
   navOpen: boolean
 }
 
-const NavItem: React.FC<NavItemInterface> = ({ path, active, navText, icon, setNavOpen }) => {
+const NavItem: React.FC<NavItemInterface> = ({ path, active, navText, icon, setNavOpen, navOpen }) => {
   return (
     <Link onClick={() => setNavOpen(!navOpen)} to={path} className={`flex items-center self-stretch gap-3 px-4 py-2.5 rounded-lg transition-all duration-150 ease-in-out hover:bg-ghostButton/50 ${active && 'bg-ghostButton hover:bg-ghostButton'} `}>
       {icon}

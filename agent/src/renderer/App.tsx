@@ -11,7 +11,6 @@ const App: React.FC = () => {
         <div className='flex items-center gap-4'>
           <Link to="/dashboard" className='text-blue-600 font-medium hover:underline'>Dashboard</Link>
           <Link to="/admin" className='text-blue-600 font-medium hover:underline'>Admin</Link>
-
         </div>
 
       </div>

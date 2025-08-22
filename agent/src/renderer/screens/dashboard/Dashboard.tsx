@@ -17,7 +17,7 @@ const Dashboard: React.FC = () => {
 
   }
   return (
-    <section className='bg-background text-text h-full flex flex-col items-start lg:h-screen'>
+    <section className='bg-background text-text h-full flex flex-col items-start'>
 
       <div className='px-3 py-1.5'>
         <h1 className='text-3xl font-bold'>Visão geral</h1>
