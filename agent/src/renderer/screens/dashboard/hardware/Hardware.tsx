@@ -24,7 +24,7 @@ const HardwareScreen: React.FC = () => {
       </div>
 
       <Cpu manufacturer={systemInfo.hardware.cpu.manufacturer} model={systemInfo.hardware.cpu.model} cores={systemInfo.hardware.cpu.cores} clockSpeed={systemInfo.hardware.cpu.speed} socket={systemInfo.hardware.cpu.socket ? systemInfo.hardware.cpu.socket : 'Socket não identificado'} />
-      <Ram size={systemInfo.hardware.memory[0].size} used={systemInfo.hardware.memory[0].size / 2} type={systemInfo.hardware.memory[0].type} clockSpeed={systemInfo.hardware.memory[0].clockSpeed} />
+      <Ram size={systemInfo.hardware.memory[0].size} used={systemInfo.hardware.memory[0].used} type={systemInfo.hardware.memory[0].type} clockSpeed={systemInfo.hardware.memory[0].clockSpeed} />
       <Disk disks={systemInfo.disks} />
 
     </section >

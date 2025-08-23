@@ -9,10 +9,12 @@ interface ConectionsInterface {
   mask: string,
   status: string,
   typeConection: string,
-  speedConection: string
+  speedConection: number | null,
+  getway: string,
+  ssidConected: string | null
 }
 
-const Conections: React.FC<ConectionsInterface> = ({ name, ip, mac, mask, status, typeConection, speedConection }) => {
+const Conections: React.FC<ConectionsInterface> = ({ name, ip, mac, mask, status, typeConection, speedConection, getway, ssidConected }) => {
 
 
 
@@ -33,6 +35,11 @@ const Conections: React.FC<ConectionsInterface> = ({ name, ip, mac, mask, status
           {mac}
         </SystemItem>
 
+        <SystemItem title='Getway padrão'>
+          {getway}
+        </SystemItem>
+
+
         <SystemItem title='Mascara de subrede'>
           {mask}
         </SystemItem>
@@ -45,9 +52,16 @@ const Conections: React.FC<ConectionsInterface> = ({ name, ip, mac, mask, status
           {typeConection}
         </SystemItem>
 
+        {ssidConected && (
+          <SystemItem title='Wi-fi conectado'>
+            {ssidConected}
+          </SystemItem>
+        )}
+
         <SystemItem title='Velocidade da conexão'>
-          {speedConection}
+          {speedConection ? speedConection : 'Velocidade de conexão não encontrada'}
         </SystemItem>
+
 
 
       </div>

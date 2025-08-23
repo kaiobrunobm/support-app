@@ -6,6 +6,7 @@ type Disk = {
   type: string;
   name: string;
   size: number;
+  used: number;
 }
 
 interface DataTableInterface {
@@ -27,13 +28,13 @@ const DataTable: React.FC<DataTableInterface> = ({ disks }) => {
             </tr>
           </thead>
           <tbody className='flex flex-col items-start '>
-            {disks.map(disk => (
-              <tr className='flex items-start border-b border-border text-secondaryText'>
+            {disks.map((disk, index) => (
+              <tr className='flex items-start border-b border-border text-secondaryText' key={index}>
                 <td className='flex item-center justify-start px-4 py-6 text-text font-medium w-52'>{disk.device}</td>
                 <td className='flex item-center justify-start px-4 py-6 w-52'>{disk.size.toFixed(0)}gb</td>
                 <td className='flex item-center justify-start px-4 py-6 w-52'>{disk.type}</td>
                 <td className='flex item-center justify-start px-4 py-6 w-52'>{disk.name}</td>
-                <td className='flex item-center justify-start px-4 py-6 w-52'>{(disk.size / 2).toFixed(0)}gb</td>
+                <td className='flex item-center justify-start px-4 py-6 w-52'>{(disk.used).toFixed(0)}gb</td>
               </tr>
             ))}
           </tbody>

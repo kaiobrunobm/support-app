@@ -29,7 +29,7 @@ const Network: React.FC = () => {
         <h1 className='text-3xl font-bold'>Internet</h1>
       </div>
 
-      <Conections name={mainAdapter.name} ip={mainAdapter.ip} mac={mainAdapter.mac.toUpperCase()} mask={mainAdapter.mask} status={mainAdapter.ip ? 'Conectado' : 'Disconectado'} typeConection={mainAdapter.type === 'wireless' ? "Wi-fi" : 'Cabeado'} speedConection={mainAdapter.speed} />
+      <Conections name={mainAdapter.name} ip={mainAdapter.ip} mac={mainAdapter.mac.toUpperCase()} mask={mainAdapter.mask} status={mainAdapter.ip ? 'Conectado' : 'Disconectado'} typeConection={mainAdapter.type === 'wireless' ? "Wi-fi" : 'Cabeado'} speedConection={mainAdapter.speed} getway={mainAdapter.networkGetway} ssidConected={mainAdapter.ssidConected} />
     </section >
   )
 }

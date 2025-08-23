@@ -6,6 +6,7 @@ type Disk = {
   type: string;
   name: string;
   size: number;
+  used: number;
 }
 
 interface DiskInterface {

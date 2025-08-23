@@ -17,7 +17,6 @@ export async function collectSystemInfo() {
   const publicIP = await getPublicIP();
   const users = await si.users();
   const disks = await si.diskLayout();
-  const diskUsage = await si.fsSize();
   const printers = await getPrinters();
 
   const data = {
@@ -40,9 +39,9 @@ export async function collectSystemInfo() {
       },
       memory: memModules.map(memory => ({
         size: +(memory.size / 1024 / 1024 / 1024).toFixed(2),
-        used: +(memoryUsage.used / 1024 / 1024 / 1024).toFixed(2),
+        used: (memoryUsage.used / 1024 / 1024 / 1024).toFixed(2),
         type: memory.type || null,
-        clockSpeed: memory.clockSpeed,
+        clockSpeed: memory.clockSpeed
       }))
     },
     network: {
@@ -62,14 +61,13 @@ export async function collectSystemInfo() {
       username: user.user,
       loginDate: new Date(user.date).toISOString(),
     })),
-    disks: disks.map((disk, index) => ({
+    disks: disks.map(disk => ({
       device: disk.device,
       type: disk.type,
       name: disk.name,
       vendor: disk.vendor,
       serialNumber: disk.serialNum,
-      size: +(disk.size / 1024 / 1024 / 1024).toFixed(2),
-      used: +(diskUsage[index].used / 1024 / 1024 / 1024).toFixed(2)
+      size: +(disk.size / 1024 / 1024 / 1024).toFixed(2)
     })),
     printers: printers
   };

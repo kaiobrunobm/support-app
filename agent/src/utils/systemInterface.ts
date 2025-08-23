@@ -18,6 +18,7 @@ export interface SystemInterface {
     };
     memory: {
       size: number;
+      used: number;
       type?: string | null;
       clockSpeed: number;
     }[];
@@ -34,13 +35,14 @@ export interface SystemInterface {
       mask: string | null;
       mac: string | null;
       type: string | null;
-      speed: string | null;
+      speed: number | null;
+      networkGetway: string | null;
+      ssidConected: string | null;
     }[];
   };
   users: {
     username: string;
     loginDate: string;
-    loginTime: string;
   }[];
   disks: {
     device: string;
@@ -49,6 +51,7 @@ export interface SystemInterface {
     vendor: string;
     serialNumber: string;
     size: number;
+    used: number;
   }[];
   printers: {
     name: string;
