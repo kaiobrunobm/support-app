@@ -20,6 +20,7 @@ export async function collectSystemInfo() {
   const diskUsage = await si.fsSize();
   const printers = await getPrinters();
 
+
   const data = {
     hostname: os.hostname,
     platform: os.platform,
@@ -28,7 +29,7 @@ export async function collectSystemInfo() {
     build: os.build ?? null,
     kernel: os.kernel,
     arch: os.arch,
-    domain: os.fqdn || 'WORKGROUP',
+    domain: String(os.fqdn) || 'WORKGROUP',
     uptime: formatUptime(uptime.uptime),
     hardware: {
       cpu: {

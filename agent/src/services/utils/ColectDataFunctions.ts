@@ -1,4 +1,3 @@
-import { execSync } from 'node:child_process';
 import axios from 'axios'
 import fetch from 'node-fetch';
 import { collectSystemInfo } from '../collectData';
@@ -9,63 +8,9 @@ export const formatUptime = (seconds: number) => {
   return `${hours}h ${minutes}m`;
 }
 
-export const getPrinters = async () => {
-  try {
-    const printersRaw = execSync(
-      'powershell "Get-Printer | Select-Object Name,PortName | ConvertTo-Json"',
-      { encoding: 'utf8' }
-    );
-    const printers = JSON.parse(printersRaw);
-    const printersArr = Array.isArray(printers) ? printers : [printers];
-
-    const virtualPrinterNames = [
-      'Microsoft Print to PDF',
-      'Microsoft XPS Document Writer',
-      'Fax',
-      'OneNote',
-      'Send To OneNote',
-      'PDF',
-      'Bullzip PDF Printer',
-      'Adobe PDF',
-    ];
-
-    const filtered = [];
-
-    for (const printer of printersArr) {
-      if (
-        virtualPrinterNames.some(v => printer.Name.includes(v)) ||
-        /^(NUL|LPT|COM|FILE|XPS|USB|PORTPROMPT)/i.test(printer.PortName)
-      ) {
-        continue;
-      }
-
-      let ip = null;
-      try {
-        const portRaw = execSync(
-          `powershell "Get-PrinterPort -Name '${printer.PortName}' | Select-Object -ExpandProperty PrinterHostAddress"`,
-          { encoding: 'utf8' }
-        );
-        ip = portRaw.trim() || null;
-
-        if (!ip || ip === '127.0.0.1' || ip === '::1') {
-          continue;
-        }
-      } catch (e) {
-        continue;
-      }
-
-      filtered.push({
-        name: printer.Name,
-        port: printer.PortName,
-        ip,
-      });
-    }
-
-    return filtered;
-  } catch (err) {
-    console.error('Failed to get printers:', err);
-    return [];
-  }
+export const getPrinters = () => {
+  const data = []
+  return data
 };
 
 export const getPublicIP = async () => {

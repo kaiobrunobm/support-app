@@ -8,7 +8,7 @@ export const systemInfoSchema = z.object({
   build: z.string().nullable().optional(),
   kernel: z.string(),
   arch: z.string(),
-  domain: z.string(),
+  domain: z.string().nullable(),
   uptime: z.string(),
   hardware: z.object({
     cpu: z.object({

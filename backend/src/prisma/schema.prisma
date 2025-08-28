@@ -1,4 +1,3 @@
-
 // prisma/schema.prisma
 generator client {
   provider = "prisma-client-js"
@@ -10,86 +9,86 @@ datasource db {
 }
 
 model SystemInfo {
-  id         String     @id @default(uuid())
-  hostname   String
-  platform   String
-  distro     String
-  release    String
-  build      String?
-  kernel     String
-  arch       String
-  domain     String
-  uptime     String
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
+  id        String   @id @default(uuid())
+  hostname  String
+  platform  String
+  distro    String
+  release   String
+  build     String?
+  kernel    String
+  arch      String
+  domain    String
+  uptime    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   hardwareId String
   networkId  String
 
-  hardware   Hardware   @relation(fields: [hardwareId], references: [id], onDelete: Cascade)
-  network    Network    @relation(fields: [networkId], references: [id], onDelete: Cascade)
-  users      User[]
-  disks      Disk[]
-  printers   Printer[]
+  hardware Hardware  @relation(fields: [hardwareId], references: [id], onDelete: Cascade)
+  network  Network   @relation(fields: [networkId], references: [id], onDelete: Cascade)
+  users    User[]
+  disks    Disk[]
+  printers Printer[]
 
   @@unique([hostname, domain]) // Ensures only one record per device
 }
 
 model User {
-  id        String     @id @default(uuid())
+  id        String   @id @default(uuid())
   username  String
   loginDate DateTime
   loginTime String
   systemId  String
 
-  system    SystemInfo @relation(fields: [systemId], references: [id], onDelete: Cascade)
+  system SystemInfo @relation(fields: [systemId], references: [id], onDelete: Cascade)
 
   @@index([systemId])
 }
 
 model Hardware {
-  id         String     @id @default(uuid())
-  cpuId      String
+  id    String @id @default(uuid())
+  cpuId String
 
-  cpu        CPU        @relation(fields: [cpuId], references: [id], onDelete: Cascade)
-  memory     Memory[]
-  systems    SystemInfo[]
+  cpu     CPU          @relation(fields: [cpuId], references: [id], onDelete: Cascade)
+  memory  Memory[]
+  systems SystemInfo[]
 
   @@index([cpuId])
 }
 
 model CPU {
-  id           String     @id @default(uuid())
+  id           String  @id @default(uuid())
   manufacturer String
   model        String
   cores        Int
   speed        Float
   socket       String?
 
-  hardware     Hardware[]
+  hardware Hardware[]
 }
 
 model Memory {
-  id         String   @id @default(uuid())
-  size       Float    // GB
+  id         String  @id @default(uuid())
+  size       Float // GB
   type       String?
   clockSpeed Int
   hardwareId String
 
-  hardware   Hardware @relation(fields: [hardwareId], references: [id], onDelete: Cascade)
+  hardware Hardware @relation(fields: [hardwareId], references: [id], onDelete: Cascade)
 
   @@index([hardwareId])
 }
 
 model Network {
-  id       String     @id @default(uuid())
+  id       String       @id @default(uuid())
   publicIP String
   adapters Adapter[]
   systems  SystemInfo[]
 }
 
 model Adapter {
-  id        String   @id @default(uuid())
+  id        String @id @default(uuid())
   name      String
   ip        String
   mask      String
@@ -98,35 +97,34 @@ model Adapter {
   speed     String
   networkId String
 
-  network   Network  @relation(fields: [networkId], references: [id], onDelete: Cascade)
+  network Network @relation(fields: [networkId], references: [id], onDelete: Cascade)
 
   @@index([networkId])
 }
 
 model Disk {
-  id           String     @id @default(uuid())
-  device       String
-  type         String
-  name         String
-  vendor       String
+  id     String @id @default(uuid())
+  device String
+  type   String
+  name   String
+
   serialNumber String
-  size         Float      // GB
+  size         Float // GB
   systemId     String
 
-  system       SystemInfo @relation(fields: [systemId], references: [id], onDelete: Cascade)
+  system SystemInfo @relation(fields: [systemId], references: [id], onDelete: Cascade)
 
   @@index([systemId])
 }
 
 model Printer {
-  id       String     @id @default(uuid())
+  id       String  @id @default(uuid())
   name     String
   port     String?
   ip       String?
   systemId String
 
-  system   SystemInfo @relation(fields: [systemId], references: [id], onDelete: Cascade)
+  system SystemInfo @relation(fields: [systemId], references: [id], onDelete: Cascade)
 
   @@index([systemId])
 }
-

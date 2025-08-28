@@ -6,7 +6,7 @@ export interface SystemInterface {
   build?: string | null;
   kernel: string;
   arch: string;
-  domain: string;
+  domain: string | null;
   uptime: string;
   hardware: {
     cpu: {
