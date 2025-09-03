@@ -13,7 +13,6 @@ export default {
       inputBackground: '#101317',
       ghostButton: '#202329',
       error: '#E91212'
-
     },
     extend: {},
 

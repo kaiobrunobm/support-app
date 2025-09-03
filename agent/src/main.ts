@@ -14,12 +14,15 @@ const createWindow = async () => {
     height: 700,
     show: true,
     skipTaskbar: true,
+    icon: path.join(__dirname, 'tray-icon.png'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
       nodeIntegration: false,
     },
   });
+
+  Menu.setApplicationMenu(null)
 
   try {
     if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
@@ -45,6 +48,7 @@ const createTray = () => {
   tray.setContextMenu(
     Menu.buildFromTemplate([
       {
+
         label: 'Show App',
         click: () => {
           if (!mainWindow) {

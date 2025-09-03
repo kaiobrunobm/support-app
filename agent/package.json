@@ -11,6 +11,12 @@
     "publish": "electron-forge publish",
     "lint": "eslint --ext .ts,.tsx ."
   },
+  "build": {
+    "appId": "com.kaiobruno.supportapp",
+    "win": {
+      "icon": "./public/tray-icon.ico"
+    }
+  },
   "keywords": [],
   "author": {
     "name": "Kaio Bruno",
