@@ -2,7 +2,7 @@ import { app, BrowserWindow, Menu, Tray, ipcMain } from 'electron';
 import path from 'path';
 import { startPostData } from './services/dataPost';
 import { collectSystemInfo } from './services/collectData'
-
+import { Event } from 'electron';
 
 let tray: Tray | null = null;
 let mainWindow: BrowserWindow | null = null;
@@ -16,6 +16,8 @@ const createWindow = async () => {
     skipTaskbar: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false,
     },
   });
 
@@ -38,7 +40,7 @@ const createWindow = async () => {
 };
 
 const createTray = () => {
-  tray = new Tray(path.join(__dirname, 'tray-icon.ico'))
+  tray = new Tray(path.join(__dirname, 'tray-icon.png'))
   tray.setToolTip('Support App');
   tray.setContextMenu(
     Menu.buildFromTemplate([
@@ -63,6 +65,11 @@ const createTray = () => {
   );
 };
 
+ipcMain.handle('get-system-info', async () => {
+  const info = await collectSystemInfo()
+  return info
+})
+
 app.on('ready', async () => {
   await createWindow();
   createTray();
@@ -77,13 +84,9 @@ app.on('ready', async () => {
   } else {
     mainWindow?.show();
   }
-  ipcMain.handle('get-system-info', async () => {
-    const info = await collectSystemInfo()
-    return info
-  })
-
 });
 
-app.on('window-all-closed', (event) => {
-  event.preventDefault();
+
+app.on("before-quit", (event: Event) => {
+  event.preventDefault(); // works here
 });

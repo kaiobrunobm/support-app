@@ -59,7 +59,7 @@ const Conections: React.FC<ConectionsInterface> = ({ name, ip, mac, mask, status
         )}
 
         <SystemItem title='Velocidade da conexão'>
-          {speedConection ? speedConection : 'Velocidade de conexão não encontrada'}
+          {speedConection ? `${speedConection}Mbps` : 'Velocidade de conexão não encontrada'}
         </SystemItem>
 
 

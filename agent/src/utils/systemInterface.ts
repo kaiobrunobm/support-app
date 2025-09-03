@@ -55,7 +55,7 @@ export interface SystemInterface {
   }[];
   printers: {
     name: string;
-    ip: string | null;
-    port: string | null;
+    ip: string | null | undefined;
+    port: string | null | undefined;
   }[];
 }

@@ -25,7 +25,7 @@ const adapterSchema = z.object({
   mask: z.string(),
   mac: z.string(),
   type: z.string(),
-  speed: z.string(),
+  speed: z.number().nullable(),
 });
 
 const networkSchema = z.object({
@@ -36,7 +36,6 @@ const networkSchema = z.object({
 const userSchema = z.object({
   username: z.string(),
   loginDate: z.string().transform((d) => new Date(d)),
-  loginTime: z.string(),
 });
 
 const diskSchema = z.object({

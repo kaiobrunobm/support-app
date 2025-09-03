@@ -38,7 +38,6 @@ model User {
   id        String   @id @default(uuid())
   username  String
   loginDate DateTime
-  loginTime String
   systemId  String
 
   system SystemInfo @relation(fields: [systemId], references: [id], onDelete: Cascade)
@@ -94,7 +93,7 @@ model Adapter {
   mask      String
   mac       String
   type      String
-  speed     String
+  speed     Float?
   networkId String
 
   network Network @relation(fields: [networkId], references: [id], onDelete: Cascade)
@@ -107,6 +106,7 @@ model Disk {
   device String
   type   String
   name   String
+  vendor String
 
   serialNumber String
   size         Float // GB

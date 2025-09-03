@@ -23,7 +23,6 @@ CREATE TABLE "User" (
     "id" TEXT NOT NULL,
     "username" TEXT NOT NULL,
     "loginDate" TIMESTAMP(3) NOT NULL,
-    "loginTime" TEXT NOT NULL,
     "systemId" TEXT NOT NULL,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
@@ -76,7 +75,7 @@ CREATE TABLE "Adapter" (
     "mask" TEXT NOT NULL,
     "mac" TEXT NOT NULL,
     "type" TEXT NOT NULL,
-    "speed" TEXT NOT NULL,
+    "speed" INTEGER NOT NULL,
     "networkId" TEXT NOT NULL,
 
     CONSTRAINT "Adapter_pkey" PRIMARY KEY ("id")
@@ -88,7 +87,6 @@ CREATE TABLE "Disk" (
     "device" TEXT NOT NULL,
     "type" TEXT NOT NULL,
     "name" TEXT NOT NULL,
-    "vendor" TEXT NOT NULL,
     "serialNumber" TEXT NOT NULL,
     "size" DOUBLE PRECISION NOT NULL,
     "systemId" TEXT NOT NULL,

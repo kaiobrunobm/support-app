@@ -12,8 +12,9 @@ export const ContextProvider: React.FC<ContextProviderInterface> = ({ children }
 
   useEffect(() => {
     window.electronAPI.getSystemInfo().then((info: SystemInterface) => {
-      console.log(info)
-      setSystemInfo(info)
+      setSystemInfo(info);
+    }).catch((error) => {
+      console.error(error)
     })
   }, [])
 

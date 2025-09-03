@@ -4,6 +4,7 @@ import { formatUptime, getPrinters, getPublicIP } from './utils/ColectDataFuncti
 
 
 
+
 export async function collectSystemInfo() {
 
   const os = await si.osInfo();
@@ -74,7 +75,6 @@ export async function collectSystemInfo() {
     })),
     printers: printers
   };
-
   const parsed = systemInfoSchema.parse(data);
   return parsed;
 }

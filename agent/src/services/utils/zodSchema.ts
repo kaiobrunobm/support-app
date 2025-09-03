@@ -53,8 +53,8 @@ export const systemInfoSchema = z.object({
   })),
   printers: z.array(z.object({
     name: z.string(),
-    ip: z.string().nullable(),
-    port: z.string().nullable()
+    ip: z.string().nullable().optional(),
+    port: z.string().nullable().optional(),
   }))
 });
 

@@ -53,7 +53,7 @@ router.post("/", async (req, res) => {
                 mask: a.mask,
                 mac: a.mac,
                 type: a.type,
-                speed: a.speed,
+                speed: a.speed ?? null,
               }))
             }
           }
@@ -62,7 +62,6 @@ router.post("/", async (req, res) => {
           create: data.users.map((u) => ({
             username: u.username,
             loginDate: u.loginDate,
-            loginTime: u.loginTime,
           }))
         },
         disks: {
@@ -126,7 +125,6 @@ router.post("/", async (req, res) => {
           create: data.users.map((u) => ({
             username: u.username!,
             loginDate: u.loginDate!,
-            loginTime: u.loginTime!,
           }))
         },
         disks: {
