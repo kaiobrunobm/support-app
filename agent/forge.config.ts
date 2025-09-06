@@ -17,11 +17,17 @@ const config: ForgeConfig = {
     
   },
   rebuildConfig: {},
-  makers: [
-    new MakerSquirrel({}),
-     new MakerZIP({}, ['darwin']),
-      new MakerRpm({}),
-       new MakerDeb({})],
+  
+    makers: [
+      {
+        name: '@electron-forge/maker-squirrel',
+        config: {
+          certificateFile: './cert.pfx',
+          certificatePassword: process.env.CERTIFICATE_PASSWORD
+        }
+      }
+    ],
+  
        
   plugins: [
     new VitePlugin({
