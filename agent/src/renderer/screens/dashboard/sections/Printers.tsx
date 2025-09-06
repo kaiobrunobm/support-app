@@ -1,6 +1,14 @@
 import React from 'react'
 import { copyToClipboard } from '../../../../utils/functions'
 import { CopySimpleIcon } from '@phosphor-icons/react';
+import ricoh3710sf from '/printer-ricoh3710sf.png'
+import ricoh3510sf from '/printer-ricoh3510sf.png'
+import ricohmp201f from '/printer-aficiomp201.png'
+import bizhubc224e from '/printer-bizhub-c224e.png'
+import bizhubc308 from '/printer-bizhub-c308.png'
+import canonir1643i from '/printer-canonir1643i.png'
+import epsonm3180 from '/printer-epsonm3180.png'
+import defaultPrinter from '/printer-default.png'
 
 type Printer = {
   name: string;
@@ -20,28 +28,28 @@ const Printers: React.FC<PrintersInterface> = ({ printers }) => {
   
     switch (true) {
       case name.includes("ricoh 3710sf"):
-        return "/printer-ricoh3710sf.png"
+        return ricoh3710sf
   
       case name.includes("ricoh 3510sf"):
-        return "/printer-ricoh3510sf.png"
+        return ricoh3510sf
   
       case name.includes("aficio mp 201"):
-        return "/printer-aficiomp201.png"
+        return ricohmp201f
   
       case name.includes("bizhub c224e"):
-        return "/printer-bizhub-c224e.png"
+        return bizhubc224e
   
       case name.includes("bizhub c308"):
-        return "/printer-bizhub-c308.png"
+        return bizhubc308
   
       case name.includes("ir1643i"):
-        return "/printer-canonir1643i.png"
+        return canonir1643i
   
       case name.includes("m3180"):
-        return "/printer-epsonm3180.png"
+        return epsonm3180
   
       default:
-        return "/printer-default.png" // fallback image
+        return defaultPrinter // fallback image
     }
   }
 

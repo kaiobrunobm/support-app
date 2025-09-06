@@ -26,7 +26,8 @@
     "build:backend": "yarn workspace backend build",
     "start:agent": "yarn workspace agent start",
     "start:ui": "yarn workspace ui-app start",
-    "start:backend": "yarn workspace backend start"
+    "start:backend": "yarn workspace backend start",
+    "make:agent": "yarn workspace agent make"
   },
   "devDependencies": {
     "eslint": "^9.8.0",

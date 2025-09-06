@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useState, useEffect} from 'react'
 import { useAppContext } from '../../../utils/ContextProvider';
 import Hardware from '../dashboard/sections/Hardware';
 import Network from '../dashboard/sections/Network';
@@ -7,7 +7,18 @@ import Printers from './sections/Printers';
 
 
 const Dashboard: React.FC = () => {
+  const [progress, setProgress] = useState(0)
   const systemInfo = useAppContext();
+
+  useEffect(() => {
+    if (!systemInfo) {
+      const interval = setInterval(() => {
+        setProgress((old) => (old >= 100 ? 0 : old + 10))
+      }, 400)
+
+      return () => clearInterval(interval)
+    }
+  }, [systemInfo])
 
   {
     if (!systemInfo) {

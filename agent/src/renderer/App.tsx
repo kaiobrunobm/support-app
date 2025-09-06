@@ -1,7 +1,8 @@
 import React, {useState} from 'react'
 import { Link } from 'react-router';
 import Input from './components/Input';
-import Button from './components/button';
+import Button from './components/Button';
+import logo from '/tray-icon.png'
 import { EyeSlashIcon, EyeIcon } from '@phosphor-icons/react';
 
 const App: React.FC = () => {
@@ -15,7 +16,7 @@ const App: React.FC = () => {
       </div>
       <div>
       <div className='flex flex-col items-center gap-3'>
-            <img src='/tray-icon.png' className='w-11 h-11'/>
+            <img src={logo} className='w-11 h-11'/>
             <h1 className='font-bold text-2xl'>Entre em sua conta</h1>
           </div>
           <form className='flex flex-col justify-end itens-center py-6 gap-3'>

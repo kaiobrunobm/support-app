@@ -5,7 +5,7 @@ import Admin from "./screens/admin/Admin";
 import Dashboard from "./screens/dashboard/Dashboard";
 import React from "react";
 import { ContextProvider } from "../utils/ContextProvider";
-import { BrowserRouter, Routes, Route } from "react-router";
+import { HashRouter, Routes, Route } from "react-router";
 import { Toaster } from "sonner";
 import Sidebar from "./screens/components/Sidebar";
 import HardwareScreen from "./screens/dashboard/hardware/Hardware";
@@ -17,7 +17,7 @@ root.render(
   <React.StrictMode>
     <ContextProvider>
       <Toaster richColors position="bottom-center" />
-      <BrowserRouter>
+      <HashRouter >
         <Routes>
           <Route path="/" element={<App />} />
 
@@ -28,7 +28,7 @@ root.render(
             <Route path="/dashboard/network" element={<Network />} />
           </Route>
         </Routes>
-      </BrowserRouter>
+      </HashRouter>
     </ContextProvider>
   </React.StrictMode >
 )
