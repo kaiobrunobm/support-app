@@ -1,9 +1,10 @@
-import React, {useState, useEffect} from 'react'
+import React, { useState, useEffect } from 'react'
 import { useAppContext } from '../../../utils/ContextProvider';
 import Hardware from '../dashboard/sections/Hardware';
 import Network from '../dashboard/sections/Network';
 import OperatingSystems from '../dashboard/sections/OperatingSystems';
 import Printers from './sections/Printers';
+import { Progress } from "@/components/ui/progress"
 
 
 const Dashboard: React.FC = () => {
@@ -24,6 +25,7 @@ const Dashboard: React.FC = () => {
     if (!systemInfo) {
       return (
         <section className='bg-background text-text h-full flex flex-col justify-center items-center '>
+          <Progress value={progress} />
         </section>
       )
     }
