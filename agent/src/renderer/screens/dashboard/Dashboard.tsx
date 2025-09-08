@@ -4,11 +4,12 @@ import Hardware from '../dashboard/sections/Hardware';
 import Network from '../dashboard/sections/Network';
 import OperatingSystems from '../dashboard/sections/OperatingSystems';
 import Printers from './sections/Printers';
-import { Progress } from "@/components/ui/progress"
+import { Progress } from "../../../../components/ui/progress"
+import { CircleNotchIcon } from '@phosphor-icons/react';
 
 
 const Dashboard: React.FC = () => {
-  const [progress, setProgress] = useState(0)
+  const [progress, setProgress] = useState(13)
   const systemInfo = useAppContext();
 
   useEffect(() => {
@@ -24,8 +25,8 @@ const Dashboard: React.FC = () => {
   {
     if (!systemInfo) {
       return (
-        <section className='bg-background text-text h-full flex flex-col justify-center items-center '>
-          <Progress value={progress} />
+        <section className='bg-background text-text h-full w-screen flex flex-col justify-center items-center mt-10 '>
+          <CircleNotchIcon size={40} weight='bold' className='animate-spin'/>
         </section>
       )
     }

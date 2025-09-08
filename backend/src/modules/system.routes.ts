@@ -61,6 +61,8 @@ router.post("/", async (req, res) => {
         users: {
           create: data.users.map((u) => ({
             username: u.username,
+            email: u.email || null,
+            password: u.password || null,
             loginDate: u.loginDate,
           }))
         },
@@ -124,7 +126,10 @@ router.post("/", async (req, res) => {
           deleteMany: {},
           create: data.users.map((u) => ({
             username: u.username!,
+            email: '',
+            password: '',
             loginDate: u.loginDate!,
+
           }))
         },
         disks: {
