@@ -1,8 +1,8 @@
-import { app, BrowserWindow, Menu, Tray, ipcMain } from 'electron';
+import { app, BrowserWindow, Menu, Tray, ipcMain, Event } from 'electron';
 import path from 'path';
 import { startPostData } from './services/dataPost';
 import { collectSystemInfo } from './services/collectData'
-import { Event } from 'electron';
+import { autoUpdater } from 'electron-updater'
 
 let tray: Tray | null = null;
 let mainWindow: BrowserWindow | null = null;
@@ -20,6 +20,10 @@ const createWindow = async () => {
       contextIsolation: true,
       nodeIntegration: false,
     },
+  });
+
+  mainWindow.once('ready-to-show', () => {
+    autoUpdater.checkForUpdatesAndNotify();
   });
 
   Menu.setApplicationMenu(null)
@@ -90,6 +94,14 @@ app.on('ready', async () => {
   }
 });
 
+autoUpdater.on('update-available', () => {
+  console.log('Update available');
+});
+
+autoUpdater.on('update-downloaded', () => {
+  console.log('Update downloaded, will install on restart');
+  autoUpdater.quitAndInstall();
+});
 
 app.on("before-quit", (event: Event) => {
   event.preventDefault(); // works here
