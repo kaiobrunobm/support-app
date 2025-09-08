@@ -6,7 +6,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   openExternal: (url: string) => shell.openExternal(url),
   async login(email: string, password: string) {
     try {
-      const res = await axios.post("http://localhost:3000/auth/login", {
+      const res = await axios.post("https://support-app-backend.vercel.app/auth/login", {
         email,
         password,
       });
