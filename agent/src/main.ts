@@ -3,6 +3,7 @@ import path from 'path';
 import { startPostData } from './services/dataPost';
 import { collectSystemInfo } from './services/collectData'
 import { autoUpdater } from 'electron-updater'
+import { loginUser } from './auth/auth'
 
 let tray: Tray | null = null;
 let mainWindow: BrowserWindow | null = null;
@@ -77,6 +78,7 @@ ipcMain.handle('get-system-info', async () => {
   const info = await collectSystemInfo()
   return info
 })
+
 
 app.on('ready', async () => {
   await createWindow();
