@@ -1,6 +1,5 @@
 import { Router } from "express";
 import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcrypt";
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -33,7 +32,8 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
-    const isValid = await bcrypt.compare(password, user.password);
+    const isValid = password === user.password
+
     if (!isValid) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
@@ -52,7 +52,6 @@ router.post("/login", async (req, res) => {
         email: user.email,
         role: user.role,
         loginDate: user.loginDate,
-        system: user.system,
       },
     });
   } catch (err: any) {
