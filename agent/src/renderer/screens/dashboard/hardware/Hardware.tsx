@@ -8,6 +8,7 @@ import { CircleNotchIcon } from '@phosphor-icons/react';
 const HardwareScreen: React.FC = () => {
   const { systemInfo } = useAppContext();
 
+  console.log(systemInfo)
   {
     if (!systemInfo) {
       return (

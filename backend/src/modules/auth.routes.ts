@@ -70,7 +70,17 @@ router.get("/me", async (req, res) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET!);
     const user = await prisma.user.findUnique({
       where: { id: (decoded as any).id },
-      include: { system: true },
+      include: {
+        system: {
+          include: {
+            hardware: { include: { cpu: true, memory: true } },
+            network: { include: { adapters: true } },
+            users: true,
+            disks: true,
+            printers: true,
+          },
+        },
+      },
     });
     return res.json({ success: true, user });
   } catch {

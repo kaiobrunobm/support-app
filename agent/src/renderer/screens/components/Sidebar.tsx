@@ -2,14 +2,14 @@ import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import NavItem from '../components/NavItem'
 import {
-  CpuIcon, DesktopTowerIcon, SidebarSimpleIcon, UsersIcon, WifiHighIcon, SignOutIcon
+  CpuIcon, DesktopTowerIcon, SidebarSimpleIcon, WifiHighIcon, SignOutIcon
 } from '@phosphor-icons/react';
 import { Outlet, Link, useLocation } from 'react-router'
+import { useAppContext } from '../../../utils/ContextProvider';
 
 const Sidebar: React.FC = () => {
   const [navOpen, setNavOpen] = useState(false)
-  const lacation = useLocation()
-
+  const { logout } = useAppContext()
   return (
     <>
       <AnimatePresence>
@@ -50,7 +50,7 @@ const Sidebar: React.FC = () => {
           <SidebarSimpleIcon size={24} />
         </button>
         <Link to="/">
-          <SignOutIcon size={24} weight="fill" className='transition-all duration-150 ease-in-out hover:text-error cursor-pointer' />
+          <SignOutIcon size={24} onClick={logout} weight="fill" className='transition-all duration-150 ease-in-out hover:text-error cursor-pointer' />
         </Link>
       </header>
       <div className='flex flex-col items-start gap-2.5 py-2.5 px-6 overflow-x-clip'>
