@@ -1,10 +1,10 @@
 import { Router } from "express";
 import { PrismaClient } from "@prisma/client";
+import jwt from 'jsonwebtoken'
 
 const router = Router();
 const prisma = new PrismaClient();
 
-// POST /auth/login
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -38,15 +38,40 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
+    const token = jwt.sign(
+      { id: user.id, role: user.role },
+      process.env.JWT_SECRET!,
+      { expiresIn: "1d" }
+    );
+
     // Update last login
     await prisma.user.update({
       where: { id: user.id },
       data: { loginDate: new Date() },
     });
 
-    return res.json({ success: true, user: { data: user.system }, });
+    return res.json({ success: true, user: { data: user.system }, token });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
+  }
+});
+
+
+router.get("/me", async (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) return res.status(401).json({ error: "No token provided" });
+
+  const token = authHeader.split(" ")[1];
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!);
+    const user = await prisma.user.findUnique({
+      where: { id: (decoded as any).id },
+      include: { system: true },
+    });
+    return res.json({ success: true, user });
+  } catch {
+    return res.status(401).json({ error: "Invalid token" });
   }
 });
 

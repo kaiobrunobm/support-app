@@ -19,8 +19,7 @@ const App: React.FC = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true); // Ativa o loading antes de começar
-
+    setIsLoading(true);
     try {
       const success = await login(email, password);
 
@@ -28,7 +27,6 @@ const App: React.FC = () => {
         toast.error("Email ou senha inválidos");
         setError("Email ou senha inválidos");
       } else {
-        toast.success("Bem vindo");
         navigate("/dashboard");
       }
     } catch (err) {

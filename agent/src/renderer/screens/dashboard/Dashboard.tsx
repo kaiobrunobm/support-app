@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useAppContext } from '../../../utils/ContextProvider';
 import Hardware from '../dashboard/sections/Hardware';
 import Network from '../dashboard/sections/Network';
@@ -8,17 +8,7 @@ import { CircleNotchIcon } from '@phosphor-icons/react';
 
 
 const Dashboard: React.FC = () => {
-  const systemInfo = useAppContext();
-
-  useEffect(() => {
-    if (!systemInfo) {
-      const interval = setInterval(() => {
-        setProgress((old) => (old >= 100 ? 0 : old + 10))
-      }, 400)
-
-      return () => clearInterval(interval)
-    }
-  }, [systemInfo])
+  const { systemInfo } = useAppContext();
 
   {
     if (!systemInfo) {

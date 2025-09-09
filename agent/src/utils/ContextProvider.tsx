@@ -8,37 +8,58 @@ interface User {
 }
 
 interface ContextInterface {
-  user: User | null
-  setUser: (user: User | null) => void
   systemInfo: SystemInterface | null
-  setSystemInfo: (info: SystemInterface | null) => void
   login: (email: string, password: string) => Promise<boolean>
+  user: User
 }
 
 const AppContext = createContext<ContextInterface | undefined>(undefined)
 
 export const ContextProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null)
   const [systemInfo, setSystemInfo] = useState<SystemInterface | null>(null)
+  const [user, setUser] = useState(null)
 
   const login = async (email: string, password: string) => {
-    try {
-      const res = await window.electronAPI.login(email, password) // calls backend /auth/login
-      if (res.success) {
-        setUser(res.user)
-        setSystemInfo(res.user.system) // replace local system with backend system info
-        return true
-      } else {
-        return false
-      }
-    } catch (err) {
-      console.error(err)
-      return false
+    const res = await fetch("https://support-app-backend.vercel.app/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const data = await res.json();
+    if (data.success) {
+      localStorage.setItem("token", data.token); // 🔑 Persist token
+      setUser(data.user);
+      setSystemInfo(data.user.system);
+      return true;
     }
-  }
+    return false;
+  };
+
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    (async () => {
+      try {
+        const res = await fetch("https://support-app-backend.vercel.app/auth/me", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (data.success) {
+          setUser(data.user);
+          setSystemInfo(data.user.system);
+        }
+      } catch (err) {
+        console.error("Auto login failed", err);
+        localStorage.removeItem("token");
+      }
+    })();
+  }, []);
 
   return (
-    <AppContext.Provider value={{ user, setUser, systemInfo, setSystemInfo, login }}>
+    <AppContext.Provider value={{ login, user, systemInfo }}>
       {children}
     </AppContext.Provider>)
 }

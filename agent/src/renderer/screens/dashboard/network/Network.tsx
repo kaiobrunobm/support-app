@@ -1,21 +1,21 @@
+import { CircleNotchIcon } from '@phosphor-icons/react';
 import React from 'react'
 import { useAppContext } from '../../../../utils/ContextProvider';
 import Conections from './section/Conections';
 
 const Network: React.FC = () => {
-  const systemInfo = useAppContext();
+  const { systemInfo } = useAppContext();
 
   {
     if (!systemInfo) {
       return (
-        <section className='bg-background text-text h-full flex flex-col justify-center items-center'>
+        <section className='bg-background text-text h-full w-screen flex flex-col justify-center items-center mt-10 '>
+          <CircleNotchIcon size={40} weight='bold' className='animate-spin' />
         </section>
       )
     }
 
-  }
-
-  const mainAdapter = systemInfo.network.adapters.find(adapter => {
+  } const mainAdapter = systemInfo.network.adapters.find(adapter => {
     if (adapter.ip.startsWith('192') || adapter.ip.startsWith('10')) {
       return adapter
     }

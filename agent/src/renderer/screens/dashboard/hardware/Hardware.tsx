@@ -3,14 +3,16 @@ import React from 'react'
 import Cpu from './sections/Cpu'
 import Ram from './sections/Ram';
 import Disk from './sections/Disk';
+import { CircleNotchIcon } from '@phosphor-icons/react';
 
 const HardwareScreen: React.FC = () => {
-  const systemInfo = useAppContext();
+  const { systemInfo } = useAppContext();
 
   {
     if (!systemInfo) {
       return (
-        <section className='bg-background text-text h-full flex flex-col justify-center items-center'>
+        <section className='bg-background text-text h-full w-screen flex flex-col justify-center items-center mt-10 '>
+          <CircleNotchIcon size={40} weight='bold' className='animate-spin' />
         </section>
       )
     }
