@@ -53,7 +53,7 @@ router.post("/login", async (req, res) => {
       data: { loginDate: new Date() },
     });
 
-    return res.json({ success: true, user: { data: user }, token });
+    return res.json({ success: true, user, token });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }

@@ -28,9 +28,10 @@ export const ContextProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
     const data = await res.json();
     if (data.success) {
-      localStorage.setItem("token", data.token); // 🔑 Persist token
+      localStorage.setItem("token", data.token);
       setUser(data.user);
       setSystemInfo(data.user.system);
+      console.log(systemInfo)
       return true;
     }
     return false;
