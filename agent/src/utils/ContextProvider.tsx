@@ -61,6 +61,7 @@ export const ContextProvider: React.FC<{ children: React.ReactNode }> = ({ child
         if (data.success) {
           setUser(data.user);
           setSystemInfo(data.user.system);
+          console.log(systemInfo)
         } else {
           logout();
         }
