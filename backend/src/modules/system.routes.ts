@@ -130,12 +130,10 @@ router.post("/", async (req, res) => {
             }
           },
           users: {
-            upsert: data.users.map((u) => ({
-              where: { username_systemId: { username: u.username!, systemId: system.id } },
-            update: {
-              loginDate: u.loginDate!,
-           },
-            }))
+            updateMany: data.users.map(u => ({
+              where: { username: u.username }, 
+              data: { loginDate: u.loginDate! } 
+            })),
           },
           disks: {
             deleteMany: {},
