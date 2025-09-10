@@ -9,7 +9,7 @@ import { useAppContext } from '../../../utils/ContextProvider';
 
 const Sidebar: React.FC = () => {
   const [navOpen, setNavOpen] = useState(false)
-  const { logout } = useAppContext()
+  const { logout,user } = useAppContext()
   return (
     <>
       <AnimatePresence>
@@ -49,6 +49,7 @@ const Sidebar: React.FC = () => {
         <button onClick={() => setNavOpen(!navOpen)} className='p-2 bg-border rounded-full '>
           <SidebarSimpleIcon size={24} />
         </button>
+        {user?.role === 'ADMIN' && <p>Search bar</p>}
         <Link to="/">
           <SignOutIcon size={24} onClick={logout} weight="fill" className='transition-all duration-150 ease-in-out hover:text-error cursor-pointer' />
         </Link>

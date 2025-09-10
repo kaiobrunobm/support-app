@@ -9,11 +9,6 @@ datasource db {
 }
 
 
-enum Role {
-  USER
-  ADMIN
-}
-
 model SystemInfo {
   id        String   @id @default(uuid())
   hostname  String
@@ -78,9 +73,10 @@ model CPU {
 
 model Memory {
   id         String  @id @default(uuid())
-  size       Float // GB
+  size       Float  
   type       String?
   clockSpeed Int
+  used       Float?
   hardwareId String
 
   hardware Hardware @relation(fields: [hardwareId], references: [id], onDelete: Cascade)
@@ -95,15 +91,17 @@ model Network {
   systems  SystemInfo[]
 }
 
-model Adapter {
-  id        String @id @default(uuid())
-  name      String
-  ip        String
-  mask      String
-  mac       String
-  type      String
-  speed     Float?
-  networkId String
+model Adapter { 
+  id          String @id @default(uuid())
+  name        String
+  ip          String
+  mask        String
+  mac         String
+  type        String
+  speed       Float?
+  networkGetway String
+  ssidConected  String
+  networkId     String
 
   network Network @relation(fields: [networkId], references: [id], onDelete: Cascade)
 
@@ -118,7 +116,8 @@ model Disk {
   vendor String
 
   serialNumber String
-  size         Float // GB
+  size         Float
+  used         Float?
   systemId     String
 
   system SystemInfo @relation(fields: [systemId], references: [id], onDelete: Cascade)
@@ -136,4 +135,9 @@ model Printer {
   system SystemInfo @relation(fields: [systemId], references: [id], onDelete: Cascade)
 
   @@index([systemId])
+}
+
+enum Role {
+  USER
+  ADMIN
 }

@@ -38,6 +38,7 @@ router.post("/", async (req, res) => {
               create: data.hardware.memory.map((m) => ({
                 size: m.size,
                 type: m.type ?? null,
+                used: m.used ?? null,
                 clockSpeed: m.clockSpeed,
               }))
             }
@@ -52,17 +53,19 @@ router.post("/", async (req, res) => {
                 ip: a.ip,
                 mask: a.mask,
                 mac: a.mac,
+                networkGetway: a.networkGetway,
                 type: a.type,
-                speed: a.speed ?? null,
-              }))
+                speed: a.speed,
+                ssidConected: a.ssidConected,
+              })) 
             }
           }
         },
         users: {
           create: data.users.map((u) => ({
             username: u.username,
-            email: u.email || null,
-            password: u.password || null,
+            email: "",
+            password: "",
             loginDate: u.loginDate,
           }))
         },
@@ -74,6 +77,7 @@ router.post("/", async (req, res) => {
             vendor: d.vendor,
             serialNumber: d.serialNumber,
             size: d.size,
+            used: d.used
           }))
         },
         printers: {
@@ -116,8 +120,10 @@ router.post("/", async (req, res) => {
                 ip: a.ip ?? null,
                 mask: a.mask ?? null,
                 mac: a.mac ?? null,
+                networkGetway: a.networkGetway ?? null,
                 type: a.type ?? null,
                 speed: a.speed ?? null,
+                ssidConected: a.ssidConected ?? null
               }))
             }
           }
@@ -126,8 +132,8 @@ router.post("/", async (req, res) => {
           deleteMany: {},
           create: data.users.map((u) => ({
             username: u.username!,
-            email: '',
-            password: '',
+            email: "",
+            password: "",
             loginDate: u.loginDate!,
 
           }))
@@ -141,6 +147,7 @@ router.post("/", async (req, res) => {
             vendor: d.vendor!,
             serialNumber: d.serialNumber!,
             size: d.size!,
+            used: d.used
           }))
         },
         printers: {

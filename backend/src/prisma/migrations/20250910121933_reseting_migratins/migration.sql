@@ -1,3 +1,6 @@
+-- CreateEnum
+CREATE TYPE "Role" AS ENUM ('USER', 'ADMIN');
+
 -- CreateTable
 CREATE TABLE "SystemInfo" (
     "id" TEXT NOT NULL,
@@ -22,6 +25,9 @@ CREATE TABLE "SystemInfo" (
 CREATE TABLE "User" (
     "id" TEXT NOT NULL,
     "username" TEXT NOT NULL,
+    "email" TEXT,
+    "password" TEXT,
+    "role" "Role" NOT NULL DEFAULT 'USER',
     "loginDate" TIMESTAMP(3) NOT NULL,
     "systemId" TEXT NOT NULL,
 
@@ -54,6 +60,7 @@ CREATE TABLE "Memory" (
     "size" DOUBLE PRECISION NOT NULL,
     "type" TEXT,
     "clockSpeed" INTEGER NOT NULL,
+    "used" DOUBLE PRECISION,
     "hardwareId" TEXT NOT NULL,
 
     CONSTRAINT "Memory_pkey" PRIMARY KEY ("id")
@@ -75,7 +82,8 @@ CREATE TABLE "Adapter" (
     "mask" TEXT NOT NULL,
     "mac" TEXT NOT NULL,
     "type" TEXT NOT NULL,
-    "speed" INTEGER NOT NULL,
+    "speed" DOUBLE PRECISION,
+    "ssidConected" TEXT NOT NULL,
     "networkId" TEXT NOT NULL,
 
     CONSTRAINT "Adapter_pkey" PRIMARY KEY ("id")
@@ -87,8 +95,10 @@ CREATE TABLE "Disk" (
     "device" TEXT NOT NULL,
     "type" TEXT NOT NULL,
     "name" TEXT NOT NULL,
+    "vendor" TEXT NOT NULL,
     "serialNumber" TEXT NOT NULL,
     "size" DOUBLE PRECISION NOT NULL,
+    "used" DOUBLE PRECISION,
     "systemId" TEXT NOT NULL,
 
     CONSTRAINT "Disk_pkey" PRIMARY KEY ("id")
@@ -107,6 +117,9 @@ CREATE TABLE "Printer" (
 
 -- CreateIndex
 CREATE UNIQUE INDEX "SystemInfo_hostname_domain_key" ON "SystemInfo"("hostname", "domain");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
 CREATE INDEX "User_systemId_idx" ON "User"("systemId");

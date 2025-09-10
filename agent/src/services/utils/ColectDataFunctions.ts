@@ -4,6 +4,8 @@ import { collectSystemInfo } from '../collectData';
 import { exec } from "child_process";
 import z from 'zod'; 
 import iconv from "iconv-lite";
+import { toast } from 'sonner';
+import util from 'util'
 
 
 const printerSchema = z.object({
@@ -22,6 +24,7 @@ const VIRTUAL_PRINTERS = [
   "pdf",
   "microsoft print to pdf",
   "onenote for windows",
+  "AnyDesk Printer"
 ];
 
 export const extractIp = (portName: string): string | null => {
@@ -82,7 +85,6 @@ export const getPrinters = (): Promise<Printer[]> => {
   });
    });
   }
-
 
 export const formatUptime = (seconds: number): string => {
   const hours = Math.floor(seconds / 3600);

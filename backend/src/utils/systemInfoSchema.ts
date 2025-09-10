@@ -4,6 +4,7 @@ const memorySchema = z.object({
   size: z.number(),      // GB
   type: z.string().nullable().optional(),
   clockSpeed: z.number(),
+  used: z.number().nullable(),
 });
 
 const cpuSchema = z.object({
@@ -24,8 +25,10 @@ const adapterSchema = z.object({
   ip: z.string(),
   mask: z.string(),
   mac: z.string(),
+  networkGetway: z.string(),
   type: z.string(),
   speed: z.number().nullable(),
+  ssidConected: z.string()
 });
 
 const networkSchema = z.object({
@@ -36,7 +39,7 @@ const networkSchema = z.object({
 const userSchema = z.object({
   username: z.string(),
   email: z.string(),
-  password: z.string().nullable(),
+  password: z.string(),
   loginDate: z.string().transform((d) => new Date(d)),
 });
 
@@ -46,7 +49,8 @@ const diskSchema = z.object({
   name: z.string(),
   vendor: z.string(),
   serialNumber: z.string(),
-  size: z.number(), // GB
+  size: z.number(), 
+  used: z.number().nullable()
 });
 
 const printerSchema = z.object({

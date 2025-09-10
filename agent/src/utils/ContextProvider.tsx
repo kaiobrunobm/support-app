@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { SystemInterface } from "./systemInterface";
+import {collectSystemInfo} from '../services/collectData'
 
 interface User {
   email: string;
@@ -45,31 +46,48 @@ export const ContextProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const logout = () => {
     localStorage.removeItem("token");
     setUser(null);
-    setSystemInfo(null);
+    window.electronAPI.getSystemInfo()
+      .then((info: SystemInterface) => setSystemInfo(info))
+      .catch(console.error);
   };
 
-  useEffect(() => {
+   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (!token) return;
 
-    (async () => {
-      try {
-        const res = await fetch("https://support-app-backend.vercel.app/auth/me", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const data = await res.json();
-        if (data.success) {
-          setUser(data.user);
-          setSystemInfo(data.user.system);
-          console.log(systemInfo)
-        } else {
+    if (token) {
+      // ✅ Try auto-login
+      (async () => {
+        try {
+          const res = await fetch("https://support-app-backend.vercel.app/auth/me", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const data = await res.json();
+          if (data.success) {
+            setUser(data.user);
+            setSystemInfo(data.user.system);
+          } else {
+            logout();
+           
+            window.electronAPI.getSystemInfo()
+      .then((info: SystemInterface) => setSystemInfo(info))
+      .catch(console.error);
+          }
+        } catch (err) {
+          console.error("Auto login failed", err);
           logout();
+          window.electronAPI.getSystemInfo()
+      .then((info: SystemInterface) => setSystemInfo(info))
+      .catch(console.error);
         }
-      } catch (err) {
-        console.error("Auto login failed", err);
-        logout();
-      }
-    })();
+      })();
+    } else {
+      // ✅ Not logged in → collect local info
+      (async () => {
+        window.electronAPI.getSystemInfo()
+      .then((info: SystemInterface) => setSystemInfo(info))
+      .catch(console.error);
+      })();
+    }
   }, []);
 
   return (
