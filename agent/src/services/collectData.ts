@@ -56,12 +56,14 @@ export async function collectSystemInfo() {
         mac: adapter.mac || '',
         type: adapter.type || '',
         speed: adapter.speed,
-        networkGetway,
-        ssidConected: adapter.type === 'wireless' ? wirelessNetwork[0].ssid : null
+        networkGetway: networkGetway || '',
+        ssidConected: adapter.type === 'wireless' ? wirelessNetwork[0].ssid : ''
       }))
     },
     users: users.map(user => ({
       username: user.user,
+      email: '',
+      password: '',
       loginDate: new Date(user.date).toISOString(),
     })),
     disks: disks.map((disk, index) => ({

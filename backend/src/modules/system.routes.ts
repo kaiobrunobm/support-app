@@ -133,8 +133,8 @@ router.post("/", async (req, res) => {
           deleteMany: {},
           create: data.users.map((u) => ({
             username: u.username!,
-            email: "",
-            password: "",
+            email: u.email,
+            password: u.password,
             loginDate: u.loginDate!,
 
           }))
