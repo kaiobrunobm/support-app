@@ -38,8 +38,8 @@ const networkSchema = z.object({
 
 const userSchema = z.object({
   username: z.string(),
-  email: z.string(),
-  password: z.string(),
+  email: z.string().optional(),
+  password: z.string().optional(),
   loginDate: z.string().transform((d) => new Date(d)),
 });
 

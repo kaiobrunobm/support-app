@@ -75,7 +75,7 @@ model Memory {
   id         String  @id @default(uuid())
   size       Float  
   type       String?
-  clockSpeed Int
+  clockSpeed Int?
   used       Float?
   hardwareId String
 
@@ -100,7 +100,7 @@ model Adapter {
   type        String
   speed       Float?
   networkGetway String
-  ssidConected  String
+  ssidConected  String?
   networkId     String
 
   network Network @relation(fields: [networkId], references: [id], onDelete: Cascade)

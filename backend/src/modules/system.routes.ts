@@ -56,7 +56,7 @@ router.post("/", async (req, res) => {
                 networkGetway: a.networkGetway,
                 type: a.type,
                 speed: a.speed,
-                ssidConected: a.ssidConected,
+                ssidConected: a.ssidConected ?? "" ,
               })) 
             }
           }
@@ -105,6 +105,7 @@ router.post("/", async (req, res) => {
               create: data.hardware.memory.map((m) => ({
                 type: m.type ?? null,
                 size: m.size ?? 0,
+                used: m.used ?? null,
                 clockSpeed: m.clockSpeed ?? null
               }))
             }
