@@ -118,13 +118,13 @@ router.post("/", async (req, res) => {
               deleteMany: {},
               create: data.network.adapters.map((a) => ({
                 name: a.name!,
-                ip: a.ip ?? null,
-                mask: a.mask ?? null,
-                mac: a.mac ?? null,
-                networkGetway: a.networkGetway ?? null,
-                type: a.type ?? null,
+                ip: a.ip ?? "",
+                mask: a.mask ?? "",
+                mac: a.mac ?? "",
+                networkGetway: a.networkGetway ?? "",
+                type: a.type ?? "",
                 speed: a.speed ?? null,
-                ssidConected: a.ssidConected ?? null
+                ssidConected: a.ssidConected || ""
               }))
             }
           }
