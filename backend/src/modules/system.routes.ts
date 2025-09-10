@@ -89,75 +89,75 @@ router.post("/", async (req, res) => {
         }
       },
 
-      update: {
-        platform: data.platform,
-        distro: data.distro,
-        release: data.release,
-        build: data.build,
-        kernel: data.kernel,
-        arch: data.arch,
-        uptime: data.uptime,
-        hardware: {
-          update: {
-            cpu: { update: data.hardware.cpu },
-            memory: {
-              deleteMany: {},
-              create: data.hardware.memory.map((m) => ({
-                type: m.type ?? null,
-                size: m.size ?? 0,
-                used: m.used ?? null,
-                clockSpeed: m.clockSpeed ?? null
-              }))
+        update: {
+          platform: data.platform,
+          distro: data.distro,
+          release: data.release,
+          build: data.build,
+          kernel: data.kernel,
+          arch: data.arch,
+          uptime: data.uptime,
+          hardware: {
+            update: {
+              cpu: { update: data.hardware.cpu },
+              memory: {
+                deleteMany: {},
+                create: data.hardware.memory.map((m) => ({
+                  type: m.type ?? null,
+                  size: m.size ?? 0,
+                  used: m.used ?? null,
+                  clockSpeed: m.clockSpeed ?? null
+                }))
+              }
             }
-          }
-        },
-        network: {
-          update: {
-            publicIP: data.network.publicIP,
-            adapters: {
-              deleteMany: {},
-              create: data.network.adapters.map((a) => ({
-                name: a.name!,
-                ip: a.ip ?? "",
-                mask: a.mask ?? "",
-                mac: a.mac ?? "",
-                networkGetway: a.networkGetway ?? "",
-                type: a.type ?? "",
-                speed: a.speed ?? null,
-                ssidConected: a.ssidConected || ""
-              }))
+          },
+          network: {
+            update: {
+              publicIP: data.network.publicIP,
+              adapters: {
+                deleteMany: {},
+                create: data.network.adapters.map((a) => ({
+                  name: a.name!,
+                  ip: a.ip ?? "",
+                  mask: a.mask ?? "",
+                  mac: a.mac ?? "",
+                  networkGetway: a.networkGetway ?? "",
+                  type: a.type ?? "",
+                  speed: a.speed ?? null,
+                  ssidConected: a.ssidConected || ""
+                }))
+              }
             }
+          },
+          users: {
+            upsert: data.users.map((u) => ({
+              where: { username_systemId: { username: u.username!, systemId: system.id } },
+            update: {
+              loginDate: u.loginDate!,
+           },
+            }))
+          },
+          disks: {
+            deleteMany: {},
+            create: data.disks.map((d) => ({
+              device: d.device!,
+              type: d.type!,
+              name: d.name!,
+              vendor: d.vendor!,
+              serialNumber: d.serialNumber!,
+              size: d.size!,
+              used: d.used
+            }))
+          },
+          printers: {
+            deleteMany: {},
+            create: data.printers.map((p) => ({
+              name: p.name!,
+              ip: p.ip ?? null,
+              port: p.port ?? null,
+            }))
           }
-        },
-        users: {
-          deleteMany: {},
-          create: data.users.map((u) => ({
-            username: u.username!,
-            loginDate: u.loginDate!,
-
-          }))
-        },
-        disks: {
-          deleteMany: {},
-          create: data.disks.map((d) => ({
-            device: d.device!,
-            type: d.type!,
-            name: d.name!,
-            vendor: d.vendor!,
-            serialNumber: d.serialNumber!,
-            size: d.size!,
-            used: d.used
-          }))
-        },
-        printers: {
-          deleteMany: {},
-          create: data.printers.map((p) => ({
-            name: p.name!,
-            ip: p.ip ?? null,
-            port: p.port ?? null,
-          }))
         }
-      }
 
     });
 
