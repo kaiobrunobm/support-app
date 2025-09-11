@@ -4,8 +4,10 @@ import NavItem from '../components/NavItem'
 import {
   CpuIcon, DesktopTowerIcon, SidebarSimpleIcon, WifiHighIcon, SignOutIcon
 } from '@phosphor-icons/react';
-import { Outlet, Link, useLocation } from 'react-router'
+import { Outlet, Link } from 'react-router'
 import { useAppContext } from '../../../utils/ContextProvider';
+import Input from '../../components/Input';
+import SystemSearch from './SystemSearch';
 
 const Sidebar: React.FC = () => {
   const [navOpen, setNavOpen] = useState(false)
@@ -49,7 +51,7 @@ const Sidebar: React.FC = () => {
         <button onClick={() => setNavOpen(!navOpen)} className='p-2 bg-border rounded-full '>
           <SidebarSimpleIcon size={24} />
         </button>
-        {user?.role === 'ADMIN' && <p>Search bar</p>}
+        {user?.role === 'ADMIN' && <SystemSearch/>}
         <Link to="/">
           <SignOutIcon size={24} onClick={logout} weight="fill" className='transition-all duration-150 ease-in-out hover:text-error cursor-pointer' />
         </Link>

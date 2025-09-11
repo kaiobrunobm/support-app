@@ -12,6 +12,7 @@ interface ContextInterface {
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
   user: User | null;
+  setSystemInfo: (system: SystemInterface | null) => void; // ✅ new
 }
 
 const AppContext = createContext<ContextInterface | undefined>(undefined);
@@ -91,7 +92,7 @@ export const ContextProvider: React.FC<{ children: React.ReactNode }> = ({ child
   }, []);
 
   return (
-    <AppContext.Provider value={{ login, logout, user, systemInfo }}>
+    <AppContext.Provider value={{ login, logout, user, systemInfo, setSystemInfo }}>
       {children}
     </AppContext.Provider>
   );

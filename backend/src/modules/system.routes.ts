@@ -175,5 +175,73 @@ router.get("/", async (_, res) => {
   }
 });
 
+// Search systems (hostname, domain, ip, etc)
+router.get("/search", async (req, res) => {
+  const { q } = req.query;
+
+  if (!q || typeof q !== "string") {
+    return res.status(400).json({ error: "Query string is required" });
+  }
+
+  try {
+    const systems = await prisma.systemInfo.findMany({
+  where: {
+    OR: [
+      { hostname: { contains: q, mode: "insensitive" } },
+      { domain: { contains: q, mode: "insensitive" } },
+      {
+        network: {
+          adapters: {
+            some: { ip: { contains: q } }
+          }
+        }
+      }
+    ]
+  },
+  take: 5,
+  select: {
+    id: true,
+    hostname: true,
+    domain: true,
+    network: {
+      select: {
+        publicIP: true,
+        adapters: { select: { ip: true } }
+      }
+    }
+  }
+});
+
+    res.json(systems);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Get system by ID (full details)
+router.get("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const system = await prisma.systemInfo.findUnique({
+      where: { id },
+      include: {
+        hardware: { include: { cpu: true, memory: true } },
+        network: { include: { adapters: true } },
+        users: true,
+        disks: true,
+        printers: true,
+      },
+    });
+
+    if (!system) return res.status(404).json({ error: "System not found" });
+
+    res.json(system);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
 export default router;
 
