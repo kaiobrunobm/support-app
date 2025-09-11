@@ -14,7 +14,8 @@ export async function collectSystemInfo() {
   const memoryUsage = await si.mem();
   const netInterface = await si.networkInterfaces();
   const networkGetway = await si.networkGatewayDefault();
-  const wirelessNetwork = await si.wifiNetworks()
+  const wirelessNetwork = await si.wifiNetworks();
+  const wirelessConnection = await si.wifiConnections();
   const publicIP = await getPublicIP();
   const users = await si.users();
   const disks = await si.diskLayout();
@@ -47,9 +48,23 @@ export async function collectSystemInfo() {
         clockSpeed: memory.clockSpeed,
       }))
     },
-    network: {
-      publicIP: publicIP,
-      adapters: netInterface.map(adapter => ({
+ network: {
+  publicIP: publicIP,
+  adapters: netInterface
+    .filter(
+      (adapter) =>
+        !adapter.virtual &&
+        !adapter.iface.includes('Bluetooth') &&
+        !adapter.internal &&
+        (adapter.type.toLowerCase() === 'wired' ||
+          adapter.type.toLowerCase() === 'wireless')
+    )
+    .map((adapter) => {
+      const connectedWifi = Array.isArray(wirelessConnection)
+        ? wirelessConnection.find((net) => net.iface === adapter.iface)
+        : null;
+
+      return {
         name: adapter.iface,
         ip: adapter.ip4 || '',
         mask: adapter.ip4subnet || '',
@@ -57,9 +72,13 @@ export async function collectSystemInfo() {
         type: adapter.type || '',
         speed: adapter.speed,
         networkGetway: networkGetway || '',
-        ssidConected: adapter.type === 'wireless' ? wirelessNetwork[0].ssid : ''
-      }))
-    },
+        ssidConected:
+          adapter.type.toLowerCase() === 'wireless' && connectedWifi
+            ? connectedWifi.ssid
+            : ''
+      };
+    })
+},
     users: users.map(user => ({
       username: user.user,
       email: '',

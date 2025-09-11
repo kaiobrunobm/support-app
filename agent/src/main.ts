@@ -3,7 +3,6 @@ import path from 'path';
 import { startPostData } from './services/dataPost';
 import { collectSystemInfo } from './services/collectData'
 import { autoUpdater } from 'electron-updater'
-import { loginUser } from './auth/auth'
 
 let tray: Tray | null = null;
 let mainWindow: BrowserWindow | null = null;
@@ -27,7 +26,7 @@ const createWindow = async () => {
     autoUpdater.checkForUpdatesAndNotify();
   });
 
-  //Menu.setApplicationMenu(null)
+  Menu.setApplicationMenu(null)
 
   try {
     if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
