@@ -17,7 +17,7 @@ const SystemSearch: React.FC = () => {
     setLoading(true);
     const timeout = setTimeout(async () => {
       try {
-        const res = await fetch(`https://support-app-backend.vercel.app/systems/search?q=${query}`);
+        const res = await fetch(`https://support-app-backend.vercel.app/system-info/search?q=${query}`);
         const data = await res.json();
         setResults(data.slice(0, 5)); // max 5
       } catch (err) {
@@ -32,7 +32,7 @@ const SystemSearch: React.FC = () => {
 
   const handleSelect = async (id: string) => {
     try {
-      const res = await fetch(`https://support-app-backend.vercel.app/systems/${id}`);
+      const res = await fetch(`https://support-app-backend.vercel.app/system-info/${id}`);
       const data = await res.json();
       setSystemInfo(data); // ✅ update context with full system info
       setResults([]);
@@ -51,18 +51,18 @@ const SystemSearch: React.FC = () => {
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Pesquisar sistema..."
-        className="w-full p-2 border rounded bg-background/50 text-text"
+        className="w-full px-4 py-3 border-2 border-border rounded-md outline-none bg-background/50 text-text ring-0"
       />
-      {loading && <div className="absolute top-full left-0 p-2 text-sm">Carregando...</div>}
+      {loading && <div className="bg-background absolute top-full left-0 p-2 text-sm">Carregando...</div>}
       {results.length > 0 && (
-        <ul className="absolute top-full left-0 w-full bg-background border rounded shadow-lg mt-1 z-50">
+        <ul className="absolute top-full left-0 w-full bg-background border-border rounded shadow-lg mt-1 z-50">
           {results.map((sys) => (
             <li
               key={sys.id}
-              className="p-2 hover:bg-border cursor-pointer"
+              className="p-2 transition-all duration-150 ease-in-out hover:bg-border cursor-pointer"
               onClick={() => handleSelect(sys.id)}
             >
-              {sys.hostname} ({sys.domain ?? sys.ip})
+              {sys.hostname} {sys.network.adapters[0].ip}
             </li>
           ))}
         </ul>

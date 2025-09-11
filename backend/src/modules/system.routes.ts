@@ -208,6 +208,11 @@ router.get("/search", async (req, res) => {
         publicIP: true,
         adapters: { select: { ip: true } }
       }
+    },
+    users: {
+      select: {
+        username: true
+      }
     }
   }
 });
