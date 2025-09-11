@@ -2,10 +2,11 @@ import axios from 'axios'
 import fetch from 'node-fetch';
 import { collectSystemInfo } from '../collectData';
 import { exec } from "child_process";
-import z from 'zod'; 
+import z from 'zod';
 import iconv from "iconv-lite";
 import { toast } from 'sonner';
 import si from 'systeminformation'
+import { UniversalSpeedTest, DistanceUnits } from "universal-speedtest";
 
 export interface SpeedTestResult {
   ping: number;
@@ -35,66 +36,66 @@ const VIRTUAL_PRINTERS = [
 
 export const extractIp = (portName: string): string | null => {
   if (!portName) return null;
-   const ipRegex = /\b\d{1,3}(\.\d{1,3}){3}\b/;
-   const match = portName.match(ipRegex);
-   return match ? match[0] : null;
+  const ipRegex = /\b\d{1,3}(\.\d{1,3}){3}\b/;
+  const match = portName.match(ipRegex);
+  return match ? match[0] : null;
 }
 
 export const getPrinters = (): Promise<Printer[]> => {
-   return new Promise((resolve, reject) => {
-    exec(`wmic printer get Name,PortName`,  { encoding: "buffer" }, (err, stdout) => {
-     if (err) return reject(err);
-  
-        const decoded = iconv.decode(stdout, "cp850");
-        const lines = decoded.trim().split("\r\n").filter(line => line.trim() !== '');
-        if (lines.length < 2) {
-         
-          return resolve([]);
-        }
-  
-        const header = lines[0];
-    
-        const portNameIndex = header.indexOf("PortName");
-  
-        if (portNameIndex === -1) {
-          return reject(new Error("Could not parse wmic output: 'PortName' header not found."));
-        }
-        
-        const printerLines = lines.slice(1);
-  
-   const printers: Printer[] = printerLines
-  .map(line => {
-           
-  const name = line.substring(0, portNameIndex).trim();
-  const port = line.substring(portNameIndex).trim();
-            
-  return {
-   name,
-   ip: port ? extractIp(port) : null,
-   port: port || null,
- };
-   })
-   .filter(p => {
-    if (!p.name) return false;
-    const lname = p.name.toLowerCase();
-   
-    return !VIRTUAL_PRINTERS.some(v => lname.includes(v.toLocaleLowerCase()));
-   });
+  return new Promise((resolve, reject) => {
+    exec(`wmic printer get Name,PortName`, { encoding: "buffer" }, (err, stdout) => {
+      if (err) return reject(err);
 
-        try {
+      const decoded = iconv.decode(stdout, "cp850");
+      const lines = decoded.trim().split("\r\n").filter(line => line.trim() !== '');
+      if (lines.length < 2) {
 
-          resolve(printersSchema.parse(printers));
-        } catch (parseError) {
-          console.error("Zod parsing failed for printers:", printers);
-          reject(parseError);
-        }
+        return resolve([]);
+      }
+
+      const header = lines[0];
+
+      const portNameIndex = header.indexOf("PortName");
+
+      if (portNameIndex === -1) {
+        return reject(new Error("Could not parse wmic output: 'PortName' header not found."));
+      }
+
+      const printerLines = lines.slice(1);
+
+      const printers: Printer[] = printerLines
+        .map(line => {
+
+          const name = line.substring(0, portNameIndex).trim();
+          const port = line.substring(portNameIndex).trim();
+
+          return {
+            name,
+            ip: port ? extractIp(port) : null,
+            port: port || null,
+          };
+        })
+        .filter(p => {
+          if (!p.name) return false;
+          const lname = p.name.toLowerCase();
+
+          return !VIRTUAL_PRINTERS.some(v => lname.includes(v.toLocaleLowerCase()));
+        });
+
+      try {
+
+        resolve(printersSchema.parse(printers));
+      } catch (parseError) {
+        console.error("Zod parsing failed for printers:", printers);
+        reject(parseError);
+      }
+    });
   });
-   });
-  }
+}
 
 export const formatUptime = (seconds: number): string => {
   const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60) ;
+  const minutes = Math.floor((seconds % 3600) / 60);
   return `${hours}h ${minutes}m`;
 }
 export const copyToClipboard = (text: string) => {
@@ -135,32 +136,25 @@ export const getPublicIP = async () => {
   }
 };
 
-export const getNetworkLinkSpeed = async (): Promise<number> => {
-  try {
-    // Find the default network interface
-    const defaultInterfaceName = await si.networkInterfaceDefault();
-    if (!defaultInterfaceName) {
-      console.error('No default network interface found.');
-      return 0;
-    }
+export const getNetworkLinkSpeed = async () => {
+  const universalSpeedTest = new UniversalSpeedTest({
+    debug: false, // turn off debug unless needed
+    tests: {
+      measureUpload: true,
+      measureDownload: true,
+    },
+    units: {
+      distanceUnit: DistanceUnits.km,
+    },
+  });
 
-    // Get details for all network interfaces
-    const interfaces = await si.networkInterfaces();
-    const defaultInterface = interfaces.find(
-      (iface) => iface.iface === defaultInterfaceName
-    );
+  const testResult = await universalSpeedTest.performOoklaTest();
 
-    if (defaultInterface && defaultInterface.speed) {
-      // The speed is already in Mbps
-      return defaultInterface.speed;
-    } else {
-      console.error(`Could not determine link speed for interface: ${defaultInterfaceName}`);
-      return 0;
-    }
-  } catch (error) {
-    console.error('Error getting network link speed:', error);
-    return 0;
-  }
+  // testResult contains speeds in bits per second, so convert to Mbps
+  const download = Math.round(testResult.downloadResult.transferredBytes / 1_000_000);
+  const upload = Math.round(testResult.uploadResult.transferredBytes / 1_000_000);
+
+  return { download, upload };
 };
 
 export async function sendToAPI(apiUrl: string) {
