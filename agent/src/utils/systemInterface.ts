@@ -30,7 +30,6 @@ export interface SystemInterface  {
             mask?: string;
             mac?: string;
             type?: string;
-            speed?: number;
             networkGetway?: string;
             ssidConected?: string;
         }[];

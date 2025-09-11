@@ -55,7 +55,6 @@ router.post("/", async (req, res) => {
                 mac: a.mac,
                 networkGetway: a.networkGetway,
                 type: a.type,
-                speed: a.speed,
                 ssidConected: a.ssidConected ?? "" ,
               })) 
             }
@@ -123,7 +122,6 @@ router.post("/", async (req, res) => {
                   mac: a.mac ?? "",
                   networkGetway: a.networkGetway ?? "",
                   type: a.type ?? "",
-                  speed: a.speed ?? null,
                   ssidConected: a.ssidConected || ""
                 }))
               }

@@ -5,14 +5,14 @@ import { exec } from "child_process";
 import z from 'zod';
 import iconv from "iconv-lite";
 import { toast } from 'sonner';
-import si from 'systeminformation'
-import { UniversalSpeedTest, DistanceUnits } from "universal-speedtest";
+import https from 'https';
+import { URL } from 'url';
 
-export interface SpeedTestResult {
-  ping: number;
-  download: number;
+interface SpeedTestResult {
   upload: number;
+  download: number;
 }
+
 
 const printerSchema = z.object({
   name: z.string(),
@@ -134,27 +134,6 @@ export const getPublicIP = async () => {
     console.log(err.message);
     return 'We could not find your public IP';
   }
-};
-
-export const getNetworkLinkSpeed = async () => {
-  const universalSpeedTest = new UniversalSpeedTest({
-    debug: false, // turn off debug unless needed
-    tests: {
-      measureUpload: true,
-      measureDownload: true,
-    },
-    units: {
-      distanceUnit: DistanceUnits.km,
-    },
-  });
-
-  const testResult = await universalSpeedTest.performOoklaTest();
-
-  // testResult contains speeds in bits per second, so convert to Mbps
-  const download = Math.round(testResult.downloadResult.transferredBytes / 1_000_000);
-  const upload = Math.round(testResult.uploadResult.transferredBytes / 1_000_000);
-
-  return { download, upload };
 };
 
 export async function sendToAPI(apiUrl: string) {

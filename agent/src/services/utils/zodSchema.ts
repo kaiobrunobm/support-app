@@ -33,7 +33,6 @@ export const systemInfoSchema = z.object({
       mask: z.string().nullable(),
       mac: z.string().nullable(),
       type: z.string().nullable(),
-      speed: z.number().nullable(),
       networkGetway: z.string().nullable(),
       ssidConected: z.string().nullable()
     }))

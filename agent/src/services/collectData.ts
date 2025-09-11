@@ -1,6 +1,6 @@
 import si from 'systeminformation';
 import { systemInfoSchema } from './utils/zodSchema'
-import { formatUptime, getNetworkLinkSpeed, getPrinters, getPublicIP } from './utils/ColectDataFunctions';
+import { formatUptime, getPrinters, getPublicIP } from './utils/ColectDataFunctions';
 
 
 
@@ -15,7 +15,6 @@ export async function collectSystemInfo() {
   const netInterface = await si.networkInterfaces();
   const networkGetway = await si.networkGatewayDefault();
   const wirelessConnection = await si.wifiConnections();
-  const networkSpeed = await getNetworkLinkSpeed();
   const publicIP = await getPublicIP();
   const users = await si.users();
   const disks = await si.diskLayout();
@@ -70,7 +69,6 @@ export async function collectSystemInfo() {
         mask: adapter.ip4subnet || '',
         mac: adapter.mac || '',
         type: adapter.type || '',
-        speed: networkSpeed,
         networkGetway: networkGetway || '',
         ssidConected:
           adapter.type.toLowerCase() === 'wireless' && connectedWifi
