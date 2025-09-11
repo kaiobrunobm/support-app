@@ -59,7 +59,7 @@ CREATE TABLE "Memory" (
     "id" TEXT NOT NULL,
     "size" DOUBLE PRECISION NOT NULL,
     "type" TEXT,
-    "clockSpeed" INTEGER NOT NULL,
+    "clockSpeed" INTEGER,
     "used" DOUBLE PRECISION,
     "hardwareId" TEXT NOT NULL,
 
@@ -83,7 +83,8 @@ CREATE TABLE "Adapter" (
     "mac" TEXT NOT NULL,
     "type" TEXT NOT NULL,
     "speed" DOUBLE PRECISION,
-    "ssidConected" TEXT NOT NULL,
+    "networkGetway" TEXT NOT NULL,
+    "ssidConected" TEXT,
     "networkId" TEXT NOT NULL,
 
     CONSTRAINT "Adapter_pkey" PRIMARY KEY ("id")

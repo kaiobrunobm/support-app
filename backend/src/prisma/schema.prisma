@@ -38,8 +38,8 @@ model SystemInfo {
 model User {
   id        String   @id @default(uuid())
   username  String
-  email     String?  @unique
-  password  String?
+  email     String  @unique
+  password  String
   role      Role     @default(USER)            
   loginDate DateTime
   systemId  String
@@ -75,7 +75,7 @@ model Memory {
   id         String  @id @default(uuid())
   size       Float  
   type       String?
-  clockSpeed Int?
+  clockSpeed Int
   used       Float?
   hardwareId String
 
@@ -98,9 +98,8 @@ model Adapter {
   mask        String
   mac         String
   type        String
-  speed       Float?
   networkGetway String
-  ssidConected  String?
+  ssidConected  String
   networkId     String
 
   network Network @relation(fields: [networkId], references: [id], onDelete: Cascade)

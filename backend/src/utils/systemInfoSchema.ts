@@ -27,7 +27,6 @@ const adapterSchema = z.object({
   mac: z.string(),
   networkGetway: z.string(),
   type: z.string(),
-  speed: z.number().nullable(),
   ssidConected: z.string()
 });
 
