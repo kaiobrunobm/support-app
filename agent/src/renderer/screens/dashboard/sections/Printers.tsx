@@ -66,10 +66,10 @@ const Printers: React.FC<PrintersInterface> = ({ printers }) => {
                 <div className='flex flex-col items-start'>
                 <span className='font-bold text-lg'>{printer.name}</span>
                 <div className='flex items-center gap-2'>
-                <div className='color-blue-600'>{printer.ip}</div>
-                <button onClick={() => copyToClipboard(printer.ip)} className='p-2 rounded-full transition-all duration-150 ease-in-out cursor-pointer hover:bg-border'>
+                <div>{printer.port ? printer.port : printer.ip}</div>
+                  {printer.ip && <button onClick={() => copyToClipboard(printer.ip)} className='p-2 rounded-full transition-all duration-150 ease-in-out cursor-pointer hover:bg-border'>
                   <CopySimpleIcon />
-                </button>
+                </button>}
                 </div>
 
                 </div>

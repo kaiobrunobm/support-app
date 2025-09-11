@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { SystemInterface } from "./systemInterface";
-import {collectSystemInfo} from '../services/collectData'
 
 interface User {
   email: string;
@@ -20,6 +19,7 @@ const AppContext = createContext<ContextInterface | undefined>(undefined);
 export const ContextProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [systemInfo, setSystemInfo] = useState<SystemInterface | null>(null);
   const [user, setUser] = useState<User | null>(null);
+
 
   const login = async (email: string, password: string) => {
     try {

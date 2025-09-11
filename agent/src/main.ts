@@ -26,7 +26,7 @@ const createWindow = async () => {
     autoUpdater.checkForUpdatesAndNotify();
   });
 
-  Menu.setApplicationMenu(null)
+  //Menu.setApplicationMenu(null)
 
   try {
     if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {

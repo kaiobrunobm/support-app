@@ -5,8 +5,13 @@ import { exec } from "child_process";
 import z from 'zod'; 
 import iconv from "iconv-lite";
 import { toast } from 'sonner';
-import util from 'util'
+import si from 'systeminformation'
 
+export interface SpeedTestResult {
+  ping: number;
+  download: number;
+  upload: number;
+}
 
 const printerSchema = z.object({
   name: z.string(),
@@ -24,7 +29,8 @@ const VIRTUAL_PRINTERS = [
   "pdf",
   "microsoft print to pdf",
   "onenote for windows",
-  "AnyDesk Printer"
+  "anyDesk printer",
+  "anydesk"
 ];
 
 export const extractIp = (portName: string): string | null => {
@@ -72,9 +78,9 @@ export const getPrinters = (): Promise<Printer[]> => {
     if (!p.name) return false;
     const lname = p.name.toLowerCase();
    
-    return !VIRTUAL_PRINTERS.some(v => lname.includes(v));
+    return !VIRTUAL_PRINTERS.some(v => lname.includes(v.toLocaleLowerCase()));
    });
-  
+
         try {
 
           resolve(printersSchema.parse(printers));
@@ -126,6 +132,34 @@ export const getPublicIP = async () => {
   } catch (err) {
     console.log(err.message);
     return 'We could not find your public IP';
+  }
+};
+
+export const getNetworkLinkSpeed = async (): Promise<number> => {
+  try {
+    // Find the default network interface
+    const defaultInterfaceName = await si.networkInterfaceDefault();
+    if (!defaultInterfaceName) {
+      console.error('No default network interface found.');
+      return 0;
+    }
+
+    // Get details for all network interfaces
+    const interfaces = await si.networkInterfaces();
+    const defaultInterface = interfaces.find(
+      (iface) => iface.iface === defaultInterfaceName
+    );
+
+    if (defaultInterface && defaultInterface.speed) {
+      // The speed is already in Mbps
+      return defaultInterface.speed;
+    } else {
+      console.error(`Could not determine link speed for interface: ${defaultInterfaceName}`);
+      return 0;
+    }
+  } catch (error) {
+    console.error('Error getting network link speed:', error);
+    return 0;
   }
 };
 
