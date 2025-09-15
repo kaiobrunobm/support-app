@@ -11,6 +11,7 @@
     "publish": "electron-forge publish",
     "lint": "eslint --ext .ts,.tsx ."
   },
+  "repository": "https://github.com/kaiobrunobm/support-app.git",
   "build": {
     "appId": "com.kaiobruno.supportapp",
     "win": {

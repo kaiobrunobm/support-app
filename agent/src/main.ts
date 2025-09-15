@@ -2,10 +2,13 @@ import { app, BrowserWindow, Menu, Tray, ipcMain, Event } from 'electron';
 import path from 'path';
 import { startPostData } from './services/dataPost';
 import { collectSystemInfo } from './services/collectData'
-import { autoUpdater } from 'electron-updater'
+import { autoUpdater, AppUpdater } from 'electron-updater'
 
 let tray: Tray | null = null;
 let mainWindow: BrowserWindow | null = null;
+
+autoUpdater.autoDownload = false;
+autoUpdater.autoInstallOnAppQuit = true;
 
 
 const createWindow = async () => {
@@ -13,17 +16,13 @@ const createWindow = async () => {
     width: 1200,
     height: 700,
     show: true,
-    skipTaskbar: true,
+    skipTaskbar: false,
     icon: path.join(__dirname, 'tray-icon.png'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
       nodeIntegration: false,
     },
-  });
-
-  mainWindow.once('ready-to-show', () => {
-    autoUpdater.checkForUpdatesAndNotify();
   });
 
   Menu.setApplicationMenu(null)
@@ -53,7 +52,7 @@ const createTray = () => {
     Menu.buildFromTemplate([
       {
 
-        label: 'Show App',
+        label: 'Abri suporte',
         click: () => {
           if (!mainWindow) {
             createWindow();
@@ -64,7 +63,7 @@ const createTray = () => {
       },
       { type: 'separator' },
       {
-        label: 'Quit',
+        label: 'Sair',
         click: () => {
           app.quit();
         },

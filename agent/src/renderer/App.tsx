@@ -46,7 +46,7 @@ const App: React.FC = () => {
       <div>
         <div className='flex flex-col items-center gap-3'>
           <img src={logo} className='w-11 h-11' />
-          <h1 className='font-bold text-2xl'>Entre em sua conta agora</h1>
+          <h1 className='font-bold text-2xl'>Entre em sua conta</h1>
         </div>
         <form className='flex flex-col justify-end itens-center py-6 gap-3' onSubmit={handleLogin}>
 

@@ -12,8 +12,8 @@ import defaultPrinter from '/printer-default.png'
 
 type Printer = {
   name: string;
-  ip: string;
-  port: string;
+  ip?: string;
+  port?: string;
 }
 
 interface PrintersInterface {

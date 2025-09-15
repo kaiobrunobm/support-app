@@ -6,11 +6,10 @@ import SystemItem from '../../components/SystemItem'
 
 type adapter = {
   name: string;
-  ip: string | null;
-  mask: string | null;
-  mac: string | null;
-  type: string | null;
-  speed: number | null;
+  ip?: string | null;
+  mask?: string | null;
+  mac?: string | null;
+  type?: string | null;
 }
 
 interface NetworkInterface {
