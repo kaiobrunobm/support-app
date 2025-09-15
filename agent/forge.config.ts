@@ -27,8 +27,8 @@ const config: ForgeConfig = {
       name: '@electron-forge/publisher-github',
       config: {
         repository: {
-          owner: 'me',
-          name: 'awesome-thing'
+          owner: 'kaiobrunobm',
+          name: 'support-app'
         },
         prerelease: true
       }
