@@ -1,7 +1,7 @@
 {
   "name": "agent",
   "productName": "agent",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "System tray application for get user system information",
   "main": ".vite/build/main.js",
   "scripts": {
