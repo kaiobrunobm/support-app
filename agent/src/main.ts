@@ -2,14 +2,12 @@ import { app, BrowserWindow, Menu, Tray, ipcMain, Event } from 'electron';
 import path from 'path';
 import { startPostData } from './services/dataPost';
 import { collectSystemInfo } from './services/collectData'
-import { autoUpdater, AppUpdater } from 'electron-updater'
+import {updateElectronApp} from 'update-electron-app'
+
+updateElectronApp()
 
 let tray: Tray | null = null;
 let mainWindow: BrowserWindow | null = null;
-
-autoUpdater.autoDownload = false;
-autoUpdater.autoInstallOnAppQuit = true;
-
 
 const createWindow = async () => {
   mainWindow = new BrowserWindow({
@@ -25,7 +23,7 @@ const createWindow = async () => {
     },
   });
 
-  Menu.setApplicationMenu(null)
+  //Menu.setApplicationMenu(null)
 
   try {
     if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
@@ -94,14 +92,6 @@ app.on('ready', async () => {
   }
 });
 
-autoUpdater.on('update-available', () => {
-  console.log('Update available');
-});
-
-autoUpdater.on('update-downloaded', () => {
-  console.log('Update downloaded, will install on restart');
-  autoUpdater.quitAndInstall();
-});
 
 app.on("before-quit", (event: Event) => {
   event.preventDefault(); // works here

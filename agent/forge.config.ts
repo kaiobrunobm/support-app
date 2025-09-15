@@ -21,18 +21,18 @@ const config: ForgeConfig = {
 
   makers: [
     new MakerSquirrel({}),
-    new MakerZIP({}, ['darwin']),
-    new MakerDeb({}),
-    new MakerRpm({}),
   ],
-  publishers: [
-    new PublisherGithub({
-      repository: {
-        owner: "kaiobrunobm",
-        name: "support-app",
-      },
-      prerelease: false,
-    }),
+ publishers: [
+    {
+      name: '@electron-forge/publisher-github',
+      config: {
+        repository: {
+          owner: 'me',
+          name: 'awesome-thing'
+        },
+        prerelease: true
+      }
+    }
   ],
 
   plugins: [
