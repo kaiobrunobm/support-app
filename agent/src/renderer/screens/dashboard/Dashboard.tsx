@@ -24,6 +24,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <section className='bg-background text-text h-full flex flex-col items-start'>
+      {user && <div className='fixed bottom-12 right-12 h-16 w-16 rounded-full bg-border flex items-center justify-center transition-all duration-150 ease-in-out cursor-pointer hover:bg-border/50'><ChatsIcon size={24} weight='fill' className='text-text'/></div>}
       <div className='px-3 py-1.5'>
         <h1 className='text-3xl font-bold'>Visão geral</h1>
         <span className='uppercase font-light flex items-center gap-2'>{systemInfo.domain} - <div className='lowercase'>{systemInfo.uptime}</div> </span>
