@@ -35,13 +35,35 @@ cd support-app
 # Install dependencies
 yarn install
 
-# Configure the ./backend/.env for database URL
-DATABASE_URL="your-database-url"
-
 # Configure the ./agent/src/config.ts for the api url endpoint
 export const config = {
 
   apiUrl: "https://your-api-url", 
 
 };
+
+```
+
+### 2. Backend Setup
+
+```bash
+
+# ./backend/.env setup a postgreSQL locally or any service you like
+DATABASE_URL="your-postgresql-url"
+
+# Deploy the backend locally or any service you like (eg. Vercel, Render)
+
+```
+
+### 3. Agent destribution
+
+```bash
+
+# Make the agent installer
+yarn make:agent
+
+
+```
+
+Install the agent in every machine you want
 
