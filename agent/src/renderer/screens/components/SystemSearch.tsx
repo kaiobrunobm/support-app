@@ -2,26 +2,19 @@ import React, { useState, useEffect } from "react";
 import { useAppContext } from "../../../utils/ContextProvider";
 import { DesktopTowerIcon, DotOutlineIcon } from "@phosphor-icons/react";
 import axios from 'axios'
+import { config } from "../../../config";
 
 const SystemSearch: React.FC = () => {
   const { setSystemInfo, user } = useAppContext();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const [apiUrl, setApiUrl] = useState<string | null>(null);
-
-  useEffect(() => {
-    window.electronAPI.getApiUrl().then(url => {
-      setApiUrl(url);
-    });
-  }, []);
 
 useEffect(() => {
-  if (!apiUrl) return;
   const controller = new AbortController();
 
   const timeout = setTimeout(async () => {
-    
+    setLoading(true)
     if (query.trim() === '') {
       setResults([]);
       setLoading(false);
@@ -29,10 +22,11 @@ useEffect(() => {
     }
 
     try {
-      const res = await axios.get(`${apiUrl}/system-info/search`, {
+      const res = await axios.get(`${config.apiUrl}/system-info/search`, {
         params: { q: query }, 
         signal: controller.signal 
       });
+      setLoading(true)
 
       setResults(res.data.slice(0, 5)); 
     } catch (err) {
@@ -56,9 +50,8 @@ useEffect(() => {
 
 const handleSelect = async (id: string) => {
   try {
-    if (!apiUrl) return;
 
-    const res = await axios.get(`${apiUrl}/system-info/${id}`);
+    const res = await axios.get(`${config.apiUrl}/system-info/${id}`);
     
     setSystemInfo(res.data); 
     setResults([]);

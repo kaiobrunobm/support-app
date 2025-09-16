@@ -24,7 +24,7 @@ const createWindow = async () => {
     },
   });
 
-  //`Menu.setApplicationMenu(null)
+  Menu.setApplicationMenu(null)
 
   try {
     if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
@@ -46,7 +46,7 @@ const createWindow = async () => {
 
 const createTray = () => {
   tray = new Tray(path.join(__dirname, 'tray-icon.png'))
-  tray.setToolTip('Support App');
+  tray.setToolTip('SystemPulse');
   tray.setContextMenu(
     Menu.buildFromTemplate([
       {
@@ -60,13 +60,6 @@ const createTray = () => {
           mainWindow?.focus();
         },
       },
-      { type: 'separator' },
-      {
-        label: 'Sair',
-        click: () => {
-          app.quit();
-        },
-      },
     ])
   );
 };
@@ -75,10 +68,6 @@ ipcMain.handle('get-system-info', async () => {
   const info = await collectSystemInfo()
   return info
 })
-
-ipcMain.handle('get-api-url', () => {
-  return process.env.API_URL;
-});
 
 
 app.on('ready', async () => {
