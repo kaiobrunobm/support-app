@@ -3,6 +3,7 @@ import path from 'path';
 import { startPostData } from './services/dataPost';
 import { collectSystemInfo } from './services/collectData'
 import {updateElectronApp} from 'update-electron-app'
+import 'dotenv/config';
 
 updateElectronApp()
 
@@ -74,6 +75,10 @@ ipcMain.handle('get-system-info', async () => {
   const info = await collectSystemInfo()
   return info
 })
+
+ipcMain.handle('get-api-url', () => {
+  return process.env.API_URL;
+});
 
 
 app.on('ready', async () => {

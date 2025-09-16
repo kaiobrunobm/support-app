@@ -6,6 +6,7 @@ declare global {
       getSystemInfo: () => Promise<any>;
       openExternal: (url: string) => void;
       login: (email: string, password: string) => Promise<{ success: boolean; user?: any; error?: string }>;
+      getApiUrl: () => Promise<string>;
     };
   }
 }

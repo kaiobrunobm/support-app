@@ -164,17 +164,6 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.get("/", async (_, res) => {
-  try {
-    const systems = await prisma.systemInfo.findMany({
-      include: { hardware: true, network: true, users: true, disks: true, printers: true },
-    });
-    res.json(systems);
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
 // Search systems (hostname, domain, ip, etc)
 router.get("/search", async (req, res) => {
   const { q } = req.query;

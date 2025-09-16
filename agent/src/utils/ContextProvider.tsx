@@ -2,10 +2,6 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { SystemInterface } from "./systemInterface";
 import axios from 'axios'
 
-import dotenv from "dotenv";
-
-dotenv.config();
-
 
 interface User {
   email: string;
@@ -26,11 +22,23 @@ const AppContext = createContext<ContextInterface | undefined>(undefined);
 export const ContextProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [systemInfo, setSystemInfo] = useState<SystemInterface | null>(null);
   const [user, setUser] = useState<User | null>(null);
-
+  const [apiUrl, setApiUrl] = useState<string | null>(null);
+  
+   useEffect(() => {
+    window.electronAPI.getApiUrl().then(url => {
+      setApiUrl(url);
+    });
+  }, []);
 
 const login = async (email: string, password: string) => {
+
+   if (!apiUrl) {
+      console.error("API URL is not set yet.");
+      return false;
+    }
+
   try {
-    const res = await axios.post(`${process.env.API_URL}/auth/login`, {
+    const res = await axios.post(`${apiUrl}/auth/login`, {
       email,
       password,
     });
@@ -61,13 +69,15 @@ const login = async (email: string, password: string) => {
   };
 
    useEffect(() => {
+    if (!apiUrl) return;
+
     const token = localStorage.getItem("token");
 
     if (token) {
 
    (async () => {
   try {
-    const res = await axios.get(`${process.env.API_URL}/auth/me`, {
+    const res = await axios.get(`${apiUrl}/auth/me`, {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -96,7 +106,7 @@ const login = async (email: string, password: string) => {
       .catch(console.error);
       })();
     }
-  }, []);
+  }, [apiUrl]);
 
   return (
     <AppContext.Provider value={{ login, logout, user, systemInfo, setSystemInfo }}>

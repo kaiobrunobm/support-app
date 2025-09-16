@@ -2,19 +2,22 @@ import React, { useState, useEffect } from "react";
 import { useAppContext } from "../../../utils/ContextProvider";
 import { DesktopTowerIcon, DotOutlineIcon } from "@phosphor-icons/react";
 import axios from 'axios'
-import dotenv from "dotenv";
-
-dotenv.config();
 
 const SystemSearch: React.FC = () => {
   const { setSystemInfo, user } = useAppContext();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [apiUrl, setApiUrl] = useState<string | null>(null);
 
-  
+  useEffect(() => {
+    window.electronAPI.getApiUrl().then(url => {
+      setApiUrl(url);
+    });
+  }, []);
+
 useEffect(() => {
-  
+  if (!apiUrl) return;
   const controller = new AbortController();
 
   const timeout = setTimeout(async () => {
@@ -26,7 +29,7 @@ useEffect(() => {
     }
 
     try {
-      const res = await axios.get(`${process.env.API_URL}/system-info/search`, {
+      const res = await axios.get(`${apiUrl}/system-info/search`, {
         params: { q: query }, 
         signal: controller.signal 
       });
@@ -51,19 +54,16 @@ useEffect(() => {
   };
 }, [query]);
 
-  const handleSelect = async (id: string) => {
+const handleSelect = async (id: string) => {
   try {
-    const res = await axios.get(`${process.env.API_URL}/${id}`);
+    if (!apiUrl) return;
+
+    const res = await axios.get(`${apiUrl}/system-info/${id}`);
     
     setSystemInfo(res.data); 
     setResults([]);
     setQuery("");
   } catch (err) {
-    if (axios.isAxiosError(err)) {
-      console.error("Failed to fetch system details:", err.response?.data);
-    } else {
-      console.error("An unexpected error occurred:", err);
-    }
   }
 };
 

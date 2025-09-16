@@ -11,6 +11,9 @@
     "publish": "electron-forge publish",
     "lint": "eslint --ext .ts,.tsx ."
   },
+  "files": [
+    ".vite/build/**/*"
+  ],
   "repository": "https://github.com/kaiobrunobm/support-app.git",
   "publish": [
     {
@@ -64,6 +67,7 @@
     "axios": "^1.11.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "dotenv": "^17.2.2",
     "electron-squirrel-startup": "^1.0.1",
     "electron-store": "^10.1.0",
     "electron-updater": "^6.6.2",

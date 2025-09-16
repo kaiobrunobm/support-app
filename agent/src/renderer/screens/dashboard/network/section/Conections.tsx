@@ -1,6 +1,5 @@
 import React from 'react'
 import SystemItem from '../../../components/SystemItem'
-import speedTest from "speedtest-net";
 
 interface ConectionsInterface {
   name: string,
