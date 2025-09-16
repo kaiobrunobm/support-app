@@ -33,7 +33,7 @@ const App: React.FC = () => {
       toast.error("Erro ao fazer login. Tente novamente.");
       console.error(err);
     } finally {
-      setIsLoading(false); // Sempre desliga no final
+      setIsLoading(false);
     }
   };
 

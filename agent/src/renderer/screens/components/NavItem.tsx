@@ -1,21 +1,37 @@
 import React from 'react'
-import { Link } from 'react-router'
+import { NavLink } from 'react-router'
 
 interface NavItemInterface {
   path: string,
-  active?: boolean,
   navText: string,
-  icon: React.ReactNode,
+  icon: React.ReactElement<IconProps>,
   setNavOpen: (state: boolean) => void,
-  navOpen: boolean
+  navOpen: boolean,
+  end?: boolean
 }
 
-const NavItem: React.FC<NavItemInterface> = ({ path, active, navText, icon, setNavOpen, navOpen }) => {
+interface IconProps {
+  weight?: 'fill' | 'regular' | 'light' | 'bold' | 'thin' | 'duotone';
+  size?: number;
+}
+
+const NavItem: React.FC<NavItemInterface> = ({ path, navText, icon,end,setNavOpen, navOpen }) => {
   return (
-    <Link onClick={() => setNavOpen(!navOpen)} to={path} className={`flex items-center self-stretch gap-3 px-4 py-2.5 rounded-lg transition-all duration-150 ease-in-out hover:bg-ghostButton/50 ${active && 'bg-ghostButton hover:bg-ghostButton'} `}>
-      {icon}
-      <span className='font-medium'>{navText}</span>
-    </Link>
+    <NavLink 
+    onClick={() => setNavOpen(!navOpen)} 
+    to={path} 
+    end={end}
+    className={({isActive}) => 
+      `flex items-center self-stretch gap-3 px-4 py-2.5 rounded-lg transition-all duration-150 ease-in-out hover:bg-ghostButton/50 ${isActive && 'bg-ghostButton '} `}
+      >
+      {({ isActive }) => (
+        <>
+          {React.cloneElement(icon, { weight: isActive ? 'fill' : 'regular' })}
+          
+          <span className='font-medium'>{navText}</span>
+        </>
+      )}
+    </NavLink>
   )
 }
 

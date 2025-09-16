@@ -1,7 +1,7 @@
 {
   "name": "agent",
-  "productName": "agent",
-  "version": "0.0.2",
+  "productName": "SystemPulse",
+  "version": "0.0.1",
   "description": "System tray application for get user system information",
   "main": ".vite/build/main.js",
   "scripts": {
@@ -12,26 +12,13 @@
     "lint": "eslint --ext .ts,.tsx ."
   },
   "repository": "https://github.com/kaiobrunobm/support-app.git",
-  "build": {
-    "appId": "com.kaiobruno.supportapp",
-    "win": {
-      "icon": "./public/tray-icon.ico",
-      "target": "nsis"
-    },
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true,
-      "shortcutName": "agent",
-      "createStartMenuShortcut": true
-    },
-    "publish": [
-      {
-        "provider": "github",
-        "owner": "kaiobrunobm",
-        "repo": "support-app"
-      }
-    ]
-  },
+  "publish": [
+    {
+      "provider": "github",
+      "owner": "kaiobrunobm",
+      "repo": "support-app"
+    }
+  ],
   "keywords": [],
   "author": {
     "name": "Kaio Bruno",

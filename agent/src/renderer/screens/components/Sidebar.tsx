@@ -6,12 +6,13 @@ import {
 } from '@phosphor-icons/react';
 import { Outlet, Link } from 'react-router'
 import { useAppContext } from '../../../utils/ContextProvider';
-import Input from '../../components/Input';
 import SystemSearch from './SystemSearch';
 
 const Sidebar: React.FC = () => {
+  
   const [navOpen, setNavOpen] = useState(false)
   const { logout,user } = useAppContext()
+
   return (
     <>
       <AnimatePresence>
@@ -35,11 +36,11 @@ const Sidebar: React.FC = () => {
               <button onClick={() => setNavOpen(!navOpen)} className='p-2 bg-border rounded-full absolute -right-2 '>
                 <SidebarSimpleIcon size={24} weight='fill' />
               </button>
-              <h2 className="text-lg font-bold px-4 py-2.5 ">Support app</h2>
+              <h2 className="text-lg font-bold px-4 py-2.5 ">SystemPulse</h2>
               <div className='flex flex-col gap-2.5 py-4'>
-                <NavItem setNavOpen={setNavOpen} navOpen icon={<DesktopTowerIcon size={24} weight={location.pathname === '/dashboard' ? 'fill' : 'regular'} />} navText="Visão geral" path='/dashboard' active={location.pathname === '/dashboard'} />
-                <NavItem setNavOpen={setNavOpen} navOpen icon={<CpuIcon size={24} weight={location.pathname === '/dashboard/hardware' ? 'fill' : 'regular'} />} navText="Hardware" path='/dashboard/hardware' active={location.pathname === '/dashboard/hardware'} />
-                <NavItem setNavOpen={setNavOpen} navOpen icon={<WifiHighIcon size={24} weight={location.pathname === '/dashboard/network' ? 'fill' : 'regular'} />} navText="Internet" path='/dashboard/network' active={location.pathname === '/dashboard/network'} />
+                <NavItem setNavOpen={setNavOpen} navOpen icon={<DesktopTowerIcon size={24} />} navText="Visão geral" path='/dashboard' end />
+                <NavItem setNavOpen={setNavOpen} navOpen icon={<CpuIcon size={24}  />} navText="Hardware" path='/dashboard/hardware'  />
+                <NavItem setNavOpen={setNavOpen} navOpen icon={<WifiHighIcon size={24}/>} navText="Internet" path='/dashboard/network' />
               </div>
             </motion.div>
 
