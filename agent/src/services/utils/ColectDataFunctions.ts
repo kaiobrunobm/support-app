@@ -1,17 +1,9 @@
 import axios from 'axios'
-import fetch from 'node-fetch';
 import { collectSystemInfo } from '../collectData';
 import { exec } from "child_process";
 import z from 'zod';
 import iconv from "iconv-lite";
 import { toast } from 'sonner';
-import https from 'https';
-import { URL } from 'url';
-
-interface SpeedTestResult {
-  upload: number;
-  download: number;
-}
 
 
 const printerSchema = z.object({
@@ -100,27 +92,15 @@ export const formatUptime = (seconds: number): string => {
 }
 export const copyToClipboard = (text: string) => {
   if (navigator.clipboard && window.isSecureContext) {
-    // ✅ Modern API
 
     toast.success(`'${text}' Copiado com sucesso`)
     return navigator.clipboard.writeText(text);
   } else {
-    // ⚠️ Fallback for older browsers
-    const textarea = document.createElement("textarea");
-    textarea.value = text;
-    textarea.style.position = "fixed"; // prevent scrolling
-    textarea.style.opacity = "0"; // invisible
-    document.body.appendChild(textarea);
-    textarea.focus();
-    textarea.select();
-
     return new Promise((resolve, reject) => {
       try {
         document.execCommand("copy");
       } catch (err) {
         reject(err);
-      } finally {
-        document.body.removeChild(textarea);
       }
     });
   }
@@ -137,21 +117,24 @@ export const getPublicIP = async () => {
 };
 
 export async function sendToAPI(apiUrl: string) {
-  const data = await collectSystemInfo();
-  console.log(data)
-  const res = await fetch(`${apiUrl}/system-info`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data)
-  });
+  try {
+    const data = await collectSystemInfo();
+    console.log(data);
 
-  if (!res.ok) {
-    throw new Error(`API error: ${res.status} ${await res.text()}`);
+    const response = await axios.post(`${apiUrl}/system-info`, data);
+
+    return response.data;
+
+  } catch (error) {
+
+    if (axios.isAxiosError(error)) {
+      console.error('API Error:', error.response?.status, error.response?.data);
+      throw new Error(`API error: ${error.response?.status} - ${JSON.stringify(error.response?.data)}`);
+    } else {
+      console.error('An unexpected error occurred:', error);
+      throw error;
+    }
   }
-
-  return await res.json();
 }
 
 

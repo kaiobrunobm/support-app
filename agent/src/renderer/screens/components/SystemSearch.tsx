@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useAppContext } from "../../../utils/ContextProvider";
 import { DesktopTowerIcon, DotOutlineIcon } from "@phosphor-icons/react";
+import axios from 'axios'
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const SystemSearch: React.FC = () => {
   const { setSystemInfo, user } = useAppContext();
@@ -8,42 +12,62 @@ const SystemSearch: React.FC = () => {
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // fetch systems as user types
-  useEffect(() => {
-    if (query.length < 2) {
+  
+useEffect(() => {
+  
+  const controller = new AbortController();
+
+  const timeout = setTimeout(async () => {
+    
+    if (query.trim() === '') {
       setResults([]);
+      setLoading(false);
       return;
     }
 
-    setLoading(true);
-    const timeout = setTimeout(async () => {
-      try {
-        const res = await fetch(`https://support-app-backend.vercel.app/system-info/search?q=${query}`);
-        const data = await res.json();
-        setResults(data.slice(0, 5)); // max 5
-      } catch (err) {
-        console.error("Search failed", err);
-      } finally {
-        setLoading(false);
-      }
-    }, 300); // debounce 300ms
+    try {
+      const res = await axios.get(`${process.env.API_URL}/system-info/search`, {
+        params: { q: query }, 
+        signal: controller.signal 
+      });
 
-    return () => clearTimeout(timeout);
-  }, [query]);
+      setResults(res.data.slice(0, 5)); 
+    } catch (err) {
+      
+      if (axios.isCancel(err)) {
+        console.log('Request canceled:', err.message);
+      } else {
+        console.error("Search failed", err);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, 300); 
+
+  
+  return () => {
+    clearTimeout(timeout);
+    controller.abort();
+  };
+}, [query]);
 
   const handleSelect = async (id: string) => {
-    try {
-      const res = await fetch(`https://support-app-backend.vercel.app/system-info/${id}`);
-      const data = await res.json();
-      setSystemInfo(data); // ✅ update context with full system info
-      setResults([]);
-      setQuery("");
-    } catch (err) {
-      console.error("Failed to fetch system details", err);
+  try {
+    const res = await axios.get(`${process.env.API_URL}/${id}`);
+    
+    setSystemInfo(res.data); 
+    setResults([]);
+    setQuery("");
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      console.error("Failed to fetch system details:", err.response?.data);
+    } else {
+      console.error("An unexpected error occurred:", err);
     }
-  };
+  }
+};
 
-  if (user?.role !== "ADMIN") return null; // ✅ only admins
+  if (user?.role !== "ADMIN") return null; 
 
   return (
     <div className="relative w-[420px]">

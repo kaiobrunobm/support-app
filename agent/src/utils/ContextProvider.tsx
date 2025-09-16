@@ -1,5 +1,11 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { SystemInterface } from "./systemInterface";
+import axios from 'axios'
+
+import dotenv from "dotenv";
+
+dotenv.config();
+
 
 interface User {
   email: string;
@@ -12,7 +18,7 @@ interface ContextInterface {
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
   user: User | null;
-  setSystemInfo: (system: SystemInterface | null) => void; // ✅ new
+  setSystemInfo: (system: SystemInterface | null) => void; 
 }
 
 const AppContext = createContext<ContextInterface | undefined>(undefined);
@@ -22,28 +28,30 @@ export const ContextProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [user, setUser] = useState<User | null>(null);
 
 
-  const login = async (email: string, password: string) => {
-    try {
-      const res = await fetch("https://support-app-backend.vercel.app/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
+const login = async (email: string, password: string) => {
+  try {
+    const res = await axios.post(`${process.env.API_URL}/auth/login`, {
+      email,
+      password,
+    });
 
-      const data = await res.json();
-      if (data.success) {
-        localStorage.setItem("token", data.token);
-        setUser(data.user);
-        setSystemInfo(data.user.system);
-        return true;
-      }
-      return false;
-    } catch (err) {
-      console.error("Login failed", err);
-      return false;
+    const data = res.data;
+    if (data.success) {
+      localStorage.setItem("token", data.token);
+      setUser(data.user);
+      setSystemInfo(data.user.system);
+      return true;
     }
-  };
-
+    return false;
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      console.error("Login failed:", err.response?.data?.message || err.message);
+    } else {
+      console.error("An unexpected error occurred during login:", err);
+    }
+    return false;
+  }
+};
   const logout = () => {
     localStorage.removeItem("token");
     setUser(null);
@@ -56,33 +64,32 @@ export const ContextProvider: React.FC<{ children: React.ReactNode }> = ({ child
     const token = localStorage.getItem("token");
 
     if (token) {
-      // ✅ Try auto-login
-      (async () => {
-        try {
-          const res = await fetch("https://support-app-backend.vercel.app/auth/me", {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          const data = await res.json();
-          if (data.success) {
-            setUser(data.user);
-            setSystemInfo(data.user.system);
-          } else {
-            logout();
-           
-            window.electronAPI.getSystemInfo()
-      .then((info: SystemInterface) => setSystemInfo(info))
-      .catch(console.error);
-          }
-        } catch (err) {
-          console.error("Auto login failed", err);
-          logout();
-          window.electronAPI.getSystemInfo()
-      .then((info: SystemInterface) => setSystemInfo(info))
-      .catch(console.error);
-        }
-      })();
+
+   (async () => {
+  try {
+    const res = await axios.get(`${process.env.API_URL}/auth/me`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    const data = res.data;
+    if (data.success) {
+      setUser(data.user);
+      setSystemInfo(data.user.system);
     } else {
-      // ✅ Not logged in → collect local info
+      logout();
+      window.electronAPI.getSystemInfo()
+        .then((info: SystemInterface) => setSystemInfo(info))
+        .catch(console.error);
+    }
+  } catch (err) {
+    console.error("Auto login failed", err);
+    logout();
+    window.electronAPI.getSystemInfo()
+      .then((info: SystemInterface) => setSystemInfo(info))
+      .catch(console.error);
+  }
+})();
+    } else {
       (async () => {
         window.electronAPI.getSystemInfo()
       .then((info: SystemInterface) => setSystemInfo(info))
