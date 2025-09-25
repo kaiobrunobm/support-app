@@ -7,13 +7,12 @@
   "license": "MIT",
   "workspaces": [
     "agent",
-    "ui-app",
     "backend",
+    "docker",
     "packages/*"
   ],
   "scripts": {
     "dev:agent": "yarn workspace agent start",
-    "dev:ui": "yarn workspace ui-app dev",
     "dev:backend": "yarn workspace backend dev",
     "db:migrate": "yarn workspace backend prisma migrate dev",
     "db:generate": "yarn workspace backend prisma generate",
@@ -22,11 +21,7 @@
     "format": "prettier --write .",
     "docker": "docker compose -f ./docker/docker-compose.yml up -d",
     "build:agent": "yarn workspace agent build",
-    "build:ui": "yarn workspace ui-app build",
     "build:backend": "yarn workspace backend build",
-    "start:agent": "yarn workspace agent start",
-    "start:ui": "yarn workspace ui-app start",
-    "start:backend": "yarn workspace backend start",
     "make:agent": "yarn workspace agent make"
   },
   "devDependencies": {

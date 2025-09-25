@@ -1,5 +1,5 @@
 export const config = {
 
-  apiUrl: "https://support-app-backend.vercel.app", 
+  apiUrl: "http://localhost:3000", 
 
 };

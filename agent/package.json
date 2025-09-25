@@ -7,9 +7,8 @@
   "scripts": {
     "start": "electron-forge start",
     "package": "electron-forge package",
-    "make": "cross-env VITE_API_URL='https://support-app-backend.vercel.app' electron-forge make",
-    "publish": "electron-forge publish",
-    "lint": "eslint --ext .ts,.tsx ."
+    "make": "electron-forge make",
+    "publish": "electron-forge publish"
   },
   "files": [
     ".vite/build/**/*"
