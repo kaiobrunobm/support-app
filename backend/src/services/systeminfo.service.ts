@@ -73,3 +73,47 @@ export async function upsertSystemInfo(data: SystemInfoPayload) {
   });
 }
 
+export async function searchSystems(query: string) {
+  return prisma.systemInfo.findMany({
+    where: {
+      OR: [
+        { hostname: { contains: query, mode: 'insensitive' } },
+        { domain: { contains: query, mode: 'insensitive' } },
+        { network: { adapters: { some: { ip: { contains: query } } } } },
+      ],
+    },
+    take: 5,
+    select: {
+      id: true,
+      hostname: true,
+      domain: true,
+      network: {
+        select: {
+          publicIP: true,
+          adapters: { select: { ip: true } },
+        },
+      },
+      user: {
+        select: {
+          fullname: true,
+        },
+      },
+    },
+  });
+}
+
+export async function findSystemById(id: string) {
+  return prisma.systemInfo.findUnique({
+    where: { id },
+    include: {
+      hardware: { include: { cpu: true, memory: true } },
+      network: { include: { adapters: true } },
+      disks: true,
+      printers: true,
+      user: true,
+    },
+  });
+}
+
+
+

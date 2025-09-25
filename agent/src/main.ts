@@ -1,8 +1,9 @@
 import { app, BrowserWindow, Menu, Tray, ipcMain, Event } from 'electron';
 import path from 'path';
-import { startPostData } from './services/dataPost';
 import { collectSystemInfo } from './services/collectData'
 import {updateElectronApp} from 'update-electron-app'
+import { sendToAPI } from './services/utils/ColectDataFunctions';
+import { config } from './config'
 import 'dotenv/config';
 
 updateElectronApp()
@@ -24,7 +25,7 @@ const createWindow = async () => {
     },
   });
 
-  Menu.setApplicationMenu(null)
+  //Menu.setApplicationMenu(null)
 
   try {
     if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
@@ -73,7 +74,14 @@ ipcMain.handle('get-system-info', async () => {
 app.on('ready', async () => {
   await createWindow();
   createTray();
-  startPostData();
+  
+  console.log('Application is ready. Sending initial system information...');
+  try {
+    await sendToAPI(config.apiUrl);
+    console.log('Initial system information sent successfully.');
+  } catch (error) {
+    console.error('Failed to send initial system information:', error);
+  }
 
   if (process.platform === 'darwin') {
     app.dock.hide();
@@ -85,6 +93,7 @@ app.on('ready', async () => {
     mainWindow?.show();
   }
 });
+
 
 
 app.on("before-quit", (event: Event) => {

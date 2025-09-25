@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { useAppContext } from "../../../utils/ContextProvider";
+import { useAppContext, apiClient } from "../../../utils/ContextProvider";
 import { DesktopTowerIcon, DotOutlineIcon } from "@phosphor-icons/react";
-import axios from 'axios'
-import { config } from "../../../config";
+import { isCancel } from 'axios';
+
 
 const SystemSearch: React.FC = () => {
   const { setSystemInfo, user } = useAppContext();
@@ -10,55 +10,49 @@ const SystemSearch: React.FC = () => {
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
-useEffect(() => {
-  const controller = new AbortController();
+  useEffect(() => {
+    const controller = new AbortController();
 
-  const timeout = setTimeout(async () => {
-    setLoading(true)
-    if (query.trim() === '') {
-      setResults([]);
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const res = await axios.get(`${config.apiUrl}/system-info/search`, {
-        params: { q: query }, 
-        signal: controller.signal 
-      });
+    const timeout = setTimeout(async () => {
       setLoading(true)
-
-      setResults(res.data.slice(0, 5)); 
-    } catch (err) {
-      
-      if (axios.isCancel(err)) {
-        console.log('Request canceled:', err.message);
-      } else {
-        console.error("Search failed", err);
+      if (query.trim() === '') {
+        setResults([]);
+        setLoading(false);
+        return;
       }
-    } finally {
-      setLoading(false);
+      try {
+        const res = await apiClient.get(`/system-info/search`, {
+          params: { q: query }, 
+          signal: controller.signal 
+        });
+        setResults(res.data.slice(0, 5)); 
+      } catch (err) {
+        if (isCancel(err)) {
+          console.log('Request canceled:', err.message);
+        } else {
+          console.error("Search failed", err);
+        }
+      } finally {
+        setLoading(false);
+      }
+    }, 300);
+
+    return () => {
+      clearTimeout(timeout);
+      controller.abort();
+    };
+  }, [query]);
+
+  const handleSelect = async (id: string) => {
+    try {
+      const res = await apiClient.get(`/system-info/${id}`);
+      setSystemInfo(res.data); 
+      setResults([]);
+      setQuery("");
+    } catch (err) {
+      console.error("Failed to fetch system details:", err);
     }
-  }, 300); 
-
-  
-  return () => {
-    clearTimeout(timeout);
-    controller.abort();
   };
-}, [query]);
-
-const handleSelect = async (id: string) => {
-  try {
-
-    const res = await axios.get(`${config.apiUrl}/system-info/${id}`);
-    
-    setSystemInfo(res.data); 
-    setResults([]);
-    setQuery("");
-  } catch (err) {
-  }
-};
 
   if (user?.role !== "ADMIN") return null; 
 
@@ -83,12 +77,11 @@ const handleSelect = async (id: string) => {
               <DesktopTowerIcon size={40} weight="fill" className="text-text text-sm"/>
               <div className="flex items-center gap-4">
                 <span>{sys.hostname}</span>
+                <div className="h-1/2 w-[1px] bg-border"/>      
+                <span>{sys.network.adapters[0].ip}</span>
                 <div className="h-1/2 w-[1px] bg-border"/>
-                 <span>{sys.network.adapters[0].ip}</span>
-                 <div className="h-1/2 w-[1px] bg-border"/>
-                  <span>{sys.users[0].username}</span>
+                <span>{sys.user?.fullname}</span>
               </div>
-              
             </li>
           ))}
         </ul>
