@@ -25,7 +25,7 @@ export function initializeSocket(httpServer: HttpServer) {
       (socket as any).user = decoded;
       next();
       
-    } catch (error) {
+    } catch (error:any) {
       console.error("Socket authentication error:", error.message);
       return next(new Error('Authentication error: Invalid token'));
     }
@@ -48,7 +48,7 @@ export function initializeSocket(httpServer: HttpServer) {
             console.log(`Ticket ${ticketId} status changed to PENDING by ${user.id}`);
             io.to(ticketId).emit('ticketStatusUpdated', updatedTicket);
           }
-        } catch (error) {
+        } catch (error: any) {
           console.error(`Failed to update ticket ${ticketId} status:`, error);
         }
       }
@@ -66,4 +66,3 @@ export function initializeSocket(httpServer: HttpServer) {
 
   return io;
 }
-

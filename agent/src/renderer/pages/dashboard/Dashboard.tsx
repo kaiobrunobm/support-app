@@ -114,17 +114,17 @@ const Dashboard: React.FC = () => {
 
           </div>
         )}
-        <section className='bg-background text-text h-full flex flex-col items-start'>
+        <section className='bg-background text-text flex flex-col items-start'>
           <div className='w-full flex justify-between items-center px-3 py-1.5'>
             <div>
               <h1 className='text-3xl font-bold'>Visão geral</h1>
               <span className='uppercase font-light flex items-center gap-2'>{systemInfo.domain} - <div className='lowercase'>{systemInfo.uptime}</div> </span>
             </div>
             <div className='flex flex-col items-end gap-2.5'>
-              {systemInfo.user ? (
-                <Avatar {...systemInfo.user} />
+              {systemInfo.user && user.id !== systemInfo.user.id ? (
+                <Avatar avatarUrl={systemInfo.user.avatarUrl} />
               ) : (
-                isAdminOrIT && (
+                isAdminOrIT && user.id !== systemInfo.user?.id && (
                   <button onClick={handleAddUserClick} className='flex items-center gap-2 cursor-pointer text-primary hover:underline'>
                     Adicionar usuário
                     <PlusIcon size={20} />

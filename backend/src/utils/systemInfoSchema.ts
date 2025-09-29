@@ -104,8 +104,12 @@ export const createTicketSchema = z.object({
 });
 
 export const createMessageSchema = z.object({
-  content: z.string().min(1, "Message content cannot be empty"),
-  imageUrl: z.string().url("Invalid URL format for image").nullish(),
+  content: z.string(),
+  imageUrl: z.string().url("Invalid URL format for image").optional()
+}).refine(data => data.content || data.imageUrl, {
+
+  message: "Message must have either content or an image URL.",
+  path: ["content"],
 });
 
 export const updateTicketStatusSchema = z.object({

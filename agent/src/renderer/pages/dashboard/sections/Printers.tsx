@@ -49,9 +49,12 @@ const Printers: React.FC<PrintersInterface> = ({ printers }) => {
         return epsonm3180
   
       default:
-        return defaultPrinter // fallback image
+        return defaultPrinter 
     }
   }
+
+  if (printers.length === 0) return null;
+
 
   return (
     <div className='flex flex-col items-start self-stretch gap-3 px-3 py-1.5'>

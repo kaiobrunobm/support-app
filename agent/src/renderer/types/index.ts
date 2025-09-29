@@ -90,6 +90,7 @@ export interface Message {
   content: string;
   imageUrl?: string | null;
   createdAt: string;
+  senderId: string;
   sender: {
     fullname: string;
     avatarUrl?: string | null;
@@ -97,7 +98,6 @@ export interface Message {
   };
 }
 
-// The complete, detailed Ticket object with all messages
 export interface Ticket {
   id: string;
   subject: string;
@@ -166,9 +166,29 @@ export interface TicketSummary {
   createdAt: string;
   requester: {
     fullname: string;
+    sector: string;
     avatarUrl?: string | null;
   };
   system: {
     hostname: string;
   };
+}
+
+export interface SystemSummary {
+  id: string;
+  hostname: string;
+  distro: string;
+  updatedAt: string; 
+  createdAt: string; 
+  user?: {
+    fullname: string;
+    avatarUrl?: string | null;
+  } | null;
+  network: {
+    adapters: { ip?: string }[];
+  };
+  _count: {
+    tickets: number;
+  };
+
 }

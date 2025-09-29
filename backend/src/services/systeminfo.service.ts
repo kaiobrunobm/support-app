@@ -154,7 +154,12 @@ export async function getAllSystems() {
             take: 1
           }
         }
-      }
+      },
+      _count: {
+        select: {
+          tickets: true,
+        },
+      },
     },
   });
 }

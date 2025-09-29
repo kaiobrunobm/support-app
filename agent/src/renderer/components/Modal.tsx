@@ -10,12 +10,11 @@ interface ModalProps {
 }
 
 const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
-  if (!isOpen) return null;
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center">
-        {/* Backdrop */}
+      {isOpen && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center">
         <motion.div
           className="fixed inset-0 bg-background/60 backdrop-blur-sm"
           onClick={onClose}
@@ -24,7 +23,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
           exit={{ opacity: 0 }}
         />
         
-        {/* Modal Content */}
+
         <motion.div
           className="relative z-10 w-full max-w-lg rounded-lg border bg-background border-border bg-card shadow-xl"
           initial={{ scale: 0.95, opacity: 0, y: 20 }}
@@ -43,6 +42,8 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
           </div>
         </motion.div>
       </div>
+      )}
+    
     </AnimatePresence>
   );
 };

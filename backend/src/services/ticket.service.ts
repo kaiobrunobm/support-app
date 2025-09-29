@@ -1,6 +1,8 @@
 import prisma from '../prisma';
 import { CustomError } from '../api/middlewares/error.middleware';
 import { TicketStatus } from '@prisma/client';
+import { Server as SocketIOServer } from 'socket.io'; 
+
 
 export async function createTicket(subject: string, initialMessage: string, requesterId: string) {
   const requester = await prisma.user.findUnique({
@@ -18,7 +20,7 @@ export async function createTicket(subject: string, initialMessage: string, requ
         subject: subject,
         status: 'OPEN',
         requesterId: requesterId,
-        systemId: requester.systemId, //TODO systemID type
+        systemId: requester.systemId!,
       },
     });
 
@@ -67,7 +69,12 @@ export async function getTicketDetails(ticketId: string, userId: string, userRol
   return ticket;
 }
 
-export async function updateTicketStatus(ticketId: string, newStatus: TicketStatus, itSupportUserId: string) {
+export async function updateTicketStatus(
+  ticketId: string, 
+  newStatus: TicketStatus, 
+  itSupportUserId: string,
+  io: SocketIOServer 
+) {
   const ticket = await prisma.ticket.findUnique({ where: { id: ticketId } });
   if (!ticket) {
     throw new CustomError('Ticket not found', 404);
@@ -76,20 +83,17 @@ export async function updateTicketStatus(ticketId: string, newStatus: TicketStat
   const oldStatus = ticket.status;
   let assigneeId = ticket.assigneeId;
 
-  // Assign the ticket if it's being claimed
   if (!assigneeId && newStatus === 'PENDING') {
     assigneeId = itSupportUserId;
   }
 
-  // --- THIS IS THE FIX ---
-  // We now include all the same relations as the getTicketDetails function.
-  // This ensures the front-end receives a complete object after the update.
   const updatedTicket = await prisma.ticket.update({
     where: { id: ticketId },
     data: {
       status: newStatus,
       assigneeId: assigneeId,
     },
+
     include: {
       messages: { orderBy: { createdAt: 'asc' }, include: { sender: { select: { fullname: true, avatarUrl: true, role: true } } } },
       requester: true,
@@ -97,9 +101,7 @@ export async function updateTicketStatus(ticketId: string, newStatus: TicketStat
       system: true,
     }
   });
-  // --------------------
 
-  // Log the history event
   if (oldStatus !== newStatus) {
     await prisma.ticketHistory.create({
       data: {
@@ -110,6 +112,8 @@ export async function updateTicketStatus(ticketId: string, newStatus: TicketStat
       }
     });
   }
+
+  io.to(ticketId).emit('ticketStatusUpdated', updatedTicket);
 
   return updatedTicket;
 }
@@ -134,35 +138,44 @@ export async function addMessageToTicket(ticketId: string, senderId: string, con
 }
 
 export async function assignAndPendTicket(ticketId: string, itSupportUserId: string) {
-  
+
   const ticket = await prisma.ticket.findUnique({
     where: { id: ticketId },
     select: { status: true }
   });
 
-  
+
   if (!ticket || ticket.status !== 'OPEN') {
 
     return null;
   }
 
-  
   const updatedTicket = await prisma.ticket.update({
     where: { id: ticketId },
     data: {
       status: 'PENDING',
       assigneeId: itSupportUserId,
     },
-    
     include: {
+      messages: { orderBy: { createdAt: 'asc' }, include: { sender: { select: { fullname: true, avatarUrl: true, role: true } } } },
       requester: true,
       assignee: true,
       system: true,
     }
   });
 
+  await prisma.ticketHistory.create({
+    data: {
+      action: 'ASSIGNED',
+      ticketId: ticketId,
+      userId: itSupportUserId,
+      details: { assigneeName: updatedTicket.assignee?.fullname }
+    }
+  });
+
   return updatedTicket;
 }
+
 
 export async function findActiveTicketForUser(requesterId: string) {
   // A user should only have one active ticket at a time.

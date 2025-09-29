@@ -49,8 +49,9 @@ export async function updateTicketStatus(req: AuthRequest, res: Response, next: 
         const { id } = req.params;
         const { status } = updateTicketStatusSchema.parse(req.body);
         const itSupportUserId = req.user!.id;
+        const io = req.app.get('io');
 
-        const updatedTicket = await TicketService.updateTicketStatus(id, status, itSupportUserId);
+        const updatedTicket = await TicketService.updateTicketStatus(id, status, itSupportUserId, io);
         res.status(200).json({ status: 'success', data: { ticket: updatedTicket } });
     } catch (error) {
         next(error);
@@ -63,11 +64,14 @@ export async function addMessage(req: AuthRequest, res: Response, next: NextFunc
         const { content, imageUrl } = createMessageSchema.parse(req.body);
         const senderId = req.user!.id;
         
-     
+        if (!content && !imageUrl) {
+            return res.status(400).json({ status: 'error', message: 'Message must have content or an image.' });
+        }
+
         const io = req.app.get('io');
         
        //TODO imageURL type
-        const newMessage = await TicketService.addMessageToTicket(ticketId, senderId, content, imageUrl, io);
+        const newMessage = await TicketService.addMessageToTicket(ticketId, senderId, content ?? '', imageUrl, io);
        
 
         res.status(201).json({ status: 'success', data: { message: newMessage } });

@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { toast } from 'sonner';
-import { PaperPlaneTiltIcon, PaperclipIcon, CircleNotchIcon } from '@phosphor-icons/react';
+import { PaperclipIcon, CircleNotchIcon, PaperPlaneRightIcon } from '@phosphor-icons/react';
 import * as apiService from '../api/apiService';
-import Button from './Button';
+import Input from './Input';
+
 
 interface MessageInputProps {
   ticketId: string;
@@ -19,7 +20,7 @@ const MessageInput: React.FC<MessageInputProps> = ({ ticketId }) => {
 
     try {
       await apiService.addMessage(ticketId, { content });
-      setContent(''); // Clear input on success
+      setContent('');
     } catch (err) {
       toast.error('Falha ao enviar mensagem.');
     } finally {
@@ -35,13 +36,12 @@ const MessageInput: React.FC<MessageInputProps> = ({ ticketId }) => {
     try {
       const formData = new FormData();
       formData.append('image', file);
-      
+
       const uploadResponse = await apiService.uploadImage(formData);
       const imageUrl = uploadResponse.data.data.url;
 
-      // Send a message with the image URL and any existing text content
-      await apiService.addMessage(ticketId, { content: content || 'Anexo', imageUrl });
-      setContent(''); // Clear input
+     await apiService.addMessage(ticketId, { content: content, imageUrl });
+      setContent('');
     } catch (err) {
       toast.error('Falha ao fazer upload da imagem.');
     } finally {
@@ -50,28 +50,35 @@ const MessageInput: React.FC<MessageInputProps> = ({ ticketId }) => {
   };
 
   return (
-    <div className="flex items-center gap-2 border-t border-border p-4">
+    <div className="sticky bottom-0 w-full bg-background flex items-center gap-2 border-t border-border p-4">
       <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept="image/*" />
-      <Button variant="secondary" onClick={() => fileInputRef.current?.click()} disabled={isSending}>
-        <PaperclipIcon size={20} />
-      </Button>
-      <textarea
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-        placeholder="Digite sua mensagem..."
-        className="flex-1 resize-none rounded-lg border-2 border-border bg-background p-2 outline-none"
-        rows={1}
-        disabled={isSending}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            handleSendMessage();
-          }
-        }}
-      />
-      <Button onClick={handleSendMessage} disabled={isSending}>
-        {isSending ? <CircleNotchIcon className="animate-spin" /> : <PaperPlaneTiltIcon size={20} />}
-      </Button>
+      <button onClick={() => fileInputRef.current?.click()} disabled={isSending} className='p-4 rounded-lg duration-150 transition-all ease-in hover:bg-border/40'>
+        <PaperclipIcon size={24} />
+      </button>
+      <div className='w-full'>
+        <Input
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          placeholder="Digite sua mensagem..."
+          disabled={isSending}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              handleSendMessage();
+            }
+          }}
+        />
+
+      </div>
+
+
+
+
+      <button onClick={handleSendMessage} disabled={isSending} className='p-4 rounded-lg duration-150 transition-all ease-in hover:scale-150 active:scale-100'>
+        {isSending ? <CircleNotchIcon className="animate-spin" /> : <PaperPlaneRightIcon size={24} weight='fill' />}
+      </button>
+
+
     </div>
   );
 };

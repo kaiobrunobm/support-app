@@ -66,7 +66,7 @@ const SystemSearch: React.FC = () => {
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Pesquisar sistema..."
-        className="w-full px-4 py-3 border-2 border-border rounded-md outline-none bg-background/50 text-text ring-0"
+        className="min-w-[90%] px-4 py-3 border-2 border-border rounded-md outline-none bg-background/50 text-text ring-0"
       />
       {loading && <DotOutlineIcon size={96} weight="fill" className="animate-pulse text-text absolute top-16 left-40"/>}
       {results.length > 0 && (

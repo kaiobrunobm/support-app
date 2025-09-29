@@ -2,8 +2,11 @@ import { UserIcon } from "@phosphor-icons/react";
 import { AppUser } from "../types";
 import React from "react";
 
+interface AvatarProps {
+  avatarUrl?: string;
+}
 
-const Avatar: React.FC<AppUser> = ({ avatarUrl }) => {
+const Avatar: React.FC<AvatarProps> = ({ avatarUrl }) => {
   return (
     <>
     {

@@ -4,21 +4,18 @@ import { Ticket } from '../types';
 import * as apiService from '../api/apiService';
 import { useAppContext } from '../context/ContextProvider'
 import Button from './Button';
+import { CaretLeftIcon } from '@phosphor-icons/react';
+import { useNavigate } from 'react-router';
 
 interface ChatHeaderProps {
   ticket: Ticket;
   setTicket: React.Dispatch<React.SetStateAction<Ticket | null>>;
 }
 
-const statusStyles = {
-  OPEN: 'bg-orange-500/20 text-orange-400',
-  PENDING: 'bg-yellow-500/20 text-yellow-400',
-  RESOLVED: 'bg-green-500/20 text-green-400',
-  CANCELLED: 'bg-red-500/20 text-red-400',
-};
-
 const ChatHeader: React.FC<ChatHeaderProps> = ({ ticket, setTicket }) => {
   const { user } = useAppContext();
+  const navigation = useNavigate();
+
   const isITSupport = user?.role === 'IT_SUPPORT' || user?.role === 'ADMIN';
 
   const handleStatusUpdate = async (status: 'RESOLVED' | 'PENDING') => {
@@ -34,17 +31,24 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ ticket, setTicket }) => {
   };
 
   return (
-    <div className="flex items-center justify-between border-b border-border p-4">
-      <div>
-        <h2 className="text-lg font-bold">{ticket.subject}</h2>
+    <div className="sticky top-0 w-full bg-background flex items-center justify-between border-b border-border p-4">
+      <div className='flex gap-6'>
+        <button onClick={() => navigation(-1)} className="rounded-full py-2 px-3 hover:bg-border/40">
+          <CaretLeftIcon size={24} />
+        </button>
+        <div>
+        {ticket.assignee ? (
+          <h2 className="text-lg font-bold">{ticket.requester.fullname} ({ticket.requester.sector})</h2>
+        ) :
+          <div className="text-lg font-bold">{ticket.assignee ? <h2>{ticket.assignee.fullname} ({ticket.assignee.sector})</h2> : <h2>Esperando técnico...</h2>}</div>
+
+        }
         <p className="text-sm text-secondaryText">
-          Solicitado por {ticket.requester.fullname}
+          Assunto: {ticket.subject}
         </p>
+        </div>
       </div>
       <div className="flex items-center gap-4">
-        <span className={`rounded-full px-3 py-1 text-xs font-semibold ${statusStyles[ticket.status]}`}>
-          {ticket.status}
-        </span>
         {isITSupport && ticket.status !== 'RESOLVED' && (
           <Button onClick={() => handleStatusUpdate('RESOLVED')}>Resolver Chamado</Button>
         )}

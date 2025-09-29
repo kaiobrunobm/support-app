@@ -1,6 +1,6 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router';
-import { useAppContext  } from './context/ContextProvider';
+import { useAppContext } from './context/ContextProvider';
 import { CircleNotchIcon } from '@phosphor-icons/react';
 
 import LoginPage from './pages/login/LoginPage';
@@ -39,10 +39,8 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 const App: React.FC = () => {
   return (
     <Routes>
-      {/* Public Route: The login page */}
       <Route path="/" element={<LoginPage />} />
 
-      {/* Protected Routes: All routes inside here require the user to be logged in */}
       <Route
         path="/app"
         element={
@@ -51,7 +49,6 @@ const App: React.FC = () => {
           </ProtectedRoute>
         }
       >
-        {/* Nested routes will be rendered inside the MainLayout's <Outlet> */}
         <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="hardware" element={<Hardware />} />
@@ -59,13 +56,18 @@ const App: React.FC = () => {
         <Route path="systems" element={<SystemList />} />
         <Route path="create-user" element={<CreateUserPage />} />
         <Route path="tickets" element={<TicketsListPage />} />
-                <Route path="tickets/:ticketId" element={<TicketChatPage />} />
-        
-        {/* Add new pages for Systems List, Tickets, etc. here */}
       </Route>
-      
 
-      {/* Fallback route to redirect any unknown paths */}
+      <Route 
+        path="/app/tickets/:ticketId" 
+        element={
+          <ProtectedRoute>
+            <TicketChatPage />
+          </ProtectedRoute>
+        } 
+      />
+
+
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   );

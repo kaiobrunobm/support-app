@@ -14,6 +14,7 @@ let mainWindow: BrowserWindow | null = null;
 const createWindow = async () => {
   mainWindow = new BrowserWindow({
     width: 1200,
+    minWidth: 600,
     height: 700,
     show: true,
     skipTaskbar: false,

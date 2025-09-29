@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion'; // 1. Import motion
 
 interface Tab {
   id: string;
@@ -13,21 +14,36 @@ interface TabsProps {
 
 const Tabs: React.FC<TabsProps> = ({ tabs, activeTab, onTabClick }) => {
   return (
-    <div className="flex items-center justify-center">
-      <nav className="-mb-px flex space-x-6" aria-label="Tabs">
+    <div className="flex w-full justify-center">
+      <nav 
+        className="flex space-x-1 rounded-lg bg-muted p-1"
+        aria-label="Tabs"
+      >
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => onTabClick(tab.id)}
-            className={`whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm transition-colors
-              ${
-                activeTab === tab.id
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-secondaryText hover:text-text hover:border-border'
-              }
-            `}
+            
+            className="relative whitespace-nowrap rounded-md px-4 py-2 text-sm font-medium transition-colors focus:outline-none"
+            style={{
+            
+              WebkitTapHighlightColor: "transparent",
+            }}
           >
-            {tab.label}
+   
+            {activeTab === tab.id && (
+              <motion.div
+                layoutId="active-pill" 
+                className="absolute inset-0 bg-border shadow-sm"
+                style={{ borderRadius: 6 }} 
+                transition={{ type: "spring", stiffness: 350, damping: 30 }} 
+              />
+            )}
+
+           
+            <span className={`relative z-10 ${activeTab === tab.id ? 'text-primary-foreground' : 'text-secondary-foreground hover:text-text'}`}>
+              {tab.label}
+            </span>
           </button>
         ))}
       </nav>
@@ -36,3 +52,4 @@ const Tabs: React.FC<TabsProps> = ({ tabs, activeTab, onTabClick }) => {
 };
 
 export default Tabs;
+

@@ -10,7 +10,6 @@ export const useDashboardStats = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Only fetch stats if the user is an admin or IT support
     if (user?.role === 'ADMIN' || user?.role === 'IT_SUPPORT') {
       const fetchStats = async () => {
         try {
@@ -31,7 +30,7 @@ export const useDashboardStats = () => {
 
       fetchStats();
     }
-  }, [user]); // Re-fetch if the user changes
+  }, [user]); 
 
   return { stats, isLoading, error };
 };
