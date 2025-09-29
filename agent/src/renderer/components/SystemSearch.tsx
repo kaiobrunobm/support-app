@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { useAppContext, apiClient } from "../../../utils/ContextProvider";
+import { useAppContext, apiClient } from "../context/ContextProvider";
 import { DesktopTowerIcon, DotOutlineIcon } from "@phosphor-icons/react";
 import { isCancel } from 'axios';
+import { useNavigate } from "react-router";
 
 
 const SystemSearch: React.FC = () => {
@@ -9,6 +10,7 @@ const SystemSearch: React.FC = () => {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const controller = new AbortController();
@@ -49,6 +51,7 @@ const SystemSearch: React.FC = () => {
       setSystemInfo(res.data); 
       setResults([]);
       setQuery("");
+      navigate("/app/dashboard")
     } catch (err) {
       console.error("Failed to fetch system details:", err);
     }

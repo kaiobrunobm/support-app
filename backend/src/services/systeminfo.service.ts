@@ -163,7 +163,7 @@ type UpdateSystemData = z.infer<typeof updateSystemInfoSchema>;
 
 //TODO change the logic to not update the info of the system like hostname, distro ip, this data the app get from the system of the user
 export async function updateSystemDetails(systemId: string, data: UpdateSystemData) {
-  
+
   const system = await prisma.systemInfo.findUnique({
     where: { id: systemId },
   });
@@ -172,13 +172,19 @@ export async function updateSystemDetails(systemId: string, data: UpdateSystemDa
     throw new CustomError('System not found', 404);
   }
 
-  
   const updatedSystem = await prisma.systemInfo.update({
     where: { id: systemId },
-    data: data, 
+    data: data,
+    include: {
+      user: true,
+      computerUsers: true,
+      hardware: { include: { cpu: true, memory: true } },
+      network: { include: { adapters: true } },
+      disks: true,
+      printers: true,
+    },
   });
 
   return updatedSystem;
 }
-
 

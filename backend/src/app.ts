@@ -34,7 +34,8 @@ app.use('/users', userRoutes);
 app.use('/tickets', ticketRoutes);
 app.use('/uploads', uploadRoutes); 
 app.use('/dashboard', dashboardRoutes);
-app.use('/history', historyRoutes);   
+app.use('/history', historyRoutes); 
+  
 
 
 app.use(errorHandler);

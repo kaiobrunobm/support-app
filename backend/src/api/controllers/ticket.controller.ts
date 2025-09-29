@@ -75,3 +75,19 @@ export async function addMessage(req: AuthRequest, res: Response, next: NextFunc
         next(error);
     }
 }
+
+export async function getMyActiveTicket(req: AuthRequest, res: Response, next: NextFunction) {
+  try {
+    const requesterId = req.user!.id;
+    const activeTicket = await TicketService.findActiveTicketForUser(requesterId);
+
+    if (!activeTicket) {
+      // It's not an error to have no active ticket, so we return 404 Not Found
+      return res.status(404).json({ status: 'not_found', message: 'No active ticket found for this user.' });
+    }
+
+    res.status(200).json({ status: 'success', data: { ticket: activeTicket } });
+  } catch (error) {
+    next(error);
+  }
+}

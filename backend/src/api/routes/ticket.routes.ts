@@ -5,6 +5,7 @@ import { authenticate, authorizeUser, authorizeAdminOrIT } from '../middlewares/
 const router = Router();
 
 router.post('/', [authenticate, authorizeUser], ticketController.createTicket);
+router.get('/me/active', [authenticate, authorizeUser], ticketController.getMyActiveTicket);
 
 router.get('/', [authenticate, authorizeAdminOrIT], ticketController.getTickets);
 

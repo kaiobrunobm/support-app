@@ -1,4 +1,4 @@
-import { useAppContext } from '../../../../utils/ContextProvider';
+import { useAppContext } from '../../context/ContextProvider';
 import React from 'react'
 import Cpu from './sections/Cpu'
 import Ram from './sections/Ram';

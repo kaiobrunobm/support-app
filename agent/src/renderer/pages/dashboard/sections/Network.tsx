@@ -1,8 +1,8 @@
 import { CopySimpleIcon } from '@phosphor-icons/react'
-import { copyToClipboard } from '../../../../utils/functions'
+import { copyToClipboard } from '../../../lib/functions'
 import React from 'react'
 
-import SystemItem from '../../components/SystemItem'
+import SystemItem from '../../../components/SystemItem'
 
 type adapter = {
   name: string;

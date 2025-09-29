@@ -141,6 +141,18 @@ type UpdateUserProfileData = z.infer<typeof updateUserProfileSchema>;
 export async function getUserProfile(userId: string) {
   const user = await prisma.user.findUnique({
     where: { id: userId },
+    include: {
+      system: {
+        include: {
+          user: true,
+          computerUsers: true,
+          hardware: { include: { cpu: true, memory: true } },
+          network: { include: { adapters: true } },
+          disks: true,
+          printers: true,
+        },
+      },
+    },
   });
 
   if (!user) {

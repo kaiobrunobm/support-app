@@ -39,7 +39,7 @@ export async function getTicketsByStatus(status: TicketStatus) {
     where: { status },
     orderBy: { createdAt: 'desc' },
     include: {
-      requester: { select: { fullname: true, avatarUrl: true } },
+      requester: { select: { fullname: true, avatarUrl: true, sector: true } },
       system: { select: { hostname: true } }
     }
   });
@@ -73,18 +73,45 @@ export async function updateTicketStatus(ticketId: string, newStatus: TicketStat
     throw new CustomError('Ticket not found', 404);
   }
 
+  const oldStatus = ticket.status;
   let assigneeId = ticket.assigneeId;
+
+  // Assign the ticket if it's being claimed
   if (!assigneeId && newStatus === 'PENDING') {
     assigneeId = itSupportUserId;
   }
 
-  return prisma.ticket.update({
+  // --- THIS IS THE FIX ---
+  // We now include all the same relations as the getTicketDetails function.
+  // This ensures the front-end receives a complete object after the update.
+  const updatedTicket = await prisma.ticket.update({
     where: { id: ticketId },
     data: {
       status: newStatus,
       assigneeId: assigneeId,
     },
+    include: {
+      messages: { orderBy: { createdAt: 'asc' }, include: { sender: { select: { fullname: true, avatarUrl: true, role: true } } } },
+      requester: true,
+      assignee: true,
+      system: true,
+    }
   });
+  // --------------------
+
+  // Log the history event
+  if (oldStatus !== newStatus) {
+    await prisma.ticketHistory.create({
+      data: {
+        action: 'STATUS_CHANGED',
+        ticketId: ticketId,
+        userId: itSupportUserId,
+        details: { from: oldStatus, to: newStatus }
+      }
+    });
+  }
+
+  return updatedTicket;
 }
 
 
@@ -135,4 +162,21 @@ export async function assignAndPendTicket(ticketId: string, itSupportUserId: str
   });
 
   return updatedTicket;
+}
+
+export async function findActiveTicketForUser(requesterId: string) {
+  // A user should only have one active ticket at a time.
+  // We find the first one that matches.
+  return prisma.ticket.findFirst({
+    where: {
+      requesterId: requesterId,
+      status: {
+        in: ['OPEN', 'PENDING'], // Check for either status
+      },
+    },
+    // Only select the ID, as that's all we need for redirection
+    select: {
+      id: true,
+    },
+  });
 }

@@ -97,5 +97,5 @@ app.on('ready', async () => {
 
 
 app.on("before-quit", (event: Event) => {
-  event.preventDefault(); // works here
+  event.preventDefault(); 
 });

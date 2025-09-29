@@ -1,6 +1,6 @@
 import { CircleNotchIcon } from '@phosphor-icons/react';
 import React from 'react'
-import { useAppContext } from '../../../../utils/ContextProvider';
+import { useAppContext } from '../../context/ContextProvider';
 import Conections from './section/Conections';
 
 const Network: React.FC = () => {

@@ -1,5 +1,5 @@
 import React from 'react'
-import { copyToClipboard } from '../../../../utils/functions'
+import { copyToClipboard } from '../../../lib/functions'
 import { CopySimpleIcon } from '@phosphor-icons/react';
 import ricoh3710sf from '/printer-ricoh3710sf.png'
 import ricoh3510sf from '/printer-ricoh3510sf.png'

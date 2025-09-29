@@ -1,5 +1,4 @@
 import si from 'systeminformation';
-import { systemInfoSchema } from './utils/zodSchema'
 import { formatUptime, getPrinters, getPublicIP } from './utils/ColectDataFunctions';
 
 

@@ -1,5 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
+import { AuthRequest } from '../../types/AuthRequest';
 import * as AuthService from '../../services/auth.service';
+import * as UserService from '../../services/user.service';
 import { z } from 'zod';
 
 const loginSchema = z.object({
@@ -22,12 +24,19 @@ export async function login(req: Request, res: Response, next: NextFunction) {
     }
 }
 
-export async function getMe(req: Request, res: Response, next: NextFunction) {
-   
+export async function getMe(req: AuthRequest, res: Response, next: NextFunction) {
+   try {
+
+    const userId = req.user!.id; 
+    const userProfile = await UserService.getUserProfile(userId);
+
     res.status(200).json({
         status: 'success',
         data: {
-            user: (req as any).user, // Type this properly later
+            user: userProfile,
         },
     });
+   } catch (error) {
+       next(error);
+   }
 }

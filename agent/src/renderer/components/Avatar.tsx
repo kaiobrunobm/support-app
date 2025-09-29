@@ -1,5 +1,5 @@
 import { UserIcon } from "@phosphor-icons/react";
-import { AppUser } from "../../../utils/systemInterface";
+import { AppUser } from "../types";
 import React from "react";
 
 

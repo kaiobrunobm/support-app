@@ -1,32 +1,21 @@
-  import { createRoot } from "react-dom/client";
-  import '../index.css'
-  import App from './App'
-  import Dashboard from "./screens/dashboard/Dashboard";
-  import React from "react";
-  import { ContextProvider } from "../utils/ContextProvider";
-  import { HashRouter, Routes, Route } from "react-router";
-  import { Toaster } from "sonner";
-  import Sidebar from "./screens/components/Sidebar";
-  import HardwareScreen from "./screens/dashboard/hardware/Hardware";
-  import Network from "./screens/dashboard/network/Network";
+import React from "react";
+import { createRoot } from "react-dom/client";
+import { HashRouter } from "react-router";
+import { ContextProvider } from "./context/ContextProvider";
+import { Toaster } from "sonner";
+import App from './App';
+import '../index.css';
 
-  const container = document.getElementById('root')
-  const root = createRoot(container)
-  root.render(
-    <React.StrictMode>
-      <ContextProvider>
-        <Toaster richColors position="bottom-center" />
-        <HashRouter >
-          <Routes>
-            <Route path="/" element={<App />} />
+const container = document.getElementById('root');
+const root = createRoot(container!);
 
-            <Route element={<Sidebar />}>
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/dashboard/hardware" element={<HardwareScreen />} />
-              <Route path="/dashboard/network" element={<Network />} />
-            </Route>
-          </Routes>
-        </HashRouter>
-      </ContextProvider>
-    </React.StrictMode >
-  )
+root.render(
+  <React.StrictMode>
+    <ContextProvider>
+      <Toaster richColors position="bottom-center" />
+      <HashRouter>
+        <App />
+      </HashRouter>
+    </ContextProvider>
+  </React.StrictMode>
+);
