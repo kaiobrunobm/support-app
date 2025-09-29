@@ -1,6 +1,7 @@
 import prisma from '../prisma';
 import bcrypt from 'bcryptjs';
-import { systemInfoPayloadSchema } from '../utils/systemInfoSchema';
+import { systemInfoPayloadSchema, updateSystemInfoSchema } from '../utils/systemInfoSchema';
+import { CustomError } from '../api/middlewares/error.middleware'
 import { z } from 'zod';
 import { User } from '@prisma/client';
 
@@ -32,6 +33,12 @@ export async function upsertSystemInfo(data: SystemInfoPayload) {
         },
         disks: { create: data.disks },
         printers: { create: data.printers },
+        computerUsers: {
+          create: data.computerUsers.map((u) => ({
+            username: u.username,
+            loginDate: u.loginDate,
+          })),
+        },
       },
       update: {
         ...data,
@@ -49,6 +56,13 @@ export async function upsertSystemInfo(data: SystemInfoPayload) {
         },
         disks: { deleteMany: {}, create: data.disks },
         printers: { deleteMany: {}, create: data.printers },
+        computerUsers: {
+          deleteMany: {}, 
+          create: data.computerUsers.map((u) => ({ 
+            username: u.username,
+            loginDate: u.loginDate,
+          })),
+        },
       },
     });
 
@@ -83,7 +97,7 @@ export async function searchSystems(query: string) {
       ],
     },
     take: 5,
-    select: {
+   select: {
       id: true,
       hostname: true,
       domain: true,
@@ -110,10 +124,61 @@ export async function findSystemById(id: string) {
       network: { include: { adapters: true } },
       disks: true,
       printers: true,
+      computerUsers: true,
       user: true,
     },
   });
 }
 
+export async function getAllSystems() {
+  return prisma.systemInfo.findMany({
+    orderBy: {
+      updatedAt: 'desc',
+    },
+    select: {
+      id: true,
+      hostname: true,
+      updatedAt: true,
+      createdAt: true,
+      user: {
+        select: {
+          fullname: true,
+          avatarUrl: true,
+        },
+      },
+      network: {
+        select: {
+          adapters: {
+            select: { ip: true },
+            where: { ip: { not: undefined } },
+            take: 1
+          }
+        }
+      }
+    },
+  });
+}
+
+type UpdateSystemData = z.infer<typeof updateSystemInfoSchema>;
+
+//TODO change the logic to not update the info of the system like hostname, distro ip, this data the app get from the system of the user
+export async function updateSystemDetails(systemId: string, data: UpdateSystemData) {
+  
+  const system = await prisma.systemInfo.findUnique({
+    where: { id: systemId },
+  });
+
+  if (!system) {
+    throw new CustomError('System not found', 404);
+  }
+
+  
+  const updatedSystem = await prisma.systemInfo.update({
+    where: { id: systemId },
+    data: data, 
+  });
+
+  return updatedSystem;
+}
 
 

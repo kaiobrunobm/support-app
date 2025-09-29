@@ -1,3 +1,18 @@
+export interface AppUser {
+  id: string;
+  fullname: string;
+  email: string;
+  sector: string;
+  phone: string;
+  avatarUrl?: string | null; // Added avatarUrl
+  role: 'USER' | 'ADMIN' | 'IT_SUPPORT';
+}
+
+interface ComputerUser {
+  username: string;
+  loginDate: string;
+}
+
 export interface SystemInterface {
   id: string;
   hostname: string;
@@ -12,6 +27,8 @@ export interface SystemInterface {
   build?: string;
   createdAt: string; 
   updatedAt: string; 
+
+  user?: AppUser | null;
 
   hardware: {
     cpu: {
@@ -40,10 +57,7 @@ export interface SystemInterface {
       ssidConected?: string;
     }[];
   };
-  computerUsers: {
-    username: string;
-    loginDate: string;
-  }[];
+  computerUsers: ComputerUser[];
   disks: {
     device: string;
     type: string;

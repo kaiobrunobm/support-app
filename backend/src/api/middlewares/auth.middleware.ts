@@ -41,3 +41,23 @@ export const authorizeAdmin = (req: AuthRequest, res: Response, next: NextFuncti
     next();
 };
 
+export const authorizeAdminOrIT = (req: AuthRequest, res: Response, next: NextFunction) => {
+    const userRole = req.user?.role;
+    if (userRole !== 'ADMIN' && userRole !== 'IT_SUPPORT') {
+        return res.status(403).json({
+            status: 'error',
+            message: 'Forbidden: You do not have permission to perform this action.'
+        });
+    }
+    next();
+};
+
+export const authorizeUser = (req: AuthRequest, res: Response, next: NextFunction) => {
+    if (req.user?.role !== 'USER') {
+        return res.status(403).json({
+            status: 'error',
+            message: 'Forbidden: This action is only available to standard users.'
+        });
+    }
+    next();
+};

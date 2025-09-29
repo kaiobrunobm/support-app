@@ -11,6 +11,7 @@ interface User {
   sector: string;
   phone: string;
   loginDate: string;
+  avatarUrl?: string | null
 }
 
 interface ContextInterface {
@@ -77,6 +78,7 @@ export const ContextProvider: React.FC<{ children: React.ReactNode }> = ({ child
             const { user } = res.data.data;
             setUser(user);
             setSystemInfo(user.system);
+            
           } else {
             logout();
           }
@@ -86,8 +88,10 @@ export const ContextProvider: React.FC<{ children: React.ReactNode }> = ({ child
         }
       } else {
         try {
-          const info = await window.electronAPI.getSystemInfo();
-          setSystemInfo(info);
+          if(systemInfo === undefined || systemInfo === null) {
+            const info = await window.electronAPI.getSystemInfo();
+            setSystemInfo(info);
+          }
         } catch (error) {
           console.error("Could not get local system info:", error);
         }
@@ -97,7 +101,8 @@ export const ContextProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
     initializeApp();
   }, []);
-
+  
+  console.log(systemInfo)
   return (
     <AppContext.Provider value={{ login, logout, user, systemInfo, setSystemInfo, isLoading }}>
       {children}

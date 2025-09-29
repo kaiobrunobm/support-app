@@ -77,11 +77,9 @@ export async function collectSystemInfo() {
       };
     })
 },
-    users: users.map(user => ({
+     computerUsers: users.map((user) => ({
       username: user.user,
-      email: '',
-      password: '',
-      loginDate: new Date(user.date).toISOString(),
+      loginDate: user.date ? new Date(user.date).toISOString() : new Date().toISOString(),
     })),
     disks: disks.map((disk, index) => ({
       device: disk.device,
@@ -94,6 +92,5 @@ export async function collectSystemInfo() {
     })),
     printers: printers
   };
-  const parsed = systemInfoSchema.parse(data);
-  return parsed;
+  return data;
 }

@@ -56,6 +56,11 @@ const printerSchema = z.object({
   ip: z.string().nullish(),
 });
 
+const computerUserSchema = z.object({
+  username: z.string(),
+  loginDate: z.string().datetime(), 
+});
+
 
 export const systemInfoPayloadSchema = z.object({
   hostname: z.string(),
@@ -73,34 +78,68 @@ export const systemInfoPayloadSchema = z.object({
   network: networkSchema,
   disks: z.array(diskSchema),
   printers: z.array(printerSchema),
+  
+  computerUsers: z.array(computerUserSchema),
 });
 
 
 export const createUserSchema = z.object({
-    fullname: z.string().min(1, "Full name is required"),
-    email: z.string().email("Invalid email address"),
-    password: z.string().min(8, "Password must be at least 8 characters"),
-    sector: z.string(),
-    phone: z.string(),
-    role: RoleSchema.optional(),
-    systemId: z.string().uuid("A valid system ID must be provided"),
-});
+  firstname: z.string().min(1, "First name is required"),
+  lastname: z.string().min(1, "Last name is required"),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  sector: z.string().min(1, "Sector is required"),
+  phone: z.string().min(1, "Phone number is required"),
+  role: z.enum(["USER", "IT_SUPPORT"]),
+  systemId: z.string().uuid("A valid system ID must be provided"),
+  avatarUrl: z.string().url("Must be a valid URL").nullish(),
+}).transform((data) => ({
+  ...data,
+  fullname: `${data.firstname} ${data.lastname}`,
+}));
 
 export const createTicketSchema = z.object({
-    systemId: z.string().uuid(),
-    requesterId: z.string().uuid(),
-    initialMessage: z.string().min(10, "Message must be at least 10 characters"),
+  subject: z.string().min(5, "Subject must be at least 5 characters"),
+  initialMessage: z.string().min(1, "An initial message is required"),
 });
 
 export const createMessageSchema = z.object({
-    content: z.string().min(1),
-    ticketId: z.string().uuid(),
-    senderId: z.string().uuid(),
+  content: z.string().min(1, "Message content cannot be empty"),
+  imageUrl: z.string().url("Invalid URL format for image").nullish(),
 });
 
-export const createAssignmentHistorySchema = z.object({
-    reason: z.string(),
-    action: ActionTypeSchema,
-    systemId: z.string().uuid(),
-    userId: z.string().uuid(),
+export const updateTicketStatusSchema = z.object({
+  status: z.enum(["PENDING", "RESOLVED"]),
 });
+
+
+export const createAssignmentHistorySchema = z.object({
+  reason: z.string(),
+  action: ActionTypeSchema,
+  systemId: z.string().uuid(),
+  userId: z.string().uuid(),
+});
+
+export const updateUserProfileSchema = z.object({
+  fullname: z.string().min(1, "Full name is required").optional(),
+  phone: z.string().min(1, "Phone number is required").optional(),
+  sector: z.string().min(1, "Sector is required").optional(),
+  avatarUrl: z.string().url("Must be a valid URL").nullish().optional(),
+}).refine(data => Object.keys(data).length > 0, {
+  message: "At least one field must be provided to update.",
+});
+
+export const changePasswordSchema = z.object({
+  currentPassword: z.string(),
+  newPassword: z.string().min(8, "New password must be at least 8 characters"),
+});
+
+export const updateSystemInfoSchema = z.object({
+  hostname: z.string().min(1, "Hostname cannot be empty").optional(),
+  domain: z.string().min(1, "Domain cannot be empty").optional(),
+  anydesk: z.string().nullish().optional(),
+}).refine(data => Object.keys(data).length > 0, {
+  message: "Request body must not be empty. Provide at least one field to update.",
+});
+
+

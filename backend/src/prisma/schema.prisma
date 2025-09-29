@@ -23,6 +23,7 @@ model SystemInfo {
   updatedAt       DateTime @updatedAt
 
   userDetachedAt  DateTime?
+  status    SystemStatus @default(ACTIVE)
 
   hardwareId      String    @unique
   hardware        Hardware  @relation(fields: [hardwareId], references: [id], onDelete: Cascade)
@@ -32,6 +33,7 @@ model SystemInfo {
   
   disks           Disk[]
   printers        Printer[]
+  computerUsers  ComputerUser[]
   
   user            User?
   
@@ -41,6 +43,23 @@ model SystemInfo {
   @@unique([hostname, domain])
 }
 
+enum SystemStatus {
+  ACTIVE
+  ARCHIVED
+}
+
+
+model ComputerUser {
+  id        String   @id @default(uuid())
+  username  String
+  loginDate DateTime
+
+  systemId String
+  system   SystemInfo @relation(fields: [systemId], references: [id], onDelete: Cascade)
+
+  @@index([systemId])
+}
+
 model User {
   id        String   @id @default(uuid())
   fullname  String
@@ -48,16 +67,20 @@ model User {
   password  String
   sector    String
   phone     String
-  role      Role     @default(USER)            
+  avatarUrl String?
+  role      Role     @default(USER)
   loginDate DateTime
-  
-  systemId  String     @unique
-  system    SystemInfo @relation(fields: [systemId], references: [id], onDelete: Cascade)
-  
+
+  systemId  String?    @unique
+  system    SystemInfo? @relation(fields: [systemId], references: [id], onDelete: SetNull)
+
   createdTickets  Ticket[] @relation("Requester")
   assignedTickets Ticket[] @relation("Assignee")
   messages        Message[]
+
+  TicketHistory TicketHistory[]
 }
+
 
 enum Role {
   USER
@@ -67,6 +90,7 @@ enum Role {
 
 model Ticket {
   id        String       @id @default(uuid())
+  subject   String  
   status    TicketStatus @default(OPEN)
   createdAt DateTime     @default(now())
   updatedAt DateTime     @updatedAt
@@ -81,15 +105,40 @@ model Ticket {
   assignee    User?      @relation("Assignee", fields: [assigneeId], references: [id])
 
   messages    Message[]
+  history   TicketHistory[]
 
   @@index([systemId])
   @@index([requesterId])
   @@index([assigneeId])
 }
 
+model TicketHistory {
+  id        String           @id @default(uuid())
+  action    TicketActionType
+  details   Json?             
+  createdAt DateTime         @default(now())
+
+  ticketId  String
+  ticket    Ticket           @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  userId    String
+  user      User             @relation(fields: [userId], references: [id])
+
+  @@index([ticketId])
+  @@index([userId])
+}
+
+enum TicketActionType {
+  CREATED
+  STATUS_CHANGED
+  ASSIGNED
+  MESSAGE_ADDED
+}
+
 model Message {
   id        String   @id @default(uuid())
   content   String
+  imageUrl  String?
   createdAt DateTime @default(now())
   
   ticketId  String
@@ -114,6 +163,7 @@ model AssignmentHistory {
 
   @@index([systemId])
 }
+
 
 enum TicketStatus {
   OPEN

@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import * as SystemService from '../../services/systeminfo.service';
-import { systemInfoPayloadSchema } from '../../utils/systemInfoSchema';
+import * as schemas from '../../utils/systemInfoSchema';
 
 export async function upsertSystem(req: Request, res: Response, next: NextFunction) {
     try {
      
-        const validatedData = systemInfoPayloadSchema.parse(req.body);
+        const validatedData = schemas.systemInfoPayloadSchema.parse(req.body);
 
        
         const result = await SystemService.upsertSystemInfo(validatedData);
@@ -50,4 +50,35 @@ export const getSystemById = async (req: Request, res: Response, next: NextFunct
   }
 };
 
-// Add your other controller functions here for search, getById, etc.
+export const getAllSystems = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const systems = await SystemService.getAllSystems();
+        res.status(200).json({
+            status: 'success',
+            results: systems.length,
+            data: { systems },
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const updateSystem = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id } = req.params;
+        
+        const validatedData = schemas.updateSystemInfoSchema.parse(req.body);
+
+        const updatedSystem = await SystemService.updateSystemDetails(id, validatedData);
+
+        res.status(200).json({
+            status: 'success',
+            data: { system: updatedSystem },
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+

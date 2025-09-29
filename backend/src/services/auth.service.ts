@@ -7,14 +7,16 @@ export async function loginUser(email: string, password: string) {
   const user = await prisma.user.findUnique({
     where: { email },
     include: {
-        system: {
-            include: {
-                hardware: { include: { cpu: true, memory: true } },
-                network: { include: { adapters: true } },
-                disks: true,
-                printers: true,
-            }
+      system: {
+        include: {
+          user: true,           
+          computerUsers: true,  
+          hardware: { include: { cpu: true, memory: true } },
+          network: { include: { adapters: true } },
+          disks: true,
+          printers: true,
         }
+      }
     }
   });
 
