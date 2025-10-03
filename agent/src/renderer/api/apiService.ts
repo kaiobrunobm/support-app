@@ -90,14 +90,14 @@ export const getUserById = (id: string) => {
     return apiClient.get(`/users/${id}`);
 };
 
-// NEW: Function to update the currently logged-in user's profile
 export const updateMe = (data: Partial<AppUser>) => {
     return apiClient.patch('/users/me', data);
 };
 
-// NEW: Function for an Admin to update any user's profile by their ID
 export const updateUserById = (id: string, data: Partial<AppUser>) => {
     return apiClient.patch(`/users/${id}`, data);
 };
 
-
+export const updatePassword = (userId: string, data: any) => {
+    return apiClient.patch(`/users/${userId}/password`, data);
+};

@@ -1,3 +1,5 @@
+// src/renderer/pages/updateUser/UpdateUser.tsx
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { toast } from 'sonner';
@@ -10,6 +12,7 @@ import Button from '../../components/Button';
 import Dropdown from '../../components/Dropdown';
 import MaskedInput from '../../components/MaskedInput';
 import ImageUploadInput from '../../components/ImageUploadInput';
+import PasswordChangeModal from '../../components/ChangePasswordModal';
 import { CircleNotchIcon, ArrowLeftIcon, FloppyDiskIcon } from '@phosphor-icons/react';
 
 const roleOptions = [
@@ -31,20 +34,20 @@ const sectorOptions = [
 const EditUserPage: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
-  const { user: loggedInUser, setUser, updateUserForSystem   } = useAppContext();
+  const { user: loggedInUser, setUser, updateUserForSystem } = useAppContext();
 
   const [userToEdit, setUserToEdit] = useState<AppUser | null>(null);
-  
+
   const [formData, setFormData] = useState<Partial<AppUser>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState<any>({});
-  
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false); // State for the modal
 
   const isAdmin = loggedInUser?.role === 'ADMIN';
   const isEditingSelf = loggedInUser?.id === userId;
 
-    const handleSectorSelect = (option: { value: string; label: string }) => {
+  const handleSectorSelect = (option: { value: string; label: string }) => {
     setFormData({ ...formData, sector: option.value });
   };
 
@@ -70,7 +73,7 @@ const EditUserPage: React.FC = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-  
+
   const handleRoleSelect = (option: { value: string; label: string }) => {
     setFormData({ ...formData, role: option.value as 'USER' | 'IT_SUPPORT' | 'ADMIN' });
   };
@@ -83,10 +86,10 @@ const EditUserPage: React.FC = () => {
     e.preventDefault();
     setIsSaving(true);
     try {
-      const apiCall = isEditingSelf 
+      const apiCall = isEditingSelf
         ? apiService.updateMe(formData)
         : apiService.updateUserById(userId!, formData);
-        
+
       await apiCall;
 
       const response = await apiCall;
@@ -98,10 +101,9 @@ const EditUserPage: React.FC = () => {
         setUser(updatedUser);
       }
 
-       if (updatedUser.system?.id) {
-          updateUserForSystem(updatedUser.system.id, updatedUser);
+      if (updatedUser.system?.id) {
+        updateUserForSystem(updatedUser.system.id, updatedUser);
       }
-      
 
       navigate(-1);
     } catch (err: any) {
@@ -120,8 +122,8 @@ const EditUserPage: React.FC = () => {
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto">
-       <div className="flex items-center gap-6 mb-6">
+    <main>
+      <header className="h-full sticky top-0 py-3 px-4 flex items-center gap-6 bg-background/50 backdrop-blur-lg z-30 text-text w-full border-b border-border">
         <button onClick={() => navigate(-1)} className="p-3 rounded-full hover:bg-border/40">
           <ArrowLeftIcon size={24} />
         </button>
@@ -129,55 +131,65 @@ const EditUserPage: React.FC = () => {
           <h1 className="text-3xl font-bold">Editar Perfil</h1>
           <p className="text-secondaryText">Modificando o perfil de <span className="font-bold text-text">{userToEdit?.fullname}</span></p>
         </div>
-      </div>
-      
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <ImageUploadInput 
-          initialAvatarUrl={formData.avatarUrl} 
-          onUploadComplete={handleUploadComplete} 
-        />
-        
-        <Input name="fullname" placeholder="Nome Completo" value={formData.fullname || ''} onChange={handleChange} />
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Input name="email" type="email" placeholder="Email" value={formData.email || ''} onChange={handleChange} />
-          <MaskedInput name="phone" placeholder="Telefone" value={formData.phone || ''} onChange={handleChange} mask="(00) 00000-0000" />
-        </div>
+      </header>
 
-         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Dropdown
-            label="Setor"
-            options={sectorOptions}
-            selected={sectorOptions.find(o => o.value === formData.sector) || null}
-            onSelect={handleSectorSelect}
-            error={errors.sector?.[0]}
+      <div className="w-full max-w-4xl mx-auto text-text py-12 z-20">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <ImageUploadInput
+            initialAvatarUrl={formData.avatarUrl}
+            onUploadComplete={handleUploadComplete}
           />
-        </div>
-        
-        {isAdmin && !isEditingSelf && (
-          <Dropdown
-            label="Função"
-            options={roleOptions}
-            selected={roleOptions.find(o => o.value === formData.role) || null}
-            onSelect={handleRoleSelect}
-          />
-        )}
-        
-        {isEditingSelf && (
-          <div className="border-t border-border pt-6">
-              <Button type="button" variant="secondary">Alterar Senha</Button>
+
+          <Input name="fullname" placeholder="Nome Completo" value={formData.fullname || ''} onChange={handleChange} />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Input name="email" type="email" placeholder="Email" value={formData.email || ''} onChange={handleChange} />
+            <MaskedInput name="phone" placeholder="Telefone" value={formData.phone || ''} onChange={handleChange} mask="(00) 00000-0000" />
           </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Dropdown
+              label="Setor"
+              options={sectorOptions}
+              selected={sectorOptions.find(o => o.value === formData.sector) || null}
+              onSelect={handleSectorSelect}
+              error={errors.sector?.[0]}
+            />
+          </div>
+
+          {isAdmin && !isEditingSelf && (
+            <Dropdown
+              label="Função"
+              options={roleOptions}
+              selected={roleOptions.find(o => o.value === formData.role) || null}
+              onSelect={handleRoleSelect}
+            />
+          )}
+
+
+          <div className={`border-t border-border pt-6 flex items-cetner ${isEditingSelf ? 'justify-between' : 'justify-end'}`}>
+            {isEditingSelf && (
+              <Button type="button" variant="secondary" onClick={() => setIsPasswordModalOpen(true)}>Alterar Senha</Button>
+
+            )}
+
+            <Button type="submit" disabled={isSaving} iconLeft={isSaving ? <CircleNotchIcon className="animate-spin" /> : <FloppyDiskIcon />}>
+              {isSaving ? 'Salvando...' : 'Salvar Alterações'}
+            </Button>
+          </div>
+        </form>
+
+        {isEditingSelf && (
+          <PasswordChangeModal
+            isOpen={isPasswordModalOpen}
+            onClose={() => setIsPasswordModalOpen(false)}
+            userId={userId!}
+          />
         )}
-        
-        <div className="flex justify-end pt-4">
-          <Button type="submit" disabled={isSaving} iconLeft={isSaving ? <CircleNotchIcon className="animate-spin" /> : <FloppyDiskIcon />}>
-            {isSaving ? 'Salvando...' : 'Salvar Alterações'}
-          </Button>
-        </div>
-      </form>
-    </div>
+      </div>
+    </main>
+
   );
 };
 
 export default EditUserPage;
-

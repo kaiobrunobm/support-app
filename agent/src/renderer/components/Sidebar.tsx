@@ -75,7 +75,7 @@ const MainLayout: React.FC = () => {
       </AnimatePresence>
 
       <header className="sticky top-0 z-30 flex items-center justify-between border-b border-border bg-background/50 px-4 py-4 backdrop-blur-md">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center justify-center gap-4">
           <button onClick={() => setNavOpen(true)} className="rounded-full bg-border p-2">
             <SidebarSimpleIcon size={24} />
           </button>

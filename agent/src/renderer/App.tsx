@@ -57,10 +57,7 @@ const App: React.FC = () => {
         <Route path="hardware" element={<Hardware />} />
         <Route path="network" element={<Network />} />
         <Route path="systems" element={<SystemList />} />
-        <Route path="create-user" element={<CreateUserPage />} />
-        <Route path="assign-user" element={<AssignUserPage />} />
-        <Route path="reassign-user" element={<ReassignUserPage />} />
-         <Route path="users/:userId/edit" element={<EditUserPage />} />
+
 
         <Route path="tickets" element={<TicketsListPage />} />
       </Route>
@@ -73,6 +70,10 @@ const App: React.FC = () => {
           </ProtectedRoute>
         } 
       />
+        <Route path="create-user" element={<CreateUserPage />} />
+        <Route path="assign-user" element={<AssignUserPage />} />
+        <Route path="reassign-user" element={<ReassignUserPage />} />
+         <Route path="users/:userId/edit" element={<EditUserPage />} />
 
 
       <Route path="*" element={<Navigate to="/" />} />

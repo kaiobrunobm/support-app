@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import * as UserService from '../../services/user.service';
 import { createUserSchema, updateUserSchema, changePasswordSchema } from '../../utils/systemInfoSchema';
 import { AuthRequest } from '../../types/AuthRequest';
-import { CustomError } from '../middlewares/error.middleware'; // Import CustomError
+import { CustomError } from '../middlewares/error.middleware'; 
 
 export async function getMe(req: AuthRequest, res: Response, next: NextFunction) {
   try {
@@ -20,10 +20,8 @@ export async function updateMe(req: AuthRequest, res: Response, next: NextFuncti
     const validatedData = updateUserSchema.parse(req.body);
 
     if ('role' in validatedData && req.user?.role !== 'ADMIN') {
-      // --- THIS IS THE FIX ---
-      // We cast to 'any' here to dynamically delete a property without needing a front-end type.
       delete (validatedData as any).role;
-      // --------------------
+
     }
 
     const updatedUser = await UserService.updateUserProfile(userId, validatedData);
@@ -33,26 +31,21 @@ export async function updateMe(req: AuthRequest, res: Response, next: NextFuncti
   }
 }
 
-/**
- * Changes the password for the currently authenticated user.
- */
-export async function changePassword(req: AuthRequest, res: Response, next: NextFunction) {
-  try {
-    const userId = req.user!.id;
-    const { currentPassword, newPassword } = changePasswordSchema.parse(req.body);
-    const result = await UserService.changeUserPassword(userId, currentPassword, newPassword);
-    res.status(200).json({ status: 'success', data: result });
-  } catch (error) {
-    next(error);
-  }
-}
+export const changePassword = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params;
+      const { oldPassword, newPassword } = req.body;
+  
+      if (!oldPassword || !newPassword) {
+        throw new CustomError('Senha antiga e nova senha são obrigatórias', 400);
+      }
+      const result = await UserService.changeUserPassword(id, oldPassword, newPassword);
+      res.json({ status: 'success', data: result });
+    } catch (err) {
+      next(err);
+    }
+  };
 
-
-// --- Admin & IT Support Controllers ---
-
-/**
- * Gets a list of all users.
- */
 export async function getAllUsers(req: Request, res: Response, next: NextFunction) {
     try {
         const users = await UserService.getAllUsers();
@@ -62,9 +55,6 @@ export async function getAllUsers(req: Request, res: Response, next: NextFunctio
     }
 }
 
-/**
- * Gets a single user by their ID.
- */
 export async function getUserById(req: Request, res: Response, next: NextFunction) {
     try {
         const { id } = req.params;
@@ -75,9 +65,6 @@ export async function getUserById(req: Request, res: Response, next: NextFunctio
     }
 }
 
-/**
- * Creates a new user or detects a reassignment conflict.
- */
 export async function createUser(req: Request, res: Response, next: NextFunction) {
   try {
     const validatedData = createUserSchema.parse(req.body);
@@ -99,9 +86,6 @@ export async function createUser(req: Request, res: Response, next: NextFunction
   }
 }
 
-/**
- * Handles assigning an existing user to a system.
- */
 export async function assignExistingUser(req: Request, res: Response, next: NextFunction) {
     try {
         const { userId, systemId } = req.body;
@@ -126,9 +110,6 @@ export async function assignExistingUser(req: Request, res: Response, next: Next
     }
 }
 
-/**
- * Handles the confirmed reassignment of a user to a new system.
- */
 export async function reassignUser(req: AuthRequest, res: Response, next: NextFunction) {
     try {
         const { userId, newSystemId } = req.body;
@@ -142,9 +123,6 @@ export async function reassignUser(req: AuthRequest, res: Response, next: NextFu
     }
 }
 
-/**
- * Manually detaches a user from a system.
- */
 export async function detachUser(req: AuthRequest, res: Response, next: NextFunction) {
     try {
         const { systemId } = req.params;
@@ -155,9 +133,6 @@ export async function detachUser(req: AuthRequest, res: Response, next: NextFunc
     }
 }
 
-/**
- * Updates any user's profile by their ID (Admin only).
- */
 export async function updateUser(req: AuthRequest, res: Response, next: NextFunction) {
     try {
         const { id } = req.params;

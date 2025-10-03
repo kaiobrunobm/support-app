@@ -117,8 +117,8 @@ const CreateUserPage: React.FC = () => {
 
 
   return (
-    <div className="w-full max-w-4xl mx-auto">
-      <div className="flex items-center gap-6 mb-6">
+    <main className='text-text'>
+      <header className="h-full sticky top-0 py-3 px-4 flex items-center gap-6 bg-background/50 backdrop-blur-lg z-30 text-text w-full border-b border-border">
         <button onClick={() => navigate(-1)} className="rounded-full py-3 px-3 hover:bg-border/40">
           <CaretLeftIcon size={24} />
         </button>
@@ -126,61 +126,64 @@ const CreateUserPage: React.FC = () => {
           <h1 className="text-3xl font-bold">Adicionar Usuário</h1>
           <p className="text-secondaryText flex items-center gap-3">Atribuindo um novo usuário ao sistema: <span className="font-bold text-text">{hostname}</span></p>
         </div>
+      </header>
+
+      <div className="w-full max-w-4xl mx-auto py-12">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <ImageUploadInput onUploadComplete={handleUploadComplete} />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Input name="firstname" placeholder="Nome" value={formData.firstname} onChange={handleChange} error={errors.firstname?.[0]} />
+            <Input name="lastname" placeholder="Sobrenome" value={formData.lastname} onChange={handleChange} error={errors.lastname?.[0]} />
+          </div>
+          <Input name="email" type="email" placeholder="Email" value={formData.email} onChange={handleChange} error={errors.email?.[0]} />
+          <Input name="password" type="password" placeholder="Senha" value={formData.password} onChange={handleChange} error={errors.password?.[0]} />
+          <div className='w-1/2'>
+            <MaskedInput
+              name="phone"
+              placeholder="Telefone"
+              value={formData.phone}
+              onChange={handleChange}
+              error={errors.phone?.[0]}
+              mask="(00) 00000-0000"
+            />
+          </div>
+          <div className='flex gap-4'>
+            <Dropdown
+              label="Setor"
+              options={sectorOptions}
+              selected={sectorOptions.find(o => o.value === formData.sector) || null}
+              onSelect={handleSectorSelect}
+              error={errors.sector?.[0]}
+            />
+            <Dropdown label="Função" options={[{ value: 'USER', label: 'Usuário' }, { value: 'IT_SUPPORT', label: 'Técnico' }]} selected={formData.role === 'IT_SUPPORT' ? { value: 'IT_SUPPORT', label: 'Técnico' } : { value: 'USER', label: 'Usuário' }} onSelect={(option) => setFormData({ ...formData, role: option.value as 'USER' | 'IT_SUPPORT' })} error={errors.role?.[0]} />
+          </div>
+
+          <div className="flex justify-end pt-4">
+            <Button type="submit" disabled={isLoading} iconLeft={isLoading ? <CircleNotchIcon className="animate-spin" /> : <UserPlusIcon />}>
+              {isLoading ? 'Criando...' : 'Criar e Atribuir Usuário'}
+            </Button>
+          </div>
+        </form>
+
+        {reassignmentData && (
+          <ConfirmationModal
+            isOpen={modalOpen}
+            onClose={() => setModalOpen(false)}
+            onConfirm={handleConfirmReassignment}
+            title="Confirmar Reatribuição"
+            message={
+              <p>
+                O usuário <strong className="text-text">{reassignmentData.user.fullname}</strong> já está atribuído ao sistema <strong className="text-text">{reassignmentData.oldSystem.hostname}</strong>.
+                Deseja reatribuí-lo para <strong className="text-text">{reassignmentData.newSystem.hostname}</strong>?
+              </p>
+            }
+            confirmText="Sim, Reatribuir"
+            variant="primary"
+          />
+        )}
       </div>
+    </main>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <ImageUploadInput onUploadComplete={handleUploadComplete} />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Input name="firstname" placeholder="Nome" value={formData.firstname} onChange={handleChange} error={errors.firstname?.[0]} />
-          <Input name="lastname" placeholder="Sobrenome" value={formData.lastname} onChange={handleChange} error={errors.lastname?.[0]} />
-        </div>
-        <Input name="email" type="email" placeholder="Email" value={formData.email} onChange={handleChange} error={errors.email?.[0]} />
-        <Input name="password" type="password" placeholder="Senha" value={formData.password} onChange={handleChange} error={errors.password?.[0]} />
-        <div className='w-1/2'>
-          <MaskedInput
-            name="phone"
-            placeholder="Telefone"
-            value={formData.phone}
-            onChange={handleChange}
-            error={errors.phone?.[0]}
-            mask="(00) 00000-0000"
-          />
-        </div>
-        <div className='flex gap-4'>
-          <Dropdown
-            label="Setor"
-            options={sectorOptions}
-            selected={sectorOptions.find(o => o.value === formData.sector) || null}
-            onSelect={handleSectorSelect}
-            error={errors.sector?.[0]}
-          />
-          <Dropdown label="Função" options={[{ value: 'USER', label: 'Usuário' }, { value: 'IT_SUPPORT', label: 'Técnico' }]} selected={formData.role === 'IT_SUPPORT' ? { value: 'IT_SUPPORT', label: 'Técnico' } : { value: 'USER', label: 'Usuário' }} onSelect={(option) => setFormData({ ...formData, role: option.value as 'USER' | 'IT_SUPPORT' })} error={errors.role?.[0]} />
-        </div>
-
-        <div className="flex justify-end pt-4">
-          <Button type="submit" disabled={isLoading} iconLeft={isLoading ? <CircleNotchIcon className="animate-spin" /> : <UserPlusIcon />}>
-            {isLoading ? 'Criando...' : 'Criar e Atribuir Usuário'}
-          </Button>
-        </div>
-      </form>
-
-      {reassignmentData && (
-        <ConfirmationModal
-          isOpen={modalOpen}
-          onClose={() => setModalOpen(false)}
-          onConfirm={handleConfirmReassignment}
-          title="Confirmar Reatribuição"
-          message={
-            <p>
-              O usuário <strong className="text-text">{reassignmentData.user.fullname}</strong> já está atribuído ao sistema <strong className="text-text">{reassignmentData.oldSystem.hostname}</strong>.
-              Deseja reatribuí-lo para <strong className="text-text">{reassignmentData.newSystem.hostname}</strong>?
-            </p>
-          }
-          confirmText="Sim, Reatribuir"
-          variant="primary"
-        />
-      )}
-    </div>
   );
 };
 

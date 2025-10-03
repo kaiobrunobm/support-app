@@ -42,7 +42,7 @@ const SystemsListPage: React.FC = () => {
 
   const handleAddUser = (event: React.MouseEvent, system: SystemSummary) => {
     event.stopPropagation(); 
-    navigate('/app/create-user', {
+    navigate('/create-user', {
       state: {
         systemId: system.id,
         hostname: system.hostname,
@@ -52,7 +52,7 @@ const SystemsListPage: React.FC = () => {
 
   const handleAddExistingUser = (event: React.MouseEvent, system: SystemSummary) => {
     event.stopPropagation();
-      navigate('/app/assign-user', {
+      navigate('/assign-user', {
         state: {
           systemId: system.id,
           hostname: system.hostname

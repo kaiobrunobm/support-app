@@ -21,9 +21,10 @@ router.post('/reassign', [authenticate, authorizeAdminOrIT], userController.reas
 
 router.delete('/detach/:systemId', [authenticate, authorizeAdminOrIT], userController.detachUser);
 
-
 router.get('/:id', [authenticate, authorizeAdmin], userController.getUserById);
 router.patch('/:id', [authenticate, authorizeAdmin], userController.updateUser);
+
+router.patch('/:id/password', [authenticate, authorizeAdmin], userController.changePassword);
 
 
 export default router;

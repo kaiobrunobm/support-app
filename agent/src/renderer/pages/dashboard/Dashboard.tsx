@@ -81,7 +81,7 @@ const Dashboard: React.FC = () => {
 
   const handleAddUserClick = () => {
     if (systemInfo) {
-      navigate('/app/create-user', {
+      navigate('/create-user', {
         state: {
           systemId: systemInfo.id,
           hostname: systemInfo.hostname
@@ -92,7 +92,7 @@ const Dashboard: React.FC = () => {
 
   const handleAddExistingUser = () => {
     if (systemInfo) {
-      navigate('/app/assign-user', {
+      navigate('/assign-user', {
         state: {
           systemId: systemInfo.id,
           hostname: systemInfo.hostname

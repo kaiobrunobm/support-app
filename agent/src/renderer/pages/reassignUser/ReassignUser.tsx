@@ -87,8 +87,8 @@ const ReassignUserPage: React.FC = () => {
   }));
 
   return (
-    <div className="w-full max-w-xl mx-auto">
-      <div className="flex items-center gap-6 mb-6">
+    <main>
+    <header className="h-full sticky top-0 py-3 px-4 flex items-center gap-6 bg-background/50 backdrop-blur-lg z-30 text-text w-full border-b border-border">
          <button onClick={() => navigate(-1)} className="p-3 rounded-full hover:bg-border/40">
            <ArrowLeftIcon size={24} />
          </button>
@@ -98,8 +98,9 @@ const ReassignUserPage: React.FC = () => {
             Movendo <span className="font-bold text-text">{user.fullname}</span> do sistema <span className="font-bold text-text">{oldSystem.hostname}</span>
           </p>
         </div>
-      </div>
+      </header>
       
+    <div className="w-full max-w-xl mx-auto text-text py-12">
       <div className="space-y-6">
         <Dropdown
           label="Selecione o Novo Sistema de Destino"
@@ -129,6 +130,7 @@ const ReassignUserPage: React.FC = () => {
         variant="danger"
       />
     </div>
+    </main>
   );
 };
 
