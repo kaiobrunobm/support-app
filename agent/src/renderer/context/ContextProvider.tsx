@@ -1,11 +1,10 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { SystemInfo, AppUser } from "../types";
+import { SystemInfo, AppUser, SystemSummary, } from "../types";
 import axios from 'axios';
 import { config } from "../../config";
-import io, { Socket } from 'socket.io-client'; // 1. Import Socket.IO client
+import io, { Socket } from 'socket.io-client';
 import * as apiService from '../api/apiService';
 
-// Create a reusable Axios instance
 export const apiClient = axios.create({
   baseURL: config.apiUrl,
 });
@@ -14,10 +13,16 @@ interface AppContextInterface {
   systemInfo: SystemInfo | null;
   user: AppUser | null;
   isLoading: boolean;
-  socket: Socket | null; // Add socket instance to the context
+  allSystems: SystemSummary[];
+  fetchSystems: () => Promise<void>;
+  updateSystemInList: (updatedSystem: SystemInfo | SystemSummary) => void;
+  socket: Socket | null;
   login: (email: string, password: string) => Promise<any>;
   logout: () => void;
-  setSystemInfo: (system: SystemInfo | null) => void;
+  setSystemInfo: React.Dispatch<React.SetStateAction<SystemInfo | null>>;
+  setUser: React.Dispatch<React.SetStateAction<AppUser | null>>;
+  updateUserForSystem: (systemId: string, user: AppUser | null) => void;
+
 }
 
 const AppContext = createContext<AppContextInterface | undefined>(undefined);
@@ -25,36 +30,33 @@ const AppContext = createContext<AppContextInterface | undefined>(undefined);
 export const ContextProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [systemInfo, setSystemInfo] = useState<SystemInfo | null>(null);
   const [user, setUser] = useState<AppUser | null>(null);
+  const [allSystems, setAllSystems] = useState<SystemSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [socket, setSocket] = useState<Socket | null>(null);
+  
 
   const login = async (email: string, password: string) => {
     const { data } = await apiService.login(email, password);
-    
+    console.log(data)
+
     if (data.status === 'success' && data.data.token) {
       const { user, token } = data.data;
-      
-      // Store token and set HTTP header
+
       localStorage.setItem("token", token);
       apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      
-      // Set user and system state
+
       setUser(user);
       setSystemInfo(user.system);
 
-      // --- 2. CONNECT SOCKET ON LOGIN ---
-      // Disconnect any existing socket before creating a new one
       if (socket) socket.disconnect();
-      
-      // Create a new socket connection, passing the token for authentication
+
       const newSocket = io(config.apiUrl, {
         auth: { token }
       });
       setSocket(newSocket);
-      // ---------------------------------
     }
-    
-    return data; 
+
+    return data;
   };
 
   const logout = () => {
@@ -67,7 +69,7 @@ export const ContextProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setSocket(null);
     }
 
-    
+
     window.electronAPI.getSystemInfo()
       .then((info: SystemInfo) => setSystemInfo(info))
       .catch(console.error);
@@ -117,7 +119,56 @@ export const ContextProvider: React.FC<{ children: React.ReactNode }> = ({ child
     };
   }, []);
 
-  const contextValue = { login, logout, user, systemInfo, setSystemInfo, isLoading, socket };
+  const fetchSystems = async () => {
+    try {
+      const response = await apiService.getAllSystems();
+      if (response.data.status === 'success') {
+        setAllSystems(response.data.data.systems);
+      }
+    } catch (error) {
+      console.error("Failed to fetch systems list", error);
+    }
+  };
+
+  const updateSystemInList = (updatedSystem: SystemInfo | SystemSummary) => {
+    setAllSystems(prevSystems =>
+      prevSystems.map(sys =>
+        sys.id === updatedSystem.id ? { ...sys, user: (updatedSystem as SystemInfo).user || null } : sys
+      )
+    );
+  };
+
+  const updateUserForSystem = (systemId: string, user: AppUser | null) => {
+    setAllSystems(prevSystems =>
+      prevSystems.map(sys =>
+        sys.id === systemId ? { ...sys, user: user } : sys
+      )
+    );
+    if (systemInfo && systemInfo.id === systemId) {
+      setSystemInfo(prevInfo => {
+        if (!prevInfo) return null;
+        return {
+          ...prevInfo,
+          user: user
+        };
+      });
+    }
+  };
+
+  const contextValue = {
+    login,
+    logout,
+    user,
+    systemInfo,
+    setSystemInfo,
+    isLoading,
+    socket,
+    allSystems,
+    fetchSystems,
+    updateSystemInList,
+    updateUserForSystem,
+    setUser
+  };
 
   return (
     <AppContext.Provider value={contextValue}>

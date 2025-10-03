@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef} from 'react';
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   placeholder: string;
@@ -7,16 +7,16 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   iconRight?: React.ReactNode;
 }
 
-const Input: React.FC<InputProps> = ({ placeholder, error, iconLeft, iconRight, ...props }) => {
-  return (
-
-    <div className={` flex items-center px-6 py-4 border-2 rounded-lg  bg-transparent ${error ? 'border-error' : 'border-border'}`}>
+const Input = forwardRef<HTMLInputElement, InputProps>(
+  ({ placeholder, error, iconLeft, iconRight, ...props }, ref) => {
+    return (
+     <div className={` flex items-center px-6 py-4 border-2 rounded-lg  bg-transparent ${error ? 'border-error' : 'border-border'}`}>
       {iconLeft && <span >{iconLeft}</span>}
-      <input placeholder={placeholder} className={`bg-background outline-none flex-1 placeholder:text-secondaryText ${error ? 'text-error' : 'text-text'} `} {...props} />
+      <input ref={ref} placeholder={placeholder} className={`bg-background outline-none flex-1 placeholder:text-secondaryText ${error ? 'text-error' : 'text-text'} `} {...props} />
       {iconRight && <span >{iconRight}</span>}
     </div>
-
-  )
-}
+    );
+  }
+);
 
 export default Input

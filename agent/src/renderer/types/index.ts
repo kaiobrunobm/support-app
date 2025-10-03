@@ -7,6 +7,7 @@ export interface AppUser {
   avatarUrl?: string | null;
   role: 'USER' | 'ADMIN' | 'IT_SUPPORT';
   loginDate: string; 
+   system?: (SystemInfo | { id: string; hostname: string; }) | null;
 }
 
 export interface ComputerUser {
@@ -162,7 +163,7 @@ export interface DashboardStats {
 export interface TicketSummary {
   id: string;
   subject: string;
-  status: 'OPEN' | 'PENDING' | 'RESOLVED' | 'CANCELLED';
+  status: 'OPEN' | 'PENDING' | 'RESOLVED';
   createdAt: string;
   requester: {
     fullname: string;
@@ -172,6 +173,10 @@ export interface TicketSummary {
   system: {
     hostname: string;
   };
+   assignee?: {
+    fullname: string;
+    avatarUrl?: string | null;
+  } | null;
 }
 
 export interface SystemSummary {
@@ -181,6 +186,7 @@ export interface SystemSummary {
   updatedAt: string; 
   createdAt: string; 
   user?: {
+    id: string;
     fullname: string;
     avatarUrl?: string | null;
   } | null;
@@ -191,4 +197,13 @@ export interface SystemSummary {
     tickets: number;
   };
 
+}
+
+export interface UpdateUserData {
+   fullname?: string;
+   email?: string;
+   sector?: string;
+   phone?: string;
+   role?: 'USER' | 'IT_SUPPORT' | 'ADMIN';
+   avatarUrl?: string;
 }

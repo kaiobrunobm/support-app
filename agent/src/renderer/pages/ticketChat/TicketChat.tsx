@@ -135,7 +135,7 @@ const TicketChatPage: React.FC = () => {
       {ticket.status !== 'RESOLVED' ? (
         <MessageInput ticketId={ticketId} />
       ) : (
-        <span className={`w-full flex items-center justify-center text-secondaryText/60 ${user.role === 'IT_SUPPORT' || user.role === 'ADMIN' && 'py-4'}`}>Chamado resolvido</span>
+        <span className={`w-full flex items-center justify-center text-secondaryText/60 ${user.role === 'IT_SUPPORT' && 'py-4'|| user.role === 'ADMIN' && 'py-4'}`}>Chamado resolvido</span>
       )}
 
       {ticket.status === 'RESOLVED' && user.role === 'USER' &&
@@ -145,4 +145,4 @@ const TicketChatPage: React.FC = () => {
   );
 };
 
-export default TicketChatPage;
+export default TicketChatPage;  

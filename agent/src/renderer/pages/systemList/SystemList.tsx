@@ -1,40 +1,33 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
-import { CircleNotchIcon, DesktopTowerIcon, QuestionMarkIcon } from '@phosphor-icons/react';
+import { CircleNotchIcon, DesktopTowerIcon, PlusIcon, QuestionMarkIcon, UserSwitchIcon } from '@phosphor-icons/react';
 import { useAppContext } from '../../context/ContextProvider';
 import * as apiService from '../../api/apiService';
 import { SystemSummary } from '../../types';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import Avatar from '../../components/Avatar';
 import { ScrollArea } from 'radix-ui';
+import UserPopover from '../../components/UserPopover';
+import SimplePopover from '../../components/SimpleDropdown';
+import { MenuItem, PopoverButton } from '@headlessui/react';
+import { UserPlusIcon } from 'lucide-react';
 
 
 const SystemsListPage: React.FC = () => {
-  const { setSystemInfo } = useAppContext();
-  const navigate = useNavigate();
+  const { setSystemInfo, fetchSystems, allSystems, systemInfo  } = useAppContext();
   const [systems, setSystems] = useState<SystemSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchSystems = async () => {
-      try {
-        const response = await apiService.getAllSystems();
-        if (response.data.status === 'success') {
-          setSystems(response.data.data.systems);
-        } else {
-          throw new Error('Failed to fetch systems list.');
-        }
-      } catch (err) {
-        console.error(err);
-        setError('Não foi possível carregar a lista de sistemas.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchSystems();
+    const loadSystems = async () => {
+      setIsLoading(true);
+      await fetchSystems();
+      setIsLoading(false);
+    }
+    loadSystems();
   }, []);
 
   const handleSystemSelect = async (systemId: string) => {
@@ -45,6 +38,26 @@ const SystemsListPage: React.FC = () => {
     } catch (err) {
       console.error('Failed to fetch system details:', err);
     }
+  };
+
+  const handleAddUser = (event: React.MouseEvent, system: SystemSummary) => {
+    event.stopPropagation(); 
+    navigate('/app/create-user', {
+      state: {
+        systemId: system.id,
+        hostname: system.hostname,
+      },
+    });
+  };
+
+  const handleAddExistingUser = (event: React.MouseEvent, system: SystemSummary) => {
+    event.stopPropagation();
+      navigate('/app/assign-user', {
+        state: {
+          systemId: system.id,
+          hostname: system.hostname
+        }
+    })
   };
 
   if (isLoading) {
@@ -58,15 +71,14 @@ const SystemsListPage: React.FC = () => {
   if (error) {
     return <div className="text-error text-center">{error}</div>;
   }
-  //TODO calculate the total of ticket per system/user
   return (
     <div className="flex-1 flex-col items-center justify-center w-full">
       <h1 className="text-3xl font-bold mb-6">Sistemas</h1>
-      <div className="overflow-x-clip">
+      <div className="pb-24">
         <ScrollArea.Root>
           <ScrollArea.Viewport className='flex-1 items-center justify-center w-full h-full '>
             <table className="w-full divide-y divide-border bg-background">
-              <thead className="bg-muted/50">
+              <thead>
                 <tr>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-secondaryText">
                     Hostname
@@ -86,15 +98,16 @@ const SystemsListPage: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {systems.map((system) => (
+                {allSystems.map((system) => (
                   <tr
                     key={system.id}
-                    onClick={() => handleSystemSelect(system.id)}
-                    className="cursor-pointer transition-all duration-150 ease-in-out hover:bg-border/50"
+                    className="cursor-pointer transition-all duration-150 ease-in-out"
                   >
                     <td className="whitespace-nowrap px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <DesktopTowerIcon size={24} className="text-primary" />
+                        <div className='p-2 rounded-full hover:bg-border/50'  onClick={() => handleSystemSelect(system.id)}>
+                        <DesktopTowerIcon size={24} />
+                        </div>
                         <span className="font-medium">{system.hostname}</span>
                       </div>
                     </td>
@@ -109,12 +122,29 @@ const SystemsListPage: React.FC = () => {
                     <td className="flex items-center justify-center whitespace-nowrap px-6 py-4">
                       {system.user ? (
                         <div className="flex items-center gap-2">
-                          <Avatar {...system.user} />
+                          <UserPopover user={system.user} system={system} context="list" />
                         </div>
                       ) : (
-                        <div className='h-8 w-8 flex items-center justify-center rounded-full bg-border'>
-                          <QuestionMarkIcon size={24} />
-                        </div>
+
+                        <SimplePopover popoverButton={
+                        <PopoverButton className="h-8 w-8 flex items-center justify-center rounded-full bg-border">
+                          <PlusIcon size={16} weight='bold' />
+                        </PopoverButton>
+                }>
+                    <MenuItem>
+                          <button onClick={(e) => handleAddUser(e, system)} className={` group flex w-full items-center rounded-t-md px-4 py-3 text-sm transition-all duration-150 easy-in hover:bg-border/50`}>
+                            <UserPlusIcon className="mr-2 h-5 w-5" />
+                            Criar Novo Usuário
+                          </button>
+                        
+                      </MenuItem>
+                      <MenuItem>
+                          <button onClick={(e) => handleAddExistingUser(e, system)} className={` group flex w-full items-center rounded-b-md px-4 py-3 text-sm transition-all duration-150 easy-in hover:bg-border/50`}>
+                            <UserSwitchIcon className="mr-2 h-5 w-5" />
+                            Atribuir Usuário Existente
+                          </button>
+                        </MenuItem>
+              </SimplePopover>
                       )}
                     </td>
                   </tr>

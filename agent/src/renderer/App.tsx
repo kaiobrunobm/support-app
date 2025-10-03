@@ -12,6 +12,9 @@ import SystemList from './pages/systemList/SystemList';
 import CreateUserPage from './pages/createUser/CreateUser';
 import TicketsListPage from './pages/ticketsList/TicketsList';
 import TicketChatPage from './pages/ticketChat/TicketChat';
+import AssignUserPage from './pages/AssignUser';
+import ReassignUserPage from './pages/reassignUser/ReassignUser';
+import EditUserPage from './pages/updateUser/UpdateUser';
 
 
 // A new component to handle route protection
@@ -55,6 +58,10 @@ const App: React.FC = () => {
         <Route path="network" element={<Network />} />
         <Route path="systems" element={<SystemList />} />
         <Route path="create-user" element={<CreateUserPage />} />
+        <Route path="assign-user" element={<AssignUserPage />} />
+        <Route path="reassign-user" element={<ReassignUserPage />} />
+         <Route path="users/:userId/edit" element={<EditUserPage />} />
+
         <Route path="tickets" element={<TicketsListPage />} />
       </Route>
 

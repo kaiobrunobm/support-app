@@ -14,7 +14,7 @@ type TicketStatus = 'OPEN' | 'PENDING' | 'RESOLVED';
 
 const tabs = [
   { id: 'OPEN', label: 'Abertos' },
-  { id: 'PENDING', label: 'Pendentes' },
+  { id: 'PENDING', label: 'Meus Pendentes' },
   { id: 'RESOLVED', label: 'Resolvidos' },
 ];
 
@@ -76,7 +76,10 @@ const TicketsListPage: React.FC = () => {
                       <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-secondaryText min-w-48">Setor</th>
                       <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-secondaryText min-w-48">Assunto</th>
                       <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-secondaryText min-w-48">Sistema</th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-secondaryText min-w-48">Data de Ab ertura</th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-secondaryText min-w-48">Data de Abertura</th>
+                      {activeTab !== 'OPEN' && (
+                    <th scope="col" className="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider text-secondaryText min-w-48">Técnico</th>
+                  )}
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
@@ -97,6 +100,17 @@ const TicketsListPage: React.FC = () => {
                         <td className="whitespace-nowrap px-6 py-4 text-secondaryText">
                           {format(new Date(ticket.createdAt), 'dd/MM/yyyy', { locale: ptBR })}
                         </td>
+                        {activeTab !== 'OPEN' && (
+                      <td className="whitespace-nowrap px-6 py-4">
+                        {ticket.assignee ? (
+                          <div className="flex items-center justify-center gap-2">
+                            <Avatar {...ticket.assignee} />
+                          </div>
+                        ) : (
+                          <span className="text-xs text-secondaryText italic">N/A</span>
+                        )}
+                      </td>
+                    )}
                       </tr>
                     )) : (
                       <tr>

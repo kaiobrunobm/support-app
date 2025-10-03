@@ -142,8 +142,11 @@ export async function getAllSystems() {
       createdAt: true,
       user: {
         select: {
+          id: true,
           fullname: true,
           avatarUrl: true,
+          phone: true,
+          sector:true
         },
       },
       network: {

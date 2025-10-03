@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { XIcon } from '@phosphor-icons/react';
 
@@ -10,6 +10,22 @@ interface ModalProps {
 }
 
 const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
+
+    useEffect(() => {
+    if (isOpen) {
+      // When the modal is open, disable scrolling on the main page.
+      document.body.style.overflow = 'hidden';
+    } else {
+      // When the modal closes, re-enable scrolling.
+      document.body.style.overflow = 'auto';
+    }
+
+    // This is a cleanup function. It runs when the component is unmounted
+    // to ensure that scrolling is always re-enabled.
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [isOpen]);
 
   return (
     <AnimatePresence>

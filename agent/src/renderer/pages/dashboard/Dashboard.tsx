@@ -4,9 +4,8 @@ import Hardware from './sections/Hardware';
 import Network from './sections/Network';
 import OperatingSystems from './sections/OperatingSystems';
 import Printers from './sections/Printers';
-import { CheckCircleIcon, CircleNotchIcon, ClockIcon, HardDrivesIcon, PlusIcon, TicketIcon, UsersIcon, PencilSimpleIcon, ChatCircleDotsIcon, ChatIcon } from '@phosphor-icons/react';
+import { CheckCircleIcon, CircleNotchIcon, ClockIcon, HardDrivesIcon, PlusIcon, TicketIcon, UsersIcon, PencilSimpleIcon, ChatCircleDotsIcon, ChatIcon, UserPlusIcon, UserSwitchIcon } from '@phosphor-icons/react';
 import anydeskIcon from '/anydesk-icon.png'
-import Avatar from '../../components/Avatar';
 import { useNavigate } from 'react-router';
 import StatCard from '../../components/StatsCard';
 import { useDashboardStats } from '../../hooks/DashboardStats';
@@ -16,6 +15,11 @@ import { toast } from 'sonner';
 import Input from '../../components/Input';
 import Button from '../../components/Button';
 import CreateTicketModal from '../../components/TicketModal';
+import UserPopover from '../../components/UserPopover';
+import {  MenuItem,PopoverButton } from '@headlessui/react';
+
+import SimplePopover from '../../components/SimpleDropdown';
+
 
 const Dashboard: React.FC = () => {
   const { systemInfo, setSystemInfo, user } = useAppContext();
@@ -24,7 +28,7 @@ const Dashboard: React.FC = () => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [isTicketModalOpen, setIsTicketModalOpen] = useState(false);
   const { stats, isLoading: isLoadingStats } = useDashboardStats();
-  const [isCheckingTicket, setIsCheckingTicket] = useState(false); // Loading state for the button
+  const [isCheckingTicket, setIsCheckingTicket] = useState(false);
 
 
   const navigate = useNavigate();
@@ -43,7 +47,6 @@ const Dashboard: React.FC = () => {
       if (err.response && err.response.status === 404) {
         setIsTicketModalOpen(true);
       } else {
-        // Handle other potential errors
         console.error('Failed to check for active ticket:', err);
         toast.error('Não foi possível verificar seus chamados. Tente novamente.');
       }
@@ -87,6 +90,17 @@ const Dashboard: React.FC = () => {
     }
   };
 
+  const handleAddExistingUser = () => {
+    if (systemInfo) {
+      navigate('/app/assign-user', {
+        state: {
+          systemId: systemInfo.id,
+          hostname: systemInfo.hostname
+        }
+      });
+    }
+  };
+
   {
     if (!systemInfo) {
       return (
@@ -100,10 +114,11 @@ const Dashboard: React.FC = () => {
 
   const isAdminOrIT = user?.role === 'ADMIN' || user?.role === 'IT_SUPPORT';
 
-
+  console.log(systemInfo.user)
   return (
     <>
-      <div className='w-full space-y-8'>
+      <div className='w-full space-y-8
+      '>
         {isAdminOrIT && (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
             <StatCard title="Chamados Abertos" value={stats?.openTickets ?? 0} IconComponent={TicketIcon} isLoading={isLoadingStats} colorClass="text-orange-500" />
@@ -122,15 +137,31 @@ const Dashboard: React.FC = () => {
             </div>
             <div className='flex flex-col items-end gap-2.5'>
               {systemInfo.user && user.id !== systemInfo.user.id ? (
-                <Avatar avatarUrl={systemInfo.user.avatarUrl} />
+                <UserPopover user={systemInfo.user} system={systemInfo} context="list" />
               ) : (
-                isAdminOrIT && user.id !== systemInfo.user?.id && (
-                  <button onClick={handleAddUserClick} className='flex items-center gap-2 cursor-pointer text-primary hover:underline'>
-                    Adicionar usuário
-                    <PlusIcon size={20} />
-                  </button>
+                isAdminOrIT && !systemInfo.user && (
+                <SimplePopover popoverButton={
+                        <PopoverButton className="flex items-center gap-2.5 cursor-pointer text-primary hover:underline">
+                          Adicionar usuário
+                          <PlusIcon size={20} />
+                        </PopoverButton>
+                }>
+                    <MenuItem>
+                          <button onClick={handleAddUserClick} className={` group flex w-full items-center rounded-t-md px-4 py-3 text-sm transition-all duration-150 easy-in hover:bg-border/50`}>
+                            <UserPlusIcon className="mr-2 h-5 w-5" />
+                            Criar Novo Usuário
+                          </button>
+                        
+                      </MenuItem>
+                      <MenuItem>
+                          <button onClick={handleAddExistingUser} className={` group flex w-full items-center rounded-b-md px-4 py-3 text-sm transition-all duration-150 easy-in hover:bg-border/50`}>
+                            <UserSwitchIcon className="mr-2 h-5 w-5" />
+                            Atribuir Usuário Existente
+                          </button>
+                        </MenuItem>
+              </SimplePopover>
                 )
-              )}
+                )}
               {isAdminOrIT && systemInfo.user && (
                 <button onClick={handleOpenModal} className='flex items-center gap-2.5 font-bold text-[#ED3A47] cursor-pointer hover:underline'>
                   {systemInfo.anydesk ? (
@@ -144,6 +175,13 @@ const Dashboard: React.FC = () => {
                   <PencilSimpleIcon size={16} className="opacity-60" />
                 </button>
               )}
+
+              {systemInfo.user && systemInfo.anydesk && !isAdminOrIT && (
+                <div className='flex items-center gap-2.5 font-bold text-[#ED3A47] cursor-pointer hover:underline'>
+                      <img src={anydeskIcon} alt="anydesk icon" className="h-5 w-5" />
+                      <p>{systemInfo.anydesk}</p>
+                </div>
+              )}
             </div>
           </div>
 
@@ -152,7 +190,6 @@ const Dashboard: React.FC = () => {
           <Network adapter={systemInfo.network.adapters.filter(adapter => adapter.ip.startsWith('192') || adapter.ip.startsWith('10'))} publicIp={systemInfo?.network.publicIP} />
           <Printers printers={systemInfo.printers} />
         </section >
-        {/* --- 3. FLOATING ACTION BUTTON FOR USERS --- */}
         {user?.role === 'USER' && (
           <Button
             onClick={handleCallSupportClick}

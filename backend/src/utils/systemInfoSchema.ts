@@ -82,6 +82,17 @@ export const systemInfoPayloadSchema = z.object({
   computerUsers: z.array(computerUserSchema),
 });
 
+export const appUser = z.object({
+  id: z.string(),
+  fullname: z.string().min(1, "Full name is required"),
+  email: z.string().email("Invalid email address"),
+  sector: z.string(),
+  phone: z.string(),
+  avatarUrl: z.string().url().nullable().optional(),
+  role: z.enum(['USER', 'ADMIN', 'IT_SUPPORT']),
+  loginDate: z.string(), 
+});
+
 
 export const createUserSchema = z.object({
   firstname: z.string().min(1, "First name is required"),
@@ -132,6 +143,16 @@ export const updateUserProfileSchema = z.object({
 }).refine(data => Object.keys(data).length > 0, {
   message: "At least one field must be provided to update.",
 });
+
+export const updateUserSchema = z.object({
+  fullname: z.string().min(1, "Full name is required").optional(),
+  email: z.string().email("Invalid email address").optional(),
+  phone: z.string().optional(),
+  sector: z.string().optional(),
+  avatarUrl: z.string().url().nullish().optional(),
+  role: z.enum(["USER", "IT_SUPPORT", "ADMIN"]).optional(),
+});
+
 
 export const changePasswordSchema = z.object({
   currentPassword: z.string(),

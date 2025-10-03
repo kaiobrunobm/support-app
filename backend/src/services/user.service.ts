@@ -2,9 +2,10 @@ import prisma from '../prisma';
 import bcrypt from 'bcryptjs';
 import { CustomError } from '../api/middlewares/error.middleware';
 import { z } from 'zod';
-import { createUserSchema, updateUserProfileSchema } from '../utils/systemInfoSchema';
+import { createUserSchema, updateUserSchema } from '../utils/systemInfoSchema';
 
-type CreateUserData = z.infer<typeof createUserSchema>
+type CreateUserData = z.infer<typeof createUserSchema>;
+type UpdateUserData = z.infer<typeof updateUserSchema>;
 
 export async function createAndAssignUser(data: CreateUserData) {
   const { email, systemId } = data;
@@ -18,17 +19,15 @@ export async function createAndAssignUser(data: CreateUserData) {
     throw new CustomError('Target system not found', 404);
   }
   if (targetSystem.user) {
-    throw new CustomError(`System ${targetSystem.hostname} is already assigned to ${targetSystem.user.fullname}`, 409); 
+    throw new CustomError(`System ${targetSystem.hostname} is already assigned to ${targetSystem.user.fullname}`, 409);
   }
 
-  
   const existingUser = await prisma.user.findUnique({
     where: { email },
-    include: { system: true } 
+    include: { system: true }
   });
 
   if (existingUser) {
-    
     if (existingUser.systemId && existingUser.systemId !== systemId) {
       return {
         reassignmentRequired: true,
@@ -37,12 +36,10 @@ export async function createAndAssignUser(data: CreateUserData) {
         newSystem: targetSystem,
       };
     }
-   
-    throw new CustomError('This user already exists but has no system assigned. Please detach them first.', 409);
+    throw new CustomError('This user already exists but has no system assigned.', 409);
   }
 
   const hashedPassword = await bcrypt.hash(data.password, 10);
-
   const newUser = await prisma.user.create({
     data: {
       fullname: data.fullname,
@@ -53,9 +50,7 @@ export async function createAndAssignUser(data: CreateUserData) {
       role: data.role,
       avatarUrl: data.avatarUrl,
       loginDate: new Date(),
-      system: {
-        connect: { id: systemId },
-      },
+      system: { connect: { id: systemId } },
     },
   });
   
@@ -68,62 +63,71 @@ export async function createAndAssignUser(data: CreateUserData) {
   return { user: userWithoutPassword, reassignmentRequired: false };
 }
 
-export async function detachUserFromSystem(systemId: string) {
-  const system = await prisma.systemInfo.findUnique({
-    where: { id: systemId },
-    include: { user: true }
-  });
 
-  if (!system) {
-    throw new CustomError('System not found', 404);
-  }
-  if (!system.user) {
+export async function assignExistingUser(userId: string, targetSystemId: string) {
+    const userToAssign = await prisma.user.findUnique({
+        where: { id: userId },
+        include: { system: true }
+    });
+
+    if (!userToAssign) {
+        throw new CustomError('User not found', 404);
+    }
     
-    return system;
-  }
+    const targetSystem = await prisma.systemInfo.findUnique({ where: { id: targetSystemId }, include: { user: true }});
+    if (!targetSystem) { throw new CustomError('Target system not found', 404); }
+    if (targetSystem.user) { throw new CustomError(`System ${targetSystem.hostname} is already assigned`, 409); }
 
-  return prisma.systemInfo.update({
-    where: { id: systemId },
-    data: {
-      user: { disconnect: true },
-      userDetachedAt: new Date(),
-    },
-  });
+    if (userToAssign.systemId && userToAssign.systemId !== targetSystemId) {
+        return {
+            reassignmentRequired: true,
+            user: userToAssign,
+            oldSystem: userToAssign.system,
+            newSystem: targetSystem,
+        };
+    }
+
+    const updatedUser = await forceReassignUser(userId, targetSystemId);
+    return { user: updatedUser, reassignmentRequired: false };
 }
 
+
 export async function forceReassignUser(userId: string, newSystemId: string) {
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { systemId: true }
-  });
-  if (!user || !user.systemId) {
-    throw new CustomError('User not found or is not assigned to any system.', 404);
-  }
-
-  const oldSystemId = user.systemId;
-
-  if (oldSystemId === newSystemId) {
-    throw new CustomError('User is already assigned to this system.', 409);
-  }
-
   return prisma.$transaction(async (tx) => {
+    const userToMove = await tx.user.findUnique({
+      where: { id: userId },
+      select: { systemId: true }
+    });
+    const oldSystemId = userToMove?.systemId;
+
+    const targetSystem = await tx.systemInfo.findUnique({
+      where: { id: newSystemId },
+      select: { user: { select: { id: true } } }
+    });
+    const occupantUserId = targetSystem?.user?.id;
+
+    if (occupantUserId) {
+      await tx.user.update({
+        where: { id: occupantUserId },
+        data: { systemId: null }
+      });
+      await tx.systemInfo.update({
+          where: { id: newSystemId },
+          data: { userDetachedAt: new Date() }
+      });
+    }
+
+    if (oldSystemId) {
+       await tx.systemInfo.update({
+          where: { id: oldSystemId },
+          data: { userDetachedAt: new Date() }
+      });
+    }
     
-  
     const updatedUser = await tx.user.update({
       where: { id: userId },
-      data: {
-        system: { connect: { id: newSystemId } },
-      },
-      include: { 
-        system: true 
-      }
-    });
-    
-    await tx.systemInfo.update({
-      where: { id: oldSystemId },
-      data: {
-        userDetachedAt: new Date(),
-      },
+      data: { system: { connect: { id: newSystemId } } },
+      include: { system: true }
     });
 
     await tx.systemInfo.update({
@@ -135,8 +139,50 @@ export async function forceReassignUser(userId: string, newSystemId: string) {
   });
 }
 
-type UpdateUserProfileData = z.infer<typeof updateUserProfileSchema>;
 
+export async function detachUserFromSystem(systemId: string) {
+  const system = await prisma.systemInfo.findUnique({
+    where: { id: systemId },
+    select: { user: { select: { id: true } } }
+  });
+
+  if (!system) {
+    throw new CustomError('System not found', 404);
+  }
+  if (!system.user) {
+    return;
+  }
+
+  const userId = system.user.id;
+
+  return prisma.$transaction([
+    prisma.user.update({
+      where: { id: userId },
+      data: { systemId: null }
+    }),
+    prisma.systemInfo.update({
+      where: { id: systemId },
+      data: { userDetachedAt: new Date() },
+    })
+  ]);
+}
+
+export async function getAllUsers() {
+  return prisma.user.findMany({
+    include: {
+      system: {
+        select: {
+          id: true,
+          hostname: true,
+        },
+      },
+    },
+    orderBy: [
+      { systemId: 'desc' },
+      { fullname: 'asc' },
+    ],
+  });
+}
 
 export async function getUserProfile(userId: string) {
   const user = await prisma.user.findUnique({
@@ -163,16 +209,49 @@ export async function getUserProfile(userId: string) {
   return userWithoutPassword;
 }
 
-
-export async function updateUserProfile(userId: string, data: UpdateUserProfileData) {
+export async function updateUserProfile(userId: string, data: Partial<UpdateUserData>) {
   const updatedUser = await prisma.user.update({
     where: { id: userId },
-    data: data, 
+    data: data,
   });
+
+  if (data.email && data.email !== updatedUser.email) {
+        const existingEmail = await prisma.user.findUnique({ where: { email: data.email }});
+        if (existingEmail) {
+            throw new CustomError('This email is already in use.', 409);
+        }
+    }
+
 
   const { password, ...userWithoutPassword } = updatedUser;
   return userWithoutPassword;
 }
+
+export async function updateUserById(userId: string, data: Partial<z.infer<typeof updateUserSchema>>) {
+    const userToUpdate = await prisma.user.findUnique({ where: { id: userId } });
+    if (!userToUpdate) {
+        throw new CustomError('User not found', 404);
+    }
+    
+    if (data.email && data.email !== userToUpdate.email) {
+        const existingEmail = await prisma.user.findUnique({ where: { email: data.email }});
+        if (existingEmail) {
+            throw new CustomError('This email is already in use.', 409);
+        }
+    }
+    
+    const updatedUser = await prisma.user.update({
+        where: { id: userId },
+        data: data,
+        include: {
+            system: true 
+        }
+    });
+
+    const { password, ...userWithoutPassword } = updatedUser;
+    return userWithoutPassword;
+}
+
 
 export async function changeUserPassword(userId: string, currentPassword: string, newPassword: string) {
   const user = await prisma.user.findUnique({

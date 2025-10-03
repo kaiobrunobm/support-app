@@ -36,16 +36,38 @@ export async function createTicket(subject: string, initialMessage: string, requ
   });
 }
 
-export async function getTicketsByStatus(status: TicketStatus) {
-  return prisma.ticket.findMany({
-    where: { status },
+export async function getTicketsByStatus(status: TicketStatus, userId: string, userRole: string) {
+  const queryOptions: any = {
     orderBy: { createdAt: 'desc' },
     include: {
-      requester: { select: { fullname: true, avatarUrl: true, sector: true } },
-      system: { select: { hostname: true } }
+      requester: { 
+        select: { 
+          fullname: true, 
+          avatarUrl: true,
+          sector: true,
+        } 
+      },
+      system: { select: { hostname: true } },
+      assignee: {
+        select: {
+            fullname: true,
+            avatarUrl: true,
+        }
+      }
     }
-  });
+  };
+
+  const whereClause: any = { status };
+
+  if (status === 'PENDING' && (userRole === 'IT_SUPPORT' || userRole === 'ADMIN')) {
+    whereClause.assigneeId = userId;
+  }
+  
+  queryOptions.where = whereClause;
+
+  return prisma.ticket.findMany(queryOptions);
 }
+
 
 export async function getTicketDetails(ticketId: string, userId: string, userRole: string) {
   const ticket = await prisma.ticket.findUnique({
@@ -178,16 +200,13 @@ export async function assignAndPendTicket(ticketId: string, itSupportUserId: str
 
 
 export async function findActiveTicketForUser(requesterId: string) {
-  // A user should only have one active ticket at a time.
-  // We find the first one that matches.
   return prisma.ticket.findFirst({
     where: {
       requesterId: requesterId,
       status: {
-        in: ['OPEN', 'PENDING'], // Check for either status
+        in: ['OPEN', 'PENDING'], 
       },
     },
-    // Only select the ID, as that's all we need for redirection
     select: {
       id: true,
     },

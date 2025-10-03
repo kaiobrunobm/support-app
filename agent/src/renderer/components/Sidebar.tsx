@@ -4,21 +4,20 @@ import { Outlet, useNavigate } from 'react-router';
 import { useAppContext } from '../context/ContextProvider';
 import SystemSearch from '../components/SystemSearch';
 import NavItem from '../components/NavItem';
-import Avatar from '../components/Avatar';
 import {
   CpuIcon,
   DesktopTowerIcon,
   SidebarSimpleIcon,
   WifiHighIcon,
   SignOutIcon,
-  UsersThreeIcon,
   HeadsetIcon,
   ListBulletsIcon, 
 } from '@phosphor-icons/react';
+import UserPopover from './UserPopover';
 
 const MainLayout: React.FC = () => {
   const [navOpen, setNavOpen] = useState(false);
-  const { logout, user } = useAppContext();
+  const { logout, user, systemInfo } = useAppContext();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -83,7 +82,7 @@ const MainLayout: React.FC = () => {
           {user?.role === 'ADMIN' && <SystemSearch />}
         </div>
         <div className="flex items-center gap-4">
-            {user && <Avatar avatarUrl={user.avatarUrl} />}
+            {user && <UserPopover user={user} system={systemInfo} context="header" />}
             <button onClick={handleLogout}>
               <SignOutIcon size={24} weight="fill" className="cursor-pointer text-text transition-all duration-150 ease-in-out hover:text-error" />
             </button>

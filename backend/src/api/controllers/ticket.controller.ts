@@ -23,8 +23,12 @@ export async function getTickets(req: AuthRequest, res: Response, next: NextFunc
         if (!status || !['OPEN', 'PENDING', 'RESOLVED', 'CANCELLED'].includes(status)) {
             return res.status(400).json({ status: 'error', message: 'A valid status query parameter is required (OPEN, PENDING, RESOLVED, CANCELLED).' });
         }
+
+        const userId = req.user!.id;
+        const userRole = req.user!.role;
         
-        const tickets = await TicketService.getTicketsByStatus(status);
+        const tickets = await TicketService.getTicketsByStatus(status, userId, userRole);
+        
         res.status(200).json({ status: 'success', data: { tickets } });
     } catch (error) {
         next(error);
@@ -64,14 +68,10 @@ export async function addMessage(req: AuthRequest, res: Response, next: NextFunc
         const { content, imageUrl } = createMessageSchema.parse(req.body);
         const senderId = req.user!.id;
         
-        if (!content && !imageUrl) {
-            return res.status(400).json({ status: 'error', message: 'Message must have content or an image.' });
-        }
-
+     
         const io = req.app.get('io');
-        
-       //TODO imageURL type
-        const newMessage = await TicketService.addMessageToTicket(ticketId, senderId, content ?? '', imageUrl, io);
+
+        const newMessage = await TicketService.addMessageToTicket(ticketId, senderId, content, imageUrl, io);
        
 
         res.status(201).json({ status: 'success', data: { message: newMessage } });
@@ -86,7 +86,6 @@ export async function getMyActiveTicket(req: AuthRequest, res: Response, next: N
     const activeTicket = await TicketService.findActiveTicketForUser(requesterId);
 
     if (!activeTicket) {
-      // It's not an error to have no active ticket, so we return 404 Not Found
       return res.status(404).json({ status: 'not_found', message: 'No active ticket found for this user.' });
     }
 

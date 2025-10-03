@@ -37,15 +37,17 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ ticket, setTicket }) => {
           <CaretLeftIcon size={24} />
         </button>
         <div>
-        {ticket.assignee ? (
-          <h2 className="text-lg font-bold">{ticket.requester.fullname} ({ticket.requester.sector})</h2>
-        ) :
-          <div className="text-lg font-bold">{ticket.assignee ? <h2>{ticket.assignee.fullname} ({ticket.assignee.sector})</h2> : <h2>Esperando técnico...</h2>}</div>
+          {ticket.assignee && ticket.assignee.id === user?.id ? (
+            <h2 className="text-lg font-bold">{ticket.requester.fullname} ({ticket.requester.sector})</h2>
 
-        }
-        <p className="text-sm text-secondaryText">
-          Assunto: {ticket.subject}
-        </p>
+          ) :
+            <div className="text-lg font-bold">{ticket.assignee ? <h2>{ticket.assignee.fullname} ({ticket.assignee.sector})</h2> : <h2>Esperando técnico...</h2>}</div>
+
+
+          }
+          <p className="text-sm text-secondaryText">
+            Assunto: {ticket.subject}
+          </p>
         </div>
       </div>
       <div className="flex items-center gap-4">
