@@ -1,15 +1,17 @@
-import { app, BrowserWindow, Menu, Tray, ipcMain, Event } from 'electron';
+import { app, BrowserWindow, Menu, Tray, ipcMain, Event, dialog, MessageBoxOptions  } from 'electron';
+import { autoUpdater } from 'electron-updater';
 import path from 'path';
 import { collectSystemInfo } from './services/collectData'
-import {updateElectronApp} from 'update-electron-app'
 import { sendToAPI } from './services/utils/ColectDataFunctions';
 import { config } from './config'
 import 'dotenv/config';
 
-updateElectronApp()
+//const server = 'https://hazel-updater-blush.vercel.app/'; 
+//const url = `${server}/update/${process.platform}/${app.getVersion()}`;
 
 let tray: Tray | null = null;
 let mainWindow: BrowserWindow | null = null;
+//autoUpdater.setFeedURL({ url });
 
 const createWindow = async () => {
   mainWindow = new BrowserWindow({
@@ -20,25 +22,22 @@ const createWindow = async () => {
     skipTaskbar: false,
     icon: path.join(__dirname, 'tray-icon.png'),
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      preload: path.join(__dirname, '../preload/preload.js'), 
       contextIsolation: true,
       nodeIntegration: false,
     },
   });
 
-  //Menu.setApplicationMenu(null)
 
-  try {
-    if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
-      await mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
-    } else {
-      await mainWindow.loadFile(
-        path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`)
-      );
-    }
-  } catch (error) {
-    console.error('Failed to load window:', error);
+   if (process.env.VITE_DEV_SERVER_URL) {
+    await mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL);
+    mainWindow.webContents.openDevTools();
+    
+  } else {
+    Menu.setApplicationMenu(null)
+    await mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'));
   }
+
 
   mainWindow.on('close', (event) => {
     event.preventDefault();
@@ -62,6 +61,12 @@ const createTray = () => {
           mainWindow?.focus();
         },
       },
+      {
+        label: 'Sair',
+        click: () => {
+          app.quit();
+        },
+      },
     ])
   );
 };
@@ -75,7 +80,12 @@ ipcMain.handle('get-system-info', async () => {
 app.on('ready', async () => {
   await createWindow();
   createTray();
-  
+  setTimeout(() => autoUpdater.checkForUpdatesAndNotify(), 5000);
+  setInterval(() => {
+    autoUpdater.checkForUpdatesAndNotify();
+  }, 60000);
+
+  console.log(path.join(__dirname, '../renderer/index.html'));
   console.log('Application is ready. Sending initial system information...');
   try {
     await sendToAPI(config.apiUrl);
@@ -95,8 +105,37 @@ app.on('ready', async () => {
   }
 });
 
+const sendUpdateMessage = (channel: string, ...args: any[]) => {
+  BrowserWindow.getAllWindows().forEach(window => {
+    window.webContents.send('update-message', channel, ...args);
+  });
+};
 
+autoUpdater.on('checking-for-update', () => {
+  sendUpdateMessage('checking-for-update');
+});
 
-app.on("before-quit", (event: Event) => {
-  event.preventDefault(); 
+autoUpdater.on('update-available', (info) => {
+  sendUpdateMessage('update-available', info);
+});
+
+autoUpdater.on('update-not-available', (info) => {
+  sendUpdateMessage('update-not-available', info);
+});
+
+autoUpdater.on('error', (err) => {
+  sendUpdateMessage('error', err);
+});
+
+autoUpdater.on('download-progress', (progressObj) => {
+  sendUpdateMessage('download-progress', progressObj);
+});
+
+autoUpdater.on('update-downloaded', (info) => {
+  sendUpdateMessage('update-downloaded', info);
+});
+
+// Listen for the renderer to request quitting and installing the update
+ipcMain.on('install-update', () => {
+  autoUpdater.quitAndInstall();
 });

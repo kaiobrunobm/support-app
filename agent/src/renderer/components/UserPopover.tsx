@@ -47,11 +47,11 @@ const UserPopover: React.FC<UserPopoverProps> = ({ user, system, context }) => {
 
   const handleStartReassignment = () => {
     setIsReassignModalOpen(false);
-    navigate('/app/reassign-user', { state: { user, system } });
+    navigate('/reassign-user', { state: { user, system } });
   };
   
   const handleEditProfile = () => {
-    navigate(`/app/users/${user.id}/edit`);
+    navigate(`/users/${user.id}/edit`);
   };
 
   return (

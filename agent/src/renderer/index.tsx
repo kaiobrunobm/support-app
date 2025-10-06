@@ -5,6 +5,7 @@ import { ContextProvider } from "./context/ContextProvider";
 import { Toaster } from "sonner";
 import App from './App';
 import '../index.css';
+import Updater from "./components/Updater";
 
 const container = document.getElementById('root');
 const root = createRoot(container!);
@@ -12,7 +13,9 @@ const root = createRoot(container!);
 root.render(
   <React.StrictMode>
     <ContextProvider>
+      <Updater />
       <Toaster richColors position="bottom-center" />
+      
       <HashRouter>
         <App />
       </HashRouter>

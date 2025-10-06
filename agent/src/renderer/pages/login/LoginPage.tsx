@@ -58,10 +58,7 @@ const LoginPage: React.FC = () => {
         </form>
       </div>
 
-      <span className='text-xs text-secondaryText py-4'>© Support app - Todos direitos reservados</span>
-
-
-
+      <span className='text-xs text-secondaryText py-4'>© SystemPulse v0.0.5 - Todos direitos reservados </span>
 
     </main>
   );

@@ -8,15 +8,13 @@ import path from 'path';
 const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
-    icon: path.join(__dirname, './tray-icon.ico') 
+    icon: path.join(__dirname, './tray-icon.ico'),
   },
   rebuildConfig: {},
 
   makers: [
-     new MakerSquirrel({
-
-      name: "SystemPulse", 
-          
+    new MakerSquirrel({
+      name: 'SystemPulse',
     }),
   ],
   publishers: [
@@ -25,11 +23,11 @@ const config: ForgeConfig = {
       config: {
         repository: {
           owner: 'kaiobrunobm',
-          name: 'support-app'
+          name: 'support-app',
         },
-        prerelease: true
-      }
-    }
+        prerelease: true,
+      },
+    },
   ],
 
   plugins: [
@@ -38,12 +36,10 @@ const config: ForgeConfig = {
         {
           entry: 'src/main.ts',
           config: 'vite.main.config.ts',
-          target: 'main',
         },
         {
           entry: 'src/preload.ts',
           config: 'vite.preload.config.ts',
-          target: 'preload',
         },
       ],
       renderer: [

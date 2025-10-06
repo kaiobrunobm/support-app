@@ -12,7 +12,7 @@
     "packages/*"
   ],
   "scripts": {
-    "dev:agent": "yarn workspace agent start",
+    "dev:agent": "yarn workspace system-pulse start",
     "dev:backend": "yarn workspace backend dev",
     "db:migrate": "yarn workspace backend prisma migrate dev",
     "db:generate": "yarn workspace backend prisma generate",
@@ -20,9 +20,10 @@
     "lint": "eslint . --ext .ts,.tsx --fix",
     "format": "prettier --write .",
     "docker": "docker compose -f ./docker/docker-compose.yml up -d",
-    "build:agent": "yarn workspace agent build",
+    "build:agent": "yarn workspace system-pulse build",
     "build:backend": "yarn workspace backend build",
-    "make:agent": "yarn workspace agent make"
+    "make:agent": "yarn workspace system-pulse make",
+    "publish:agent": "yarn workspace system-pulse run publish"
   },
   "devDependencies": {
     "eslint": "^9.8.0",
