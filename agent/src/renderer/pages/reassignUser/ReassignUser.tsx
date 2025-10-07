@@ -44,8 +44,6 @@ const ReassignUserPage: React.FC = () => {
       confirmAndExecuteReassignment();
     }
   };
-  console.log(user)
-  console.log(selectedSystem)
   const confirmAndExecuteReassignment = async () => {
     if (!selectedSystem) return;
 
@@ -55,8 +53,6 @@ const ReassignUserPage: React.FC = () => {
       const response = await apiService.forceReassignUser(user.id, selectedSystem.id);
     
       const updatedUser = response.data.data.user;    
-      console.log(response)
-      //UpdateUser 
       
       toast.success(`Usuário ${updatedUser.fullname} reatribuído para ${selectedSystem.hostname} com sucesso!`);
       

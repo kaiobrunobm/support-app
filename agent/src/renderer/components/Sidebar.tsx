@@ -14,6 +14,7 @@ import {
   ListBulletsIcon, 
 } from '@phosphor-icons/react';
 import UserPopover from './UserPopover';
+import NotificationPopover from './NotificationPopover';
 
 const MainLayout: React.FC = () => {
   const [navOpen, setNavOpen] = useState(false);
@@ -82,6 +83,7 @@ const MainLayout: React.FC = () => {
           {user?.role === 'ADMIN' && <SystemSearch />}
         </div>
         <div className="flex items-center gap-4">
+            <NotificationPopover/>
             {user && <UserPopover user={user} system={systemInfo} context="header" />}
             <button onClick={handleLogout}>
               <SignOutIcon size={24} weight="fill" className="cursor-pointer text-text transition-all duration-150 ease-in-out hover:text-error" />

@@ -1,9 +1,14 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { SystemInfo, AppUser, SystemSummary, } from "../types";
-import axios from 'axios';
-import { config } from "../../config";
+import { useNavigate } from "react-router";
+import { SystemInfo, AppUser, SystemSummary, Ticket, Message, TicketSummary } from "../types";
 import io, { Socket } from 'socket.io-client';
 import * as apiService from '../api/apiService';
+import { config } from "../../config";
+import { useNotification } from "./NotificationContext";
+import axios from "axios";
+import { toast } from "sonner";
+import CustomToast from "../components/ChatToast";
+import ChatToast from "../components/ChatToast";
 
 export const apiClient = axios.create({
   baseURL: config.apiUrl,
@@ -14,7 +19,14 @@ interface AppContextInterface {
   user: AppUser | null;
   isLoading: boolean;
   allSystems: SystemSummary[];
+  ticketsByStatus: {
+    OPEN: TicketSummary[];
+    PENDING: TicketSummary[];
+    RESOLVED: TicketSummary[];
+    CANCELLED: TicketSummary[];
+  };
   fetchSystems: () => Promise<void>;
+  fetchTicketsByStatus: (status: 'OPEN' | 'PENDING' | 'RESOLVED' | 'CANCELLED') => Promise<void>;
   updateSystemInList: (updatedSystem: SystemInfo | SystemSummary) => void;
   socket: Socket | null;
   login: (email: string, password: string) => Promise<any>;
@@ -22,7 +34,7 @@ interface AppContextInterface {
   setSystemInfo: React.Dispatch<React.SetStateAction<SystemInfo | null>>;
   setUser: React.Dispatch<React.SetStateAction<AppUser | null>>;
   updateUserForSystem: (systemId: string, user: AppUser | null) => void;
-
+  setActiveChatId: (ticketId: string | null) => void;
 }
 
 const AppContext = createContext<AppContextInterface | undefined>(undefined);
@@ -33,29 +45,120 @@ export const ContextProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [allSystems, setAllSystems] = useState<SystemSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [socket, setSocket] = useState<Socket | null>(null);
-  
+  const [activeChatId, setActiveChatId] = useState<string | null>(null);
+  const [ticketsByStatus, setTicketsByStatus] = useState<AppContextInterface['ticketsByStatus']>({
+    OPEN: [],
+    PENDING: [],
+    RESOLVED: [],
+    CANCELLED: []
+  });
+
+  const navigate = useNavigate();
+  const { addNotification } = useNotification();
+
+  useEffect(() => {
+    if (!socket || !user) return;
+
+    
+
+    const handleNewTicket = (ticket: TicketSummary) => {
+      if ((user.role === 'ADMIN' || user.role === 'IT_SUPPORT') && ticket.requester) {
+        addNotification({
+          title: 'Novo Chamado Aberto',
+          body: `De: ${ticket.requester.fullname}`,
+          type: 'new-ticket',
+          ticketId: ticket.id,
+        });
+        
+        setTicketsByStatus(prev => ({
+          ...prev,
+          OPEN: [ticket, ...prev.OPEN]
+        }));
+
+        return toast.custom((id) => (
+            <ChatToast
+              id={id}
+              ticketId=''
+              title={`Novo chamado aberto`}
+              body={`Novo chamado aberto por ${ticket.requester.fullname} - ${ticket.requester.sector}`}/>
+          ));
+      }
+    };
+
+    const handleNewMessage = async (message: Message & { ticketId: string }) => {
+      if (message.ticketId === activeChatId) return;
+
+      try {
+        const response = await apiService.getTicketById(message.ticketId);
+        const ticketData = response.data.status === 'success' ? response.data.data.ticket : undefined;
+        
+        if (!ticketData || !ticketData.requester || !message.sender) return;
+
+        const isRequester = user.id === ticketData.requester.id;
+        const isAssignee = user.id === ticketData.assignee?.id;
+        const isNotSender = user.id !== message.senderId;
+
+        if ((isRequester || isAssignee) && isNotSender) {
+          addNotification({
+            title: `Nova mensagem de ${message.sender.fullname}`,
+            body: `${message.content}`,
+            type: 'new-message',
+            ticketId: message.ticketId
+          });
+
+          return toast.custom((id) => (
+            <ChatToast
+              id={id}
+              ticketId={message.ticketId}
+              title={`Nova mensagem de ${message.sender.fullname}`}
+              body={`${message.content}`}/>
+          ));
+        }
+      } catch (error) {
+        console.error('Error processing message for notification:', error);
+      }
+    };
+
+    const handleTicketStatusUpdate = (updatedTicket: TicketSummary) => {
+      setTicketsByStatus(prev => {
+        const newLists: AppContextInterface['ticketsByStatus'] = { ...prev };
+
+        Object.keys(newLists).forEach(status => {
+          const key = status as keyof typeof newLists;
+          newLists[key] = newLists[key].filter(t => t.id !== updatedTicket.id);
+        });
+
+        if (newLists[updatedTicket.status]) {
+          newLists[updatedTicket.status].unshift(updatedTicket);
+        }
+
+        return newLists;
+      });
+    };
+
+    socket.on('newTicket', handleNewTicket);
+    socket.on('receiveMessage', handleNewMessage);
+    socket.on('ticketStatusUpdated', handleTicketStatusUpdate);
+
+    return () => {
+      socket.off('newTicket', handleNewTicket);
+      socket.off('receiveMessage', handleNewMessage);
+      socket.off('ticketStatusUpdated', handleTicketStatusUpdate);
+    };
+  }, [socket, user, navigate, activeChatId, addNotification]);
 
   const login = async (email: string, password: string) => {
     const { data } = await apiService.login(email, password);
-    console.log(data)
-
     if (data.status === 'success' && data.data.token) {
       const { user, token } = data.data;
-
       localStorage.setItem("token", token);
       apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-
       setUser(user);
       setSystemInfo(user.system);
-
       if (socket) socket.disconnect();
-
-      const newSocket = io(config.apiUrl, {
-        auth: { token }
-      });
+      const newSocket = io(config.apiUrl, { auth: { token } });
       setSocket(newSocket);
     }
-
     return data;
   };
 
@@ -63,39 +166,30 @@ export const ContextProvider: React.FC<{ children: React.ReactNode }> = ({ child
     localStorage.removeItem("token");
     delete apiClient.defaults.headers.common['Authorization'];
     setUser(null);
-
     if (socket) {
       socket.disconnect();
       setSocket(null);
     }
-
-
-    window.electronAPI.getSystemInfo()
-      .then((info: SystemInfo) => setSystemInfo(info))
-      .catch(console.error);
+    window.electronAPI.getSystemInfo().then((info: SystemInfo) => setSystemInfo(info)).catch(console.error);
   };
 
   useEffect(() => {
     const initializeApp = async () => {
       const token = localStorage.getItem("token");
-
       if (token) {
         apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-
         const newSocket = io(config.apiUrl, { auth: { token } });
         setSocket(newSocket);
-
         try {
           const { data } = await apiService.getMe();
           if (data.status === 'success' && data.data.user) {
-            const loggedInUser = data.data.user;
-            setUser(loggedInUser);
-            setSystemInfo(loggedInUser.system);
+            setUser(data.data.user);
+            setSystemInfo(data.data.user.system);
           } else {
             logout();
           }
         } catch (err) {
-          console.error("Auto-login failed, token may be expired.", err);
+          console.error("Auto-login failed:", err);
           logout();
         }
       } else {
@@ -108,16 +202,23 @@ export const ContextProvider: React.FC<{ children: React.ReactNode }> = ({ child
       }
       setIsLoading(false);
     };
-
     initializeApp();
-
-    // Cleanup function to disconnect socket when the app closes or component unmounts
-    return () => {
-      if (socket) {
-        socket.disconnect();
-      }
-    };
+    return () => { if (socket) socket.disconnect(); };
   }, []);
+
+  const fetchTicketsByStatus = async (status: 'OPEN' | 'PENDING' | 'RESOLVED' | 'CANCELLED') => {
+    try {
+      const response = await apiService.getTicketsByStatus(status);
+      if (response.data.status === 'success') {
+        setTicketsByStatus(prev => ({
+          ...prev,
+          [status]: response.data.data.tickets,
+        }));
+      }
+    } catch (error) {
+      console.error(`Failed to fetch ${status} tickets`, error);
+    }
+  };
 
   const fetchSystems = async () => {
     try {
@@ -145,13 +246,7 @@ export const ContextProvider: React.FC<{ children: React.ReactNode }> = ({ child
       )
     );
     if (systemInfo && systemInfo.id === systemId) {
-      setSystemInfo(prevInfo => {
-        if (!prevInfo) return null;
-        return {
-          ...prevInfo,
-          user: user
-        };
-      });
+      setSystemInfo(prevInfo => prevInfo ? { ...prevInfo, user: user } : null);
     }
   };
 
@@ -164,10 +259,13 @@ export const ContextProvider: React.FC<{ children: React.ReactNode }> = ({ child
     isLoading,
     socket,
     allSystems,
+    ticketsByStatus,
     fetchSystems,
+    fetchTicketsByStatus,
     updateSystemInList,
     updateUserForSystem,
-    setUser
+    setUser,
+    setActiveChatId,
   };
 
   return (

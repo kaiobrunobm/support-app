@@ -119,7 +119,6 @@ export const getPublicIP = async () => {
 export async function sendToAPI(apiUrl: string) {
   try {
     const data = await collectSystemInfo();
-    console.log(data);
 
     const response = await axios.post(`${apiUrl}/system-info`, data);
 

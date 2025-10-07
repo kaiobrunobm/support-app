@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu, Tray, ipcMain, Event, dialog, MessageBoxOptions  } from 'electron';
+import { app, BrowserWindow, Menu, Tray, ipcMain, Notification  } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import path from 'path';
 import { collectSystemInfo } from './services/collectData'
@@ -6,12 +6,9 @@ import { sendToAPI } from './services/utils/ColectDataFunctions';
 import { config } from './config'
 import 'dotenv/config';
 
-//const server = 'https://hazel-updater-blush.vercel.app/'; 
-//const url = `${server}/update/${process.platform}/${app.getVersion()}`;
 
 let tray: Tray | null = null;
 let mainWindow: BrowserWindow | null = null;
-//autoUpdater.setFeedURL({ url });
 
 const createWindow = async () => {
   mainWindow = new BrowserWindow({
@@ -71,6 +68,8 @@ const createTray = () => {
   );
 };
 
+
+
 ipcMain.handle('get-system-info', async () => {
   const info = await collectSystemInfo()
   return info
@@ -85,7 +84,6 @@ app.on('ready', async () => {
     autoUpdater.checkForUpdatesAndNotify();
   }, 60000);
 
-  console.log(path.join(__dirname, '../renderer/index.html'));
   console.log('Application is ready. Sending initial system information...');
   try {
     await sendToAPI(config.apiUrl);
@@ -103,6 +101,24 @@ app.on('ready', async () => {
   } else {
     mainWindow?.show();
   }
+});
+
+
+ipcMain.handle('show-summary-notification', (_event, body: string) => {
+  const notification = new Notification({
+    title: 'SystemPulse',
+    body,
+    icon: path.join(__dirname, 'tray-icon.png'),
+  });
+
+  notification.on('click', () => {
+    if (mainWindow) {
+        mainWindow.show();
+        mainWindow.focus();
+    }
+  });
+
+  notification.show();
 });
 
 const sendUpdateMessage = (channel: string, ...args: any[]) => {

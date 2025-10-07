@@ -6,19 +6,22 @@ import { Toaster } from "sonner";
 import App from './App';
 import '../index.css';
 import Updater from "./components/Updater";
+import { NotificationProvider } from "./context/NotificationContext";
 
 const container = document.getElementById('root');
 const root = createRoot(container!);
 
 root.render(
   <React.StrictMode>
-    <ContextProvider>
-      <Updater />
-      <Toaster richColors position="bottom-center" />
-      
-      <HashRouter>
+    <HashRouter>
+      <NotificationProvider>
+      <ContextProvider>
+        <Updater />
+        <Toaster richColors position="bottom-left" />
         <App />
-      </HashRouter>
-    </ContextProvider>
+      </ContextProvider>
+      </NotificationProvider>
+
+    </HashRouter>
   </React.StrictMode>
 );

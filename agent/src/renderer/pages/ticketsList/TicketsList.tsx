@@ -2,13 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { CircleNotchIcon } from '@phosphor-icons/react';
 import * as apiService from '../../api/apiService';
-import { TicketSummary } from '../../types';
+import { Ticket, TicketSummary } from '../../types';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 import Tabs from '../../components/TicketsTabs';
 import Avatar from '../../components/Avatar';
 import { ScrollArea } from 'radix-ui';
+import { useAppContext } from '../../context/ContextProvider';
 
 type TicketStatus = 'OPEN' | 'PENDING' | 'RESOLVED';
 
@@ -21,31 +22,13 @@ const tabs = [
 const TicketsListPage: React.FC = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<TicketStatus>('OPEN');
-  const [tickets, setTickets] = useState<TicketSummary[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { ticketsByStatus, fetchTicketsByStatus, isLoading } = useAppContext();
+  const tickets = ticketsByStatus[activeTab] || [];
+
 
   useEffect(() => {
-    const fetchTickets = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-        const response = await apiService.getTicketsByStatus(activeTab);
-        if (response.data.status === 'success') {
-          setTickets(response.data.data.tickets);
-        } else {
-          throw new Error('Failed to fetch tickets.');
-        }
-      } catch (err) {
-        console.error(err);
-        setError('Não foi possível carregar a lista de chamados.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchTickets();
-  }, [activeTab]); 
+    fetchTicketsByStatus(activeTab);
+  }, [activeTab, fetchTicketsByStatus]); 
 
   const handleTicketSelect = (ticketId: string) => {
     navigate(`/app/tickets/${ticketId}`);
@@ -58,12 +41,10 @@ const TicketsListPage: React.FC = () => {
       <Tabs tabs={tabs} activeTab={activeTab} onTabClick={(tabId) => setActiveTab(tabId as TicketStatus)} />
 
       <div className="mt-6">
-        {isLoading ? (
+        {isLoading && tickets.length === 0 ? (
           <div className="flex h-64 w-full items-center justify-center">
             <CircleNotchIcon size={40} weight="bold" className="animate-spin text-text" />
           </div>
-        ) : error ? (
-          <div className="text-error text-center p-8">{error}</div>
         ) : (
           <div className="overflow-x-auto">
             <ScrollArea.Root>
@@ -83,7 +64,7 @@ const TicketsListPage: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
-                    {tickets.length > 0 ? tickets.map((ticket) => (
+                    {tickets.length > 0 ? tickets.map((ticket: Ticket) => (
                       <tr
                         key={ticket.id}
                         onClick={() => handleTicketSelect(ticket.id)}
@@ -114,7 +95,7 @@ const TicketsListPage: React.FC = () => {
                       </tr>
                     )) : (
                       <tr>
-                        <td colSpan={5} className="text-center text-secondaryText p-8">Nenhum chamado encontrado nesta categoria.</td>
+                        <td colSpan={activeTab !== 'OPEN' ? 6 : 5} className="text-center text-secondaryText p-8">Nenhum chamado encontrado nesta categoria.</td>
                       </tr>
                     )}
                   </tbody>

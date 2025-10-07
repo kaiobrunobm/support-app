@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 import { toast } from 'sonner';
 import { CircleNotchIcon, PlusIcon } from '@phosphor-icons/react';
 import { useAppContext } from '../../context/ContextProvider';
@@ -11,6 +11,7 @@ import { Ticket, Message } from '../../types';
 import ChatHeader from '../../components/ChatHeader';
 import ChatMessage from '../../components/ChatMessage';
 import MessageInput from '../../components/MessageInput';
+import CreateTicketModal from '../../components/TicketModal';
 
 const formatDateSeparator = (dateString: string): string => {
   const date = parseISO(dateString);
@@ -25,12 +26,27 @@ const formatDateSeparator = (dateString: string): string => {
 
 const TicketChatPage: React.FC = () => {
   const { ticketId } = useParams<{ ticketId: string }>();
-  const { user, socket } = useAppContext();
+  const { user, socket, setActiveChatId } = useAppContext();
 
   const [ticket, setTicket] = useState<Ticket | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isTicketModalOpen, setIsTicketModalOpen] = useState(false);
+  const [isCheckingTicket, setIsCheckingTicket] = useState(false);
   const messagesEndRef = useRef<null | HTMLDivElement>(null);
+
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (ticketId) {
+      setActiveChatId(ticketId);
+    }
+    // Cleanup function runs when the component unmounts
+    return () => {
+      setActiveChatId(null);
+    };
+  }, [ticketId, setActiveChatId]);
+
 
   useEffect(() => {
     if (!ticketId) {
@@ -90,6 +106,28 @@ const TicketChatPage: React.FC = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [ticket?.messages]);
 
+  const handleCallSupportClick = async () => {
+    setIsCheckingTicket(true);
+    try {
+      const response = await apiService.getMyActiveTicket();
+
+
+      const activeTicketId = response.data.data.ticket.id;
+      toast.info('Você já tem um chamado ativo. Redirecionando...');
+      navigate(`/app/tickets/${activeTicketId}`);
+
+    } catch (err: any) {
+      if (err.response && err.response.status === 404) {
+        setIsTicketModalOpen(true);
+      } else {
+        console.error('Failed to check for active ticket:', err);
+        toast.error('Não foi possível verificar seus chamados. Tente novamente.');
+      }
+    } finally {
+      setIsCheckingTicket(false);
+    }
+  };
+
 
   if (isLoading) {
     return (
@@ -105,6 +143,7 @@ const TicketChatPage: React.FC = () => {
 
 
   return (
+    <>
     <div className="flex text-text w-full h-screen flex-col">
       <ChatHeader ticket={ticket} setTicket={setTicket} />
 
@@ -135,13 +174,20 @@ const TicketChatPage: React.FC = () => {
       {ticket.status !== 'RESOLVED' ? (
         <MessageInput ticketId={ticketId} />
       ) : (
-        <span className={`w-full flex items-center justify-center text-secondaryText/60 ${user.role === 'IT_SUPPORT' && 'py-4'|| user.role === 'ADMIN' && 'py-4'}`}>Chamado resolvido</span>
+        <span className={`w-full flex items-center justify-center text-secondaryText/60 ${user.role === 'IT_SUPPORT' && 'py-4' || user.role === 'ADMIN' && 'py-4'}`}>Chamado resolvido</span>
       )}
 
       {ticket.status === 'RESOLVED' && user.role === 'USER' &&
-        <span className='w-full flex items-center justify-center gap-2 cursor-pointer hover:underline py-4'>Criar um novo chamado <PlusIcon size={18} /></span>
+        <button className='w-full flex items-center justify-center gap-2 cursor-pointer hover:underline py-4' onClick={handleCallSupportClick}>Criar um novo chamado <PlusIcon size={18} /></button>
       }
     </div>
+
+    <CreateTicketModal
+        isOpen={isTicketModalOpen}
+        onClose={() => setIsTicketModalOpen(false)}
+      />
+
+      </>
   );
 };
 

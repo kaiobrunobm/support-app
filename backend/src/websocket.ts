@@ -21,11 +21,11 @@ export function initializeSocket(httpServer: HttpServer) {
       }
 
       const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { id: string; role: string };
-      
+
       (socket as any).user = decoded;
       next();
-      
-    } catch (error:any) {
+
+    } catch (error: any) {
       console.error("Socket authentication error:", error.message);
       return next(new Error('Authentication error: Invalid token'));
     }
@@ -35,6 +35,11 @@ export function initializeSocket(httpServer: HttpServer) {
     console.log(`User connected via WebSocket: ${socket.id}`);
     const user = (socket as any).user;
 
+    if (user && (user.role === 'IT_SUPPORT' || user.role === 'ADMIN')) {
+      socket.join('support_staff');
+      console.log(`User ${socket.id} with role ${user.role} joined support_staff room.`);
+    }
+
     socket.on('joinTicketRoom', async (ticketId: string) => {
       socket.join(ticketId);
       console.log(`User ${socket.id} joined room: ${ticketId}`);
@@ -43,7 +48,7 @@ export function initializeSocket(httpServer: HttpServer) {
         try {
           const updatedTicket = await assignAndPendTicket(ticketId, user.id);
 
-         
+
           if (updatedTicket) {
             console.log(`Ticket ${ticketId} status changed to PENDING by ${user.id}`);
             io.to(ticketId).emit('ticketStatusUpdated', updatedTicket);
@@ -54,7 +59,7 @@ export function initializeSocket(httpServer: HttpServer) {
       }
     });
 
-   
+
     socket.on('sendMessage', (messageData) => {
       socket.to(messageData.ticketId).emit('receiveMessage', messageData);
     });

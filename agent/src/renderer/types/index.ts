@@ -207,3 +207,13 @@ export interface UpdateUserData {
    role?: 'USER' | 'IT_SUPPORT' | 'ADMIN';
    avatarUrl?: string;
 }
+
+export interface Notification {
+  id: string;
+  title: string;
+  body: string;
+  type: 'new-ticket' | 'new-message';
+  ticketId: string;
+  read: boolean;
+  createdAt: string;
+}

@@ -114,7 +114,6 @@ const Dashboard: React.FC = () => {
 
   const isAdminOrIT = user?.role === 'ADMIN' || user?.role === 'IT_SUPPORT';
 
-  console.log(systemInfo.user)
   return (
     <>
       <div className='w-full space-y-8

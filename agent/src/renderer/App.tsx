@@ -41,43 +41,45 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 
 const App: React.FC = () => {
   return (
-    <Routes>
-      <Route path="/" element={<LoginPage />} />
+    <>
+      <Routes>
+        <Route path="/" element={<LoginPage />} />
 
-      <Route
-        path="/app"
-        element={
-          <ProtectedRoute>
-            <Sidebar />
-          </ProtectedRoute>
-        }
-      >
-        <Route index element={<Navigate to="dashboard" replace />} />
-        <Route path="dashboard" element={<Dashboard />} />
-        <Route path="hardware" element={<Hardware />} />
-        <Route path="network" element={<Network />} />
-        <Route path="systems" element={<SystemList />} />
+        <Route
+          path="/app"
+          element={
+            <ProtectedRoute>
+              <Sidebar />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="hardware" element={<Hardware />} />
+          <Route path="network" element={<Network />} />
+          <Route path="systems" element={<SystemList />} />
 
 
-        <Route path="tickets" element={<TicketsListPage />} />
-      </Route>
+          <Route path="tickets" element={<TicketsListPage />} />
+        </Route>
 
-      <Route 
-        path="/app/tickets/:ticketId" 
-        element={
-          <ProtectedRoute>
-            <TicketChatPage />
-          </ProtectedRoute>
-        } 
-      />
+        <Route
+          path="/app/tickets/:ticketId"
+          element={
+            <ProtectedRoute>
+              <TicketChatPage />
+            </ProtectedRoute>
+          }
+        />
         <Route path="create-user" element={<CreateUserPage />} />
         <Route path="assign-user" element={<AssignUserPage />} />
         <Route path="reassign-user" element={<ReassignUserPage />} />
-         <Route path="users/:userId/edit" element={<EditUserPage />} />
+        <Route path="users/:userId/edit" element={<EditUserPage />} />
 
 
-      <Route path="*" element={<Navigate to="/" />} />
-    </Routes>
+        <Route path="*" element={<Navigate to="/" />} />
+      </Routes>
+    </>
   );
 };
 

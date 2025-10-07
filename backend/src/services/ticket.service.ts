@@ -1,10 +1,10 @@
 import prisma from '../prisma';
 import { CustomError } from '../api/middlewares/error.middleware';
 import { TicketStatus } from '@prisma/client';
-import { Server as SocketIOServer } from 'socket.io'; 
+import { Server as SocketIOServer } from 'socket.io';
 
 
-export async function createTicket(subject: string, initialMessage: string, requesterId: string) {
+export async function createTicket(subject: string, initialMessage: string, requesterId: string, io: SocketIOServer) {
   const requester = await prisma.user.findUnique({
     where: { id: requesterId },
     select: { systemId: true }
@@ -22,6 +22,20 @@ export async function createTicket(subject: string, initialMessage: string, requ
         requesterId: requesterId,
         systemId: requester.systemId!,
       },
+      include: {
+        requester: {
+          select: {
+            fullname: true,
+            avatarUrl: true,
+            sector: true
+          }
+        },
+        system: {
+          select: {
+            hostname: true
+          }
+        }
+      }
     });
 
     await tx.message.create({
@@ -29,8 +43,11 @@ export async function createTicket(subject: string, initialMessage: string, requ
         content: initialMessage,
         ticketId: newTicket.id,
         senderId: requesterId,
+
       },
     });
+
+    io.to('support_staff').emit('newTicket', newTicket);
 
     return newTicket;
   });
@@ -40,18 +57,18 @@ export async function getTicketsByStatus(status: TicketStatus, userId: string, u
   const queryOptions: any = {
     orderBy: { createdAt: 'desc' },
     include: {
-      requester: { 
-        select: { 
-          fullname: true, 
+      requester: {
+        select: {
+          fullname: true,
           avatarUrl: true,
           sector: true,
-        } 
+        }
       },
       system: { select: { hostname: true } },
       assignee: {
         select: {
-            fullname: true,
-            avatarUrl: true,
+          fullname: true,
+          avatarUrl: true,
         }
       }
     }
@@ -62,7 +79,7 @@ export async function getTicketsByStatus(status: TicketStatus, userId: string, u
   if (status === 'PENDING' && (userRole === 'IT_SUPPORT' || userRole === 'ADMIN')) {
     whereClause.assigneeId = userId;
   }
-  
+
   queryOptions.where = whereClause;
 
   return prisma.ticket.findMany(queryOptions);
@@ -92,10 +109,10 @@ export async function getTicketDetails(ticketId: string, userId: string, userRol
 }
 
 export async function updateTicketStatus(
-  ticketId: string, 
-  newStatus: TicketStatus, 
+  ticketId: string,
+  newStatus: TicketStatus,
   itSupportUserId: string,
-  io: SocketIOServer 
+  io: SocketIOServer
 ) {
   const ticket = await prisma.ticket.findUnique({ where: { id: ticketId } });
   if (!ticket) {
@@ -142,21 +159,21 @@ export async function updateTicketStatus(
 
 
 export async function addMessageToTicket(ticketId: string, senderId: string, content: string, imageUrl: string | undefined, io: any) {
-    const ticket = await prisma.ticket.findUnique({ where: { id: ticketId } });
-    if (!ticket) {
-        throw new CustomError('Ticket not found', 404);
+  const ticket = await prisma.ticket.findUnique({ where: { id: ticketId } });
+  if (!ticket) {
+    throw new CustomError('Ticket not found', 404);
+  }
+
+  const newMessage = await prisma.message.create({
+    data: { content, imageUrl, ticketId, senderId },
+    include: {
+      sender: { select: { fullname: true, avatarUrl: true, role: true } }
     }
+  });
 
-    const newMessage = await prisma.message.create({
-        data: { content, imageUrl, ticketId, senderId },
-        include: {
-            sender: { select: { fullname: true, avatarUrl: true, role: true } }
-        }
-    });
+  io.to(ticketId).emit('receiveMessage', newMessage);
 
-    io.to(ticketId).emit('receiveMessage', newMessage);
-
-    return newMessage;
+  return newMessage;
 }
 
 export async function assignAndPendTicket(ticketId: string, itSupportUserId: string) {
@@ -204,7 +221,7 @@ export async function findActiveTicketForUser(requesterId: string) {
     where: {
       requesterId: requesterId,
       status: {
-        in: ['OPEN', 'PENDING'], 
+        in: ['OPEN', 'PENDING'],
       },
     },
     select: {

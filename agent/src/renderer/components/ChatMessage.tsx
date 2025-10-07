@@ -48,6 +48,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, currentUserId }) => 
         </div>
       )}
     </div>
+    
   );
 };
 
