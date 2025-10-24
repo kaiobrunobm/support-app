@@ -14,9 +14,9 @@ interface TabsProps {
 
 const Tabs: React.FC<TabsProps> = ({ tabs, activeTab, onTabClick }) => {
   return (
-    <div className="flex w-full justify-center">
+    <div className="flex w-full justify-center ">
       <nav 
-        className="flex space-x-1 rounded-lg bg-muted p-1"
+        className="flex space-x-1 rounded-lg bg-muted p-1 bg-border/30"
         aria-label="Tabs"
       >
         {tabs.map((tab) => (

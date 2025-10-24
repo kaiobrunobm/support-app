@@ -96,7 +96,7 @@ const UserPopover: React.FC<UserPopoverProps> = ({ user, system, context }) => {
                     <div className="relative flex flex-col bg-card p-4">
                       <div className="flex items-center justify-between gap-4">
                         <div className='flex items-center gap-3'>
-                          <div className="flex-shrink-0">
+                          <div className="flex-shrink-0 ring-2 ring-blue-500 rounded-full p-0.5">
                             <Avatar {...user} />
                           </div>
                           <div>

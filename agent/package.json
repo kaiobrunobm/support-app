@@ -1,7 +1,7 @@
 {
   "name": "system-pulse",
   "productName": "SystemPulse",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "private": true,
   "description": "System tray application for get user system information",
   "main": "dist/main/main.js",

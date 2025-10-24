@@ -1,13 +1,12 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router";
-import { SystemInfo, AppUser, SystemSummary, Ticket, Message, TicketSummary } from "../types";
+import { SystemInfo, AppUser, SystemSummary, Message, TicketSummary } from "../types";
 import io, { Socket } from 'socket.io-client';
 import * as apiService from '../api/apiService';
 import { config } from "../../config";
 import { useNotification } from "./NotificationContext";
 import axios from "axios";
 import { toast } from "sonner";
-import CustomToast from "../components/ChatToast";
 import ChatToast from "../components/ChatToast";
 
 export const apiClient = axios.create({
@@ -68,6 +67,7 @@ export const ContextProvider: React.FC<{ children: React.ReactNode }> = ({ child
           body: `De: ${ticket.requester.fullname}`,
           type: 'new-ticket',
           ticketId: ticket.id,
+          senderAvatarUrl: ticket.requester.avatarUrl,
         });
         
         setTicketsByStatus(prev => ({
@@ -100,10 +100,11 @@ export const ContextProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
         if ((isRequester || isAssignee) && isNotSender) {
           addNotification({
-            title: `Nova mensagem de ${message.sender.fullname}`,
-            body: `${message.content}`,
+            title: `Nova mensagem`,
+            body: `${message.sender.fullname} : ${message.content}`,
             type: 'new-message',
-            ticketId: message.ticketId
+            ticketId: message.ticketId,
+            senderAvatarUrl: message.sender.avatarUrl,  
           });
 
           return toast.custom((id) => (

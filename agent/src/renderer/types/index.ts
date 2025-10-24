@@ -215,5 +215,6 @@ export interface Notification {
   type: 'new-ticket' | 'new-message';
   ticketId: string;
   read: boolean;
+  senderAvatarUrl?: string;
   createdAt: string;
 }

@@ -52,15 +52,20 @@ const NotificationPopover: React.FC = () => {
                 <div
                   key={notification.id}
                   onClick={() => handleNotificationClick(notification)}
-                  className={`cursor-pointer border-t border-border p-4 transition-colors hover:bg-border/50 ${
-                    !notification.read ? 'bg-border/20' : ''
-                  }`}
-                >
-                  <p className="font-bold">{notification.title}</p>
-                  <p className="text-sm text-secondaryText">{notification.body}</p>
-                  <p className="mt-1 text-xs text-secondaryText/70">
-                    {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true, locale: ptBR })}
-                  </p>
+                  className={`cursor-pointer border-t border-border p-4 transition-colors hover:bg-border/50 ${!notification.read ? 'bg-border/20' : ''
+                    }`}                >
+                  <img
+                    src={notification.senderAvatarUrl || 'https://via.placeholder.com/40'}
+                    alt="User Avatar"
+                    className="h-10 w-10 rounded-full object-cover flex-shrink-0"
+                  />
+                  <div> {/* Wrap text content in a div */}
+                    <p className="font-bold">{notification.title}</p>
+                    <p className="text-sm text-secondaryText">{notification.body}</p>
+                    <p className="mt-1 text-xs text-secondaryText/70">
+                      {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true, locale: ptBR })}
+                    </p>
+                  </div>
                 </div>
               ))
             ) : (
@@ -77,4 +82,3 @@ const NotificationPopover: React.FC = () => {
 };
 
 export default NotificationPopover;
-

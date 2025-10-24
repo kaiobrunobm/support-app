@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { Progress } from '@radix-ui/react-progress';
 
 const Updater: React.FC = () => {
   const [toastId, setToastId] = useState<string | number | null>(null);
@@ -22,8 +21,7 @@ const Updater: React.FC = () => {
           const percent = Math.round(progress.percent);
           toast.loading(
             <div className="w-full">
-                <p className="mb-2">Baixando atualização</p>
-                <Progress value={percent} className="w-full h-2 bg-text" />
+                <p className="mb-2">Baixando atualização {percent}%</p>            
             </div>, {
             id: toastId,
             duration: Infinity,

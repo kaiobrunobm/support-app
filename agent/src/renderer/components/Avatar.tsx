@@ -1,5 +1,4 @@
 import { UserIcon } from "@phosphor-icons/react";
-import { AppUser } from "../types";
 import React from "react";
 
 interface AvatarProps {
@@ -13,7 +12,7 @@ const Avatar: React.FC<AvatarProps> = ({ avatarUrl }) => {
     avatarUrl ? 
     <img src={avatarUrl} alt="user avatar" className='w-8 h-8 rounded-full bg-border flex items-center justify-center cursor-pointer '/> 
     :
-      <span className='w-8 h-8 rounded-full bg-border flex items-center justify-center cursor-pointer '>
+      <span className='w-8 h-8 rounded-full bg-border flex items-center justify-center cursor-pointer  '>
         <UserIcon size={20} />
       </span>
     }
